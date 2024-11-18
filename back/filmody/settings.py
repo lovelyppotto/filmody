@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -113,9 +115,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# env 파일 로드
+load_dotenv()
+KOBIS_API_KEY = os.environ.get('KOBIS_API_KEY')
+KMDB_API_KEY = os.environ.get('KMDB_API_KEY')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
+
 
 LANGUAGE_CODE = 'en-us'
 
