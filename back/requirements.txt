@@ -9,11 +9,14 @@ django-environ==0.11.2
 django-extensions==3.2.3
 djangorestframework==3.15.2
 drf-spectacular==0.27.2
+drf-yasg==1.21.8
 idna==3.10
 inflection==0.5.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
+packaging==24.2
 pillow==10.4.0
+pytz==2024.2
 PyYAML==6.0.2
 referencing==0.35.1
 requests==2.32.3

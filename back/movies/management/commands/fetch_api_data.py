@@ -27,8 +27,8 @@ class MovieFixturesCreator:
         self.timeout = 30  # API 요청 타임아웃 설정 증가
         
     def get_weekly_boxoffice(self, max_weeks=10):
-        """
-        최근 10주간의 박스오피스 데이터와 개봉 1년 이내, 전체관람가 일반 영화를 조합하여 반환
+        """ 
+        최근 10주간의 박스오피스 데이터와 평점 높은 영화를 조합하여 50개 반환
         """
         all_movies = {}
 
@@ -60,12 +60,11 @@ class MovieFixturesCreator:
             except Exception as e:
                 print(f"Error fetching boxoffice for week {week + 1}: {str(e)}")
 
-        # 2. 개봉 1년 이내, 전체관람가 일반 영화 목록 수집
-        print("\n2. Fetching general movie list...")
+        # 2. 평점 높은 영화 추가 수집 (최근 1년)
+        print("\n2. Fetching highly rated movies...")
         current_page = 1
-        max_pages = 5  # 최대 5페이지까지 시도
         
-        while len(all_movies) < 50 and current_page <= max_pages:
+        while len(all_movies) < 50:
             try:
                 response = requests.get(
                     "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json",
@@ -74,47 +73,51 @@ class MovieFixturesCreator:
                         'itemPerPage': 100,
                         'curPage': current_page,
                         'openStartDt': (datetime.now() - timedelta(days=365)).strftime('%Y%m%d'),
-                        'movieTypeCd': '220101',  # 장편영화
-                        'watchGradeCd': '210201'  # 전체관람가
+                        'movieTypeCd': '220101'  # 장편영화
                     },
                     timeout=self.timeout
                 )
                 response.raise_for_status()
-                data = response.json()
-                movie_list = data.get('movieListResult', {}).get('movieList', [])
+                movie_list = response.json().get('movieListResult', {}).get('movieList', [])
                 
-                added = 0
                 for movie in movie_list:
-                    if len(all_movies) >= 50:
-                        break
-                        
                     movie_cd = movie['movieCd']
                     if movie_cd not in all_movies:
-                        all_movies[movie_cd] = {
-                            'movieCd': movie_cd,
-                            'movieNm': movie['movieNm'],
-                            'openDt': movie.get('openDt', ''),
-                            'audiAcc': '0',
-                            'rank': str(len(all_movies) + 1)
-                        }
-                        added += 1
+                        # KMDB에서 평점 정보 가져오기
+                        kmdb_info = self.get_movie_details_from_kmdb(
+                            movie_title=movie['movieNm'],
+                            opendt=movie.get('openDt', '')
+                        )
+                        if kmdb_info and kmdb_info.get('rating'):
+                            all_movies[movie_cd] = {
+                                'movieCd': movie_cd,
+                                'movieNm': movie['movieNm'],
+                                'openDt': movie.get('openDt', ''),
+                                'audiAcc': '0',
+                                'rating': kmdb_info.get('rating', '0'),
+                                'rank': '0'
+                            }
                 
-                print(f"Page {current_page}: Added {added} movies. Total: {len(all_movies)}")
-                
-                if not movie_list:  # 더 이상 결과가 없으면 중단
-                    break
-                    
                 current_page += 1
                 time.sleep(2)
                 
             except Exception as e:
-                print(f"Error fetching movie list page {current_page}: {str(e)}")
+                print(f"Error fetching movie list: {str(e)}")
                 break
 
+        # 3. 영화 정렬 및 상위 50개 선택
         movies_list = list(all_movies.values())
-        result = sorted(movies_list[:50], key=lambda x: int(x.get('rank', '0')))
+        # 먼저 박스오피스 순위로 정렬
+        boxoffice_movies = [m for m in movies_list if int(m.get('rank', '0')) > 0]
+        other_movies = [m for m in movies_list if int(m.get('rank', '0')) == 0]
+        
+        # 나머지 영화는 평점순으로 정렬
+        other_movies.sort(key=lambda x: float(x.get('rating', '0')), reverse=True)
+        
+        # 결과 합치기
+        result = boxoffice_movies + other_movies[:50-len(boxoffice_movies)]
         print(f"\nFinal number of movies: {len(result)}")
-        return result
+        return result[:50]
 
     def get_movies_list(self, max_retries=5):
         """영화진흥위원회 API에서 영화 목록 조회"""
@@ -240,17 +243,50 @@ class MovieFixturesCreator:
             'rating': movie_data.get('rating', '')
         }
 
+    def create_director_fixtures(self, movie_details_list):
+        """감독 데이터를 수집하여 fixtures 파일 생성"""
+        director_fixtures = []
+        director_mapping = {}  # 감독 이름과 ID 매핑을 위한 딕셔너리
+        director_id = 1
+
+        for movie in movie_details_list:
+            directors = movie.get('director', '').split(', ')
+            for director_name in directors:
+                if director_name and director_name not in director_mapping:
+                    director_fixture = {
+                        "model": "movies.director",
+                        "pk": director_id,
+                        "fields": {
+                            "name": director_name,
+                            "created_at": datetime.now().strftime('%Y-%m-%d')
+                        }
+                    }
+                    director_fixtures.append(director_fixture)
+                    director_mapping[director_name] = director_id
+                    director_id += 1
+
+        # director.json 파일 저장
+        fixtures_path = Path('movies/fixtures/director.json')
+        fixtures_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(fixtures_path, 'w', encoding='utf-8') as f:
+            json.dump(director_fixtures, f, indent=4, ensure_ascii=False)
+
+        return director_mapping
+
     def create_fixtures(self):
-        """영화 데이터를 수집하여 fixtures 파일 생성"""
-        fixtures_data = []
+        """영화와 감독 데이터를 수집하여 fixtures 파일들 생성"""
+        movie_fixtures_data = []
+        movie_details_list = []
         
         try:
             boxoffice_list = self.get_weekly_boxoffice()
             logger.info(f"Successfully fetched {len(boxoffice_list)} movies from weekly boxoffice")
             
+            # 먼저 모든 영화 정보 수집
             for index, movie in enumerate(boxoffice_list, start=1):
                 logger.info(f"Processing ({index}/{len(boxoffice_list)}): {movie['movieNm']}")
-                time.sleep(1)  # API 요청 간격 증가
+                time.sleep(1)
                 
                 kobis_details = self.get_movie_details_from_kobis(movie['movieCd'])
                 directors = [director['peopleNm'] for director in kobis_details.get('directors', [])]
@@ -260,42 +296,53 @@ class MovieFixturesCreator:
                     directors=directors,
                     opendt=kobis_details.get('openDt')
                 )
-                
+                movie_details['rank'] = int(movie.get('rank', 0))
+                movie_details['title'] = movie.get('movieNm', '')
                 try:
-                    audience_acc = int(movie.get('audiAcc', 0))
+                    movie_details['audience_acc'] = int(movie.get('audiAcc', 0))
                 except (ValueError, TypeError):
-                    audience_acc = 0
-                    
+                    movie_details['audience_acc'] = 0
+                movie_details['open_year'] = kobis_details.get('openDt', '')[:4]
+                
+                movie_details_list.append(movie_details)
+
+            # 감독 fixtures 생성 및 매핑 정보 받기
+            director_mapping = self.create_director_fixtures(movie_details_list)
+            
+            # 영화 fixtures 생성
+            for index, movie_details in enumerate(movie_details_list, start=1):
+                director_name = movie_details.get('director', '').split(', ')[0]  # 첫 번째 감독 선택
+                director_id = director_mapping.get(director_name, 1)  # 매핑된 감독 ID 가져오기
+                
                 fixture = {
-                    "model": "movies.movie",  # 앱 이름이 'movies'임을 반영
+                    "model": "movies.movie",
                     "pk": index,
                     "fields": {
-                        "rank": int(movie.get('rank', 0)),
-                        "title": movie.get('movieNm', ''),
-                        "audience_acc": audience_acc,
-                        "director": movie_details.get('director', ''),
+                        "rank": movie_details['rank'],
+                        "title": movie_details['title'],
+                        "audience_acc": movie_details['audience_acc'],
+                        "director": director_id,  # ForeignKey를 위한 감독 ID
                         "genre": movie_details.get('genre', ''),
                         "poster_url": movie_details.get('poster_url', ''),
                         "plot": movie_details.get('plot', ''),
                         "actors": movie_details.get('actors', ''),
-                        "open_year": kobis_details.get('openDt', '')[:4],
+                        "open_year": movie_details['open_year'],
                         "nation": movie_details.get('nation', ''),
                         "rating": movie_details.get('rating', ''),
                         "created_at": datetime.now().strftime('%Y-%m-%d')
                     }
                 }
-                
-                fixtures_data.append(fixture)
+                movie_fixtures_data.append(fixture)
             
-            # fixtures 파일 저장
-            fixtures_path = Path('movies/fixtures/boxoffice.json')  # 앱 이름이 'movies'임을 반영
+            # boxoffice.json 파일 저장
+            fixtures_path = Path('movies/fixtures/boxoffice.json')
             fixtures_path.parent.mkdir(parents=True, exist_ok=True)
             
             with open(fixtures_path, 'w', encoding='utf-8') as f:
-                json.dump(fixtures_data, f, indent=4, ensure_ascii=False)
+                json.dump(movie_fixtures_data, f, indent=4, ensure_ascii=False)
             
-            logger.info(f"Successfully created fixtures for {len(fixtures_data)} movies")
-            return fixtures_data
+            logger.info(f"Successfully created fixtures for {len(movie_fixtures_data)} movies and their directors")
+            return movie_fixtures_data
             
         except Exception as e:
             logger.error(f"Failed to create fixtures: {str(e)}")

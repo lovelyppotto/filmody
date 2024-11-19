@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'movies',
     'accounts',
     'playlists',
+    'drf_yasg',
     'rest_framework',
     'drf_spectacular',
     'django.contrib.admin',
