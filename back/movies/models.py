@@ -11,7 +11,6 @@ class Movie(models.Model):
     plot = models.TextField()
     actors = models.CharField(max_length=500)
     production_year = models.CharField(max_length=4)
-    show_time = models.CharField(max_length=10)
     nation = models.CharField(max_length=100)
     rating = models.CharField(max_length=100)
     created_at = models.DateField()

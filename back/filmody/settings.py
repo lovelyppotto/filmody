@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from http.client import BAD_GATEWAY
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,9 +34,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'movie',
-    'account',
-    'playlist',
+    'movies',
+    'accounts',
+    'playlists',
     'rest_framework',
     'drf_spectacular',
     'django.contrib.admin',
@@ -116,9 +117,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # env 파일 로드
-load_dotenv()
-KOBIS_API_KEY = os.environ.get('KOBIS_API_KEY')
-KMDB_API_KEY = os.environ.get('KMDB_API_KEY')
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / '.env')  # .env 파일 읽기
+
+# API Keys
+KOBIS_API_KEY = env('KOBIS_API_KEY')
+KMDB_API_KEY = env('KMDB_API_KEY')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
