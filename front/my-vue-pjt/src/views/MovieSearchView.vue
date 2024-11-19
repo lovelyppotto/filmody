@@ -1,76 +1,68 @@
+// views/MovieSearch.vue
 <template>
     <div class="search-container">
         <SearchInput 
             v-model="searchQuery"
-            :is-loading="isLoading"
+            :is-loading="movieStore.isLoading"
         />
         <SearchResults 
-            :results="SearchResults"
-            @select="selecteMovie"
+            :results="movieStore.searchResults"
+            @select="movieStore.selectMovie"
         />
 
-        <div v-if="selectedMovie" class="selected-movie">
+        <div v-if="movieStore.selectedMovie" class="selected-movie">
             <h2>선택된 영화</h2>
             <div class="movie-detail">
-                <h3>{{ selectedMovie.title }}</h3>
-                <p>감독: {{ selectedMovie.director }}</p>
-                <p>개봉년도: {{ selectedMovie.releaseYear }}</p>
-                <button @click="searchPlaylist" class="search-playlist-btn">
-                플레이리스트 검색
+                <h3>{{ movieStore.selectedMovie.title }}</h3>
+                <p>감독: {{ movieStore.selectedMovie.director }}</p>
+                <p>개봉년도: {{ movieStore.selectedMovie.releaseYear }}</p>
+                <button 
+                    @click="createPlaylist" 
+                    :disabled="playlistStore.isLoading"
+                    class="create-playlist-btn"
+                >
+                    {{ playlistStore.isLoading ? '플레이리스트 생성 중...' : 'OST 플레이리스트 생성' }}
                 </button>
             </div>  
+        </div>
+
+        <!-- 저장된 플레이리스트 목록 -->
+        <div v-if="playlistStore.playlists.length > 0" class="playlist-list">
+            <h3>내 플레이리스트</h3>
+            <div v-for="playlist in playlistStore.playlists" :key="playlist.id" class="playlist-item">
+                <p>{{ playlist.movie_title }}</p>
+                <a :href="playlist.spotify_url" target="_blank" class="spotify-link">
+                    스포티파이에서 열기
+                </a>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useMovieStore, usePlaylistStore } from '@/stores/store'
 import SearchInput from '@/components/SearchInput.vue'
 import SearchResults from '@/components/SearchResults.vue'
-import axios from 'axios'
+
+const movieStore = useMovieStore()
+const playlistStore = usePlaylistStore()
 
 const searchQuery = ref('')
-const searchResults = ref([])
-const selectedMovie = ref(null)
-const isLoading = ref(false)
 
-watch(searchQuery, async (newQuery) => {
-  if (newQuery.length < 2) {
-    searchResults.value = []
-    return
-  }
-  
-  try {
-    isLoading.value = true
-    const response = await axios.get('/api/movies/search', {
-      params: { query: newQuery }
-    })
-    searchResults.value = response.data
-  } catch (error) {
-    console.error('검색 중 오류 발생:', error)
-  } finally {
-    isLoading.value = false
-  }
+watch(searchQuery, (payload) => {
+    if (payload.length >= 2) {
+        movieStore.handleSearch(payload.value)
+    }
 }, { debounce: 300 })
 
-const selectMovie = (movie) => {
-  selectedMovie.value = movie
-  searchResults.value = []
-  searchQuery.value = ''
+const createPlaylist = () => {
+    if (movieStore.selectedMovie) {
+        playlistStore.createPlaylist(movieStore.selectedMovie)
+    }
 }
 
-const searchPlaylist = async () => {
-  if (!selectedMovie.value) return
-  try {
-    // 여기에 플레이리스트 검색 로직 추가
-    console.log(`${selectedMovie.value.title} 관련 플레이리스트 검색 중...`)
-  } catch (error) {
-    console.error('플레이리스트 검색 중 오류:', error)
-  }
-}
-
+onMounted(() => {
+    playlistStore.getUserPlaylists()
+})
 </script>
-
-<style scoped>
-
-</style>

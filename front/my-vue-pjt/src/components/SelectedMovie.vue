@@ -1,6 +1,5 @@
 <template>
 <div v-if="movie" class="selected-movie">
-    <h2>선택된 영화</h2>
     <div class="movie-detail">
     <h3>{{ movie.title }}</h3>
     <p>감독: {{ movie.director }}</p>
