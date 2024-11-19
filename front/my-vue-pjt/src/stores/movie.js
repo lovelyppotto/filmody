@@ -99,46 +99,7 @@ export const useMovieStore = defineStore("movie", () => {
         console.log(err);
       });
   };
-    
-    const fetchTopRatedMovies = () => {
-        axios({
-            method: 'get',
-            url: `${TMDB_API_URL}/movie/top_rated`,
-            params: {
-                api_key: TMDB_API_KEY,  // Bearer 토큰이 아닌 API 키 사용
-                language: 'ko-KR',
-                page: 1
-            }
-        })
-        .then(response => {
-            recommendMovies.value = response.data.results
-            // console.log(recommendMovies.value)
-        })
-        .catch(error => {
-            console.error('영화 데이터 로딩 실패:', error.response?.data || error)
-        })
-    }
 
-    const fetchMovieDetail = (movieId) => {
-        axios({
-            method: 'get',
-            url: `${TMDB_API_URL}/movie/${movieId}`,
-            params: {
-                api_key: TMDB_API_KEY,  
-                language: 'ko-KR',
-                page: 1
-            }
-        })
-        .then(response => {
-            movieDetail.value = response.data
-            console.log(movieDetail)
-        })
-        .catch(error => {
-            console.error('영화 세부정보 로딩 실패:', error.response?.data || error)
-        })
-    }
-
-  return {
     token,
     logIn,
     logOut,
