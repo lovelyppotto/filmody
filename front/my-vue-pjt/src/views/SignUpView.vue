@@ -11,10 +11,10 @@
         <label for="password2">비밀번호 확인 : </label>
         <input type="password" id="password2" v-model.trim="password2">
 
-        <!-- <div>
+        <div>
             <label for="nickname">닉네임 : </label>
             <input type="text" id="nickname" v-model.trim="nickname">
-        </div> -->
+        </div>
         <div>
             <label for="email">이메일 : </label>
             <input type="text" id="email" v-model.trim="email">
@@ -32,7 +32,7 @@
     const username = ref(null)
     const password1 = ref(null)
     const password2 = ref(null)
-    // const nickname = ref(null)
+    const nickname = ref(null)
     const email = ref(null)
 
     const signUp = function () {
@@ -40,7 +40,7 @@
         username: username.value,
         password1: password1.value,
         password2: password2.value,
-        // nickname: nickname.value,
+        nickname: nickname.value,
         email: email.value
     }
     store.signUp(payload)

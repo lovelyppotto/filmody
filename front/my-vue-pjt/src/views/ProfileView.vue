@@ -23,7 +23,7 @@
             <div>
                 <label for="new_password2">
                     새 비밀번호 확인 :
-                    <input type="password" id="new_password2" v-model="passwords.new_password1">
+                    <input type="password" id="new_password2" v-model="passwords.new_password2">
                 </label>
             </div>
             <div>
@@ -70,11 +70,20 @@ const passwords = ref({
 
 // 정보 수정
 const updateProfile = () =>{
+    const storedToken = store.token
+    // 비밀번호, 비밀번호 확인이 다를 때
+    if (passwords.value.new_password1 !== passwords.value.new_password2) {
+        alert('새 비밀번호가 일치하지 않습니다.')
+        return
+    }
     // 비번 변경 있을 때
     if (passwords.value.new_password1) {
         axios({
             method:'post',
             url: `${store.BASE_URL}/accounts/password/change/`,
+            headers: {
+                Authorization: `Token ${storedToken}`
+            },
             data: {
                 current_password : passwords.value.current_password,
                 new_password1 : passwords.value.new_password1,
@@ -84,11 +93,15 @@ const updateProfile = () =>{
         .then(() => {
             // 비번 변경 성공 후 프로필 정보 업데이트
             axios({
-                method: 'patch',  // 일부 정보 수정
-                url: 'http://127.0.0.1:8000/accounts/user/',
+                method: 'put',  
+                url: `${store.BASE_URL}/accounts/user/`,
+                headers: {
+                    Authorization: `Token ${storedToken}`
+                },
                 data: {
                     nickname: userInfo.value.nickname,
-                    email: userInfo.value.email
+                    email: userInfo.value.email,
+                    show_reviews: userInfo.value.show_reviews
                 }
             })
             .then(() => {
@@ -106,8 +119,11 @@ const updateProfile = () =>{
     } else {
         // 비번 변경 없이 다른 정보만 수정
         axios({
-            method:'post',
-            url: 'http://127.0.0.1:8000/accounts/user/',
+            method:'put',
+            url: `${store.BASE_URL}/accounts/user/`,
+            headers: {
+                    Authorization: `Token ${storedToken}`
+                },
             data: {
                     nickname: userInfo.value.nickname,
                     email: userInfo.value.email
@@ -125,18 +141,19 @@ const updateProfile = () =>{
 
 // 사용자 정보 가져오기
 onMounted(() => {
+    const storedToken = store.token
     axios({
         method: 'get',
         url:`${store.BASE_URL}/accounts/user/`,
         headers: {
-            Authorization: `Token ${store.token}`  // 토큰이 필요한 경우
+            Authorization: `Token ${storedToken}`
         }
     })
     .then((res) => {
         userInfo.value = res.data
     })
     .catch((error) => {
-        console.log(error);
+        console.log('사용자 정보 가져오기 실패 : ',error);
     })
 })
 </script>

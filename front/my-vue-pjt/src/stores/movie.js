@@ -16,7 +16,7 @@ export const useMovieStore = defineStore("movie", () => {
 
     // 회원가입
     const signUp = function (payload) {
-      const { username, password1, password2, email } = payload
+      const { username, password1, password2, email, nickname } = payload
       // 비밀번호, 비밀번호 확인이 일치하는지
       if (password1 != password2){
         alert('비밀번호가 일치하지 않습니다.')
@@ -27,7 +27,7 @@ export const useMovieStore = defineStore("movie", () => {
         method: 'post',
         url: `${BASE_URL}/accounts/signup/`,
         data: {
-          username, password1, password2, email
+          username, password1, password2, email, nickname
         }
       })
         .then((res) => {
@@ -110,7 +110,5 @@ export const useMovieStore = defineStore("movie", () => {
     movieDetail,
     searchReview,
     recommendMovies,
-    fetchTopRatedMovies,
-    fetchMovieDetail,
-  };
+  }
 }, { persist: true });
