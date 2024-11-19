@@ -5,7 +5,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-                <a class="navbar-brand" href="#">Movie Site</a>
+                <RouterLink class="navbar-brand" :to="{name:'HomeView'}">Filmody</RouterLink>
+                <!-- <a class="navbar-brand" href="#">Filmody</a> -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <RouterLink 
@@ -13,7 +14,16 @@
                             :class="{ active: $route.path === '/' }"
                             to="/"
                         >
-                            Home
+                            Library
+                        </RouterLink>
+                    </li>
+                    <li class="nav-item">
+                        <RouterLink 
+                            class="nav-link" 
+                            :class="{ active: $route.path === '/' }"
+                            to="/"
+                        >
+                            Playlist
                         </RouterLink>
                     </li>
                     <li class="nav-item">
@@ -26,10 +36,15 @@
                         </RouterLink>
                     </li>
                 </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="제목을 입력하세요" aria-label="Search" v-model.trim="keyword" @keyup.enter="search" />
-          <button class="btn btn-outline-success" type="submit" @click.prevent="searchReview()">Search</button>
-        </form>
+                <div class="d-flex align-items-center">
+                    <form class="d-flex me-2" role="search">
+                        <input class="form-control me-2" type="search" placeholder="제목을 입력하세요" aria-label="Search" v-model.trim="keyword" @keyup.enter="search" />
+                        <button class="btn btn-outline-success" type="submit" @click.prevent="searchReview()">Search</button>
+                    </form>
+                    <form @submit.prevent="logOut" class="d-flex">
+                        <button class="btn btn-outline-danger" type="submit" v-if="store.token">Logout</button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
@@ -49,5 +64,9 @@ const searchReview = () => {
   }
   store.searchReview(keyword.value);
   keyword.value = "";
+};
+
+const logOut = () => {
+  store.logOut();
 };
 </script>

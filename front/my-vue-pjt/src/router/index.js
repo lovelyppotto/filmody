@@ -4,6 +4,8 @@ import MovieListView from "@/views/MovieListView.vue";
 import ReviewSearchView from "@/views/ReviewSearchView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import RecommendedView from '@/views/RecommendedView.vue'  // 파일명 확인
+import SignUpView from "@/views/SignUpView.vue";
+import LogInView from "@/views/LogInView.vue";
 
 
 const router = createRouter({
@@ -13,6 +15,16 @@ const router = createRouter({
       path: "/",
       name: "HomeView",
       component: HomeView,
+    },
+    {
+      path: '/signup',
+      name: 'SignUpView',
+      component: SignUpView
+    },
+    {
+      path: '/login',
+      name: 'LogInView',
+      component: LogInView
     },
     {
       path: "/movies",

@@ -1,12 +1,15 @@
 <template>
   <AppNavbar />
   <div class="content-wrapper">
+    <RouterLink :to="{name: 'SignUpView'}">SignUpView</RouterLink> |
+    <RouterLink :to="{name: 'LogInView'}">LogInView</RouterLink> 
     <RouterView />
   </div>
 </template>
 
 <script setup>
 import AppNavbar from "@/components/Common/AppNavbar.vue";
+import { RouterView, RouterLink } from 'vue-router'
 </script>
 
 <style scoped>
