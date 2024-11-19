@@ -10,7 +10,7 @@ class Movie(models.Model):
     poster_url = models.URLField(max_length=500)
     plot = models.TextField()
     actors = models.CharField(max_length=500)
-    production_year = models.CharField(max_length=4)
+    open_year = models.CharField(max_length=4)
     nation = models.CharField(max_length=100)
     rating = models.CharField(max_length=100)
     created_at = models.DateField()
