@@ -1,12 +1,20 @@
 <template>
   <AppNavbar />
   <div class="content-wrapper">
+    <RouterLink :to="{name: 'SignUpView'}">SignUpView</RouterLink> |
+    <RouterLink :to="{name: 'LogInView'}">LogInView</RouterLink> |
+    <div  v-if="store.token">
+      <RouterLink :to="{path: '/profile/' + username}">ProfileView</RouterLink> |
+    </div>
     <RouterView />
   </div>
 </template>
 
 <script setup>
 import AppNavbar from "@/components/Common/AppNavbar.vue";
+import { RouterView, RouterLink } from 'vue-router'
+import { useMovieStore } from "./stores/movie";
+const store = useMovieStore()
 </script>
 
 <style scoped>
