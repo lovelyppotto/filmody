@@ -99,7 +99,7 @@ export const useMovieStore = defineStore("movie", () => {
         console.log(err);
       });
   };
-
+  return{
     token,
     logIn,
     logOut,
