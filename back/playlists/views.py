@@ -1,3 +1,4 @@
+from sqlite3 import IntegrityError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -97,8 +98,14 @@ def review_manage(request, playlist_id):
         # 새 리뷰 생성
         serializer = PlaylistReviewSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user, playlist=playlist)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save(user=request.user, playlist=playlist)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
+                    {'error': '이미 해당 플레이리스트의 리뷰를 작성하셨습니다.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 기존 리뷰 존재 여부 확인 (수정/삭제)
@@ -132,11 +139,39 @@ def playlist_reviews(request, playlist_id):
     except Playlist.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+# 리뷰 좋아요 기능
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def review_toggle_like(request, playlist_id, review_id):
+    try:
+        review = PlaylistReview.objects.get(
+            id=review_id,
+            playlist_id = playlist_id
+            )
+    except PlaylistReview.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # 해당 유저의 좋아요 여부
+    is_liked = review.likes.filter(id=request.user.id).exists()
+
+    if request.user in review.likes.all():
+        review.likes.remove(request.user)
+        liked = False
+    else:
+        review.likes.add(request.user)
+        liked = True
+    
+    return Response({
+        'liked': liked,
+        'likes_count': review.likes.count(),
+        'is_liked_by_user': not is_liked  # toggle 된 상태 반환
+    })
+
 
 # 플레이리스트 좋아요/좋아요 취소
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def toggle_like(request, playlist_id):
+def playlist_toggle_like(request, playlist_id):
     try:
         playlist = Playlist.objects.get(id=playlist_id)
         

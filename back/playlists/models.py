@@ -10,7 +10,7 @@ class Playlist(models.Model):
     is_public = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='saved_playlists', blank=True)  # 'liked_playlists'를 'saved_playlists'로 변경
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_playlists', blank=True)  
 
     class Meta:
         ordering = ['-created_at']
@@ -39,6 +39,7 @@ class PlaylistReview(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_review', blank=True)
 
     class Meta:
         ordering = ['-created_at']
