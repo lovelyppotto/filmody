@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Playlist, PlaylistReview, PlaylistVideo
 from .serializers import PlaylistSerializer, PlaylistReviewSerializer, PlaylistVideoSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from django.db.models import Q
 
 
 # 플레이리스트 조회 / 생성
@@ -27,16 +28,50 @@ def playlist_view(request):
         
         serializer = PlaylistSerializer(playlists, many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def playlist_detail_view(request, playlist_id):
+    try:
+        # 공개 플레이리스트이거나 본인의 플레이리스트만 조회 가능
+        playlist = Playlist.objects.get(
+            Q(id=playlist_id) & 
+            (Q(is_public=True) | Q(user=request.user))
+        )
+    except Playlist.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = PlaylistSerializer(playlist)
+        return Response(serializer.data)
     
+    # 본인의 플레이리스트만 수정/삭제 가능
+    if playlist.user != request.user:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'PUT':
+        serializer = PlaylistSerializer(playlist, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        playlist.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
-def add_video(request, playlist_id):
-    # 플레이리스트 영상 추가하는 뷰 함수
+def playlist_video_view(request, playlist_id):
     try:
         playlist = Playlist.objects.get(id=playlist_id, user=request.user)
-        
-        # 현재 플레이리스트의 마지막 order_num 가져오기
+    except Playlist.DoesNotExist:
+        return Response({'error': '플레이리스트를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        # 마지막 order_num 가져오기
         last_video = PlaylistVideo.objects.filter(playlist=playlist).order_by('-order_num').first()
         next_order = (last_video.order_num + 1) if last_video else 1
         
@@ -48,11 +83,30 @@ def add_video(request, playlist_id):
             'order_num': next_order
         }
         
-        playlist_video = PlaylistVideo.objects.create(**video_data)
-        return Response(PlaylistVideoSerializer(playlist_video).data, status=status.HTTP_201_CREATED)
-        
-    except Playlist.DoesNotExist:
-        return Response({'error': '플레이리스트를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            playlist_video = PlaylistVideo.objects.create(**video_data)
+            return Response(PlaylistVideoSerializer(playlist_video).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        video_id = request.data.get('video_id')
+        if not video_id:
+            return Response({'error': 'video_id가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            video = PlaylistVideo.objects.get(playlist=playlist, id=video_id)
+            video.delete()
+            
+            # 순서 재정렬
+            remaining_videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('order_num')
+            for index, video in enumerate(remaining_videos, 1):
+                video.order_num = index
+                video.save()
+                
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except PlaylistVideo.DoesNotExist:
+            return Response({'error': '영상을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['DELETE'])

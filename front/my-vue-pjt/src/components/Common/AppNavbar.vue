@@ -20,8 +20,8 @@
                     <li class="nav-item">
                         <RouterLink 
                             class="nav-link" 
-                            :class="{ active: $route.path === '/' }"
-                            to="/"
+                            :class="{ active: $route.path === '/PlaylistView' }"
+                            to="/PlaylistView"
                         >
                             Playlist
                         </RouterLink>

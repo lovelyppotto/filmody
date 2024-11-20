@@ -6,7 +6,6 @@ import router from "@/router";
 
 export const useMovieStore = defineStore("movie", () => {
   const BASE_URL = 'http://127.0.0.1:8000'
-  const token = ref(null)
   const videos = ref([]);
 
   // 검색결과
@@ -19,74 +18,7 @@ export const useMovieStore = defineStore("movie", () => {
 
   const getVideos = computed(() => videos.value);
   const API_KEY = import.meta.env.VITE_APP_YOUTUBE_API_KEY;
-  // const TMDB_API_URL = 'https://api.themoviedb.org/3'
-  // const TMDB_API_KEY = import.meta.env.VITE_TMDB_KEY  // v3 API 키 사용
-
-    // 회원가입
-    const signUp = function (payload) {
-      const { username, password1, password2, email, nickname } = payload
-      console.log(payload)
-      // 비밀번호, 비밀번호 확인이 일치하는지
-      if (password1 != password2){
-        alert('비밀번호가 일치하지 않습니다.')
-        return
-      }
-
-      axios({
-        method: 'post',
-        url: `${BASE_URL}/accounts/signup/`,
-        data: {
-          username, password1, password2, email, nickname
-        }
-      })
-        .then((res) => {
-          // console.log(res)
-          // console.log('회원가입 성공')
-          const password = password1
-          logIn({ username, password })
-        })
-        .catch((err) => {
-          console.log(err.response.data)
-        })
-    }
-
-    // 로그인
-    const logIn = function (payload) {
-      const { username, password } = payload
-      axios({
-        method: 'post',
-        url: `${BASE_URL}/accounts/login/`,
-        data: {
-          username, password
-        }
-      })
-        .then((res) => {
-          localStorage.setItem('token', res.data.key)
-          token.value = res.data.key
-          router.push({ name: 'HomeView' })
-          // console.log(res.data)
-          console.log('로그인 성공')
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    }
-
-    // 로그아웃
-    const logOut = function () {
-      axios({
-        method:'post',
-        url:`${BASE_URL}/accounts/logout/`,
-      })
-      .then((res) => {
-        localStorage.removeItem('token')
-        token.value=null
-        router.push({name : 'HomeView'})
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-    }
+  
 
 
   // 유튜브 검색
@@ -123,7 +55,6 @@ export const useMovieStore = defineStore("movie", () => {
       params: { search: keyword }
     })
     .then((response) => {
-      console.log('API 응답 데이터:', response.data) // 데이터 구조 확인
       searchResults.value = response.data
     })
       .catch((error) => {
@@ -141,14 +72,10 @@ export const useMovieStore = defineStore("movie", () => {
   }
 
   return{
-    token,
-    logIn,
-    logOut,
     BASE_URL,
     searchResults,
     isLoading,
     searchQuery,
-    signUp,
     videos,
     getVideos,
     movieDetail,
