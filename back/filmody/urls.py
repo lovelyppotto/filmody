@@ -22,8 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/movie/', include('movies.urls')),
     path('api/playlist/', include('playlists.urls')),
-    path('accounts/', include('dj_rest_auth.urls')),
-    path('accounts/signup/', include('dj_rest_auth.registration.urls')),
+    path('accounts/', include('dj_rest_auth.urls')), # dj-rest-auth 기본 경로
+    path('accounts/', include('accounts.urls')),  # 커스텀 경로
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui')
 ]

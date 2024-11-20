@@ -14,7 +14,31 @@
 import AppNavbar from "@/components/Common/AppNavbar.vue";
 import { RouterView, RouterLink } from 'vue-router'
 import { useMovieStore } from "./stores/movie";
+import { onMounted } from "vue";
+import axios from "axios";
 const store = useMovieStore()
+
+// 토큰이 있으면 로그인 상태 유지
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if(token) {
+    axios({
+      method:'get',
+      url:`${store.BASE_URL}/accounts/user/`,
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    })
+    .then(() => {
+      store.token = token
+    })
+    .catch(() => {
+      // 토큰이 만료됐거나 유효하지 않을 때
+      localStorage.removeItem('token')
+      store.token = null
+    })
+  }
+})
 </script>
 
 <style scoped>
