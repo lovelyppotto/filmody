@@ -4,6 +4,7 @@
     <RouterLink :to="{name: 'SignUpView'}">SignUpView</RouterLink> |
     <RouterLink :to="{name: 'LogInView'}">LogInView</RouterLink> |
     <RouterLink :to="{name: 'MovieSearchView'}">Search</RouterLink> |
+    <RouterLink :to="{name: 'PlaylistView'}">Playlist</RouterLink>
     <div  v-if="store.token">
       <RouterLink :to="{path: '/profile/' + username}">ProfileView</RouterLink> |
     </div>
