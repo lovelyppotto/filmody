@@ -18,8 +18,8 @@ export const useMovieStore = defineStore("movie", () => {
 
   const getVideos = computed(() => videos.value);
   const API_KEY = import.meta.env.VITE_APP_YOUTUBE_API_KEY;
-  
-
+  // const TMDB_API_URL = 'https://api.themoviedb.org/3'
+  // const TMDB_API_KEY = import.meta.env.VITE_TMDB_KEY  // v3 API 키 사용
 
   // 유튜브 검색
   const searchReview = (keyword) => {
@@ -70,6 +70,7 @@ export const useMovieStore = defineStore("movie", () => {
   function clearSearchResults() {
     searchResults.value = []
   }
+
 
   return{
     BASE_URL,

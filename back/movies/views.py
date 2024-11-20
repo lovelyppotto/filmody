@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from pytz import timezone
 from rest_framework.response import Response
 from .serializers import MovieListSerializer, MovieDetailSerializer
 from rest_framework.decorators import api_view
@@ -6,6 +7,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from .models import Movie, Director, BoxOffice
 from django.db.models import Q
+
+from . import serializers
 
 @extend_schema(
     summary="영화 목록 조회 및 검색",
@@ -84,3 +87,12 @@ def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     serializer = MovieDetailSerializer(movie)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def box_office(request):
+    try:
+        movies = Movie.objects.all().order_by('pk')[:10]
+        serializer = MovieListSerializer(movies, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
