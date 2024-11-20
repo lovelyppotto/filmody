@@ -2,16 +2,26 @@ from rest_framework import serializers
 from .models import Playlist, PlaylistReview, PlaylistVideo
 
 class PlaylistSerializer(serializers.ModelSerializer):
+    cover_img = serializers.ImageField(required=False)  # required=False 추가
+
     class Meta:
         model = Playlist
         fields = ['id', 'title', 'cover_img', 'is_public', 'created_at', 'updated_at']
         read_only_fields = ['user']
 
     def get_cover_img(self, obj):
-        request = self.context.get('request')
         if obj.cover_img:
-            return request.build_absolute_uri(obj.cover_img.url)
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.cover_img.url)
         return None
+
+    def create(self, validated_data):
+        print('Validated data:', validated_data)  # 디버깅
+        instance = super().create(validated_data)
+        print('Created instance:', instance, instance.cover_img)  # 디버깅
+        return instance
+    
 
 class PlaylistReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()

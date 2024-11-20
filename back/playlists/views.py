@@ -15,10 +15,18 @@ from django.db.models import Q
 @permission_classes([IsAuthenticated])
 def playlist_view(request):
     if request.method == 'POST':
-        serializer = PlaylistSerializer(data=request.data)
+        print('FILES:', request.FILES)
+        print('POST data:', request.POST)
+        print('Request data:', request.data)  # 추가
+        
+        serializer = PlaylistSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            print('Serializer valid data:', serializer.validated_data)  # 추가
+            instance = serializer.save(user=request.user)
+            print('Saved instance:', instance, instance.cover_img)  # 추가
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print('Serializer errors:', serializer.errors)  # 추가
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     elif request.method == 'GET':
@@ -26,7 +34,7 @@ def playlist_view(request):
         user_playlists = Playlist.objects.filter(user=request.user)
         playlists = public_playlists | user_playlists
         
-        serializer = PlaylistSerializer(playlists, many=True)
+        serializer = PlaylistSerializer(playlists, many=True, context={'request': request})
         return Response(serializer.data)
 
 

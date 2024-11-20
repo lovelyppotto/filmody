@@ -6,6 +6,7 @@ import { useAuthStore } from './auth'
 
 export const usePlaylistStore = defineStore('playlist', () => {
   const playlists = ref([])
+  const reviews = ref({})
   const currentPlaylist = ref(null)
   const loading = ref(false)
   const error = ref(null)
@@ -108,15 +109,38 @@ export const usePlaylistStore = defineStore('playlist', () => {
       })
   }
 
+  // 해당 플레이리스트의 리뷰 가져오기
+  const fetchReviews = (playlistId) => {
+    if (reviews.value[playlistId]) {
+      return Promise.resolve(reviews.value[playlistId]); // 이미 리뷰가 있다면 그대로 반환
+    }
+    loading.value = true;
+    return apiRequest('get', `/api/playlist/${playlistId}/reviews/`)
+      .then((response) => {
+        reviews.value[playlistId] = response.data;
+        return response.data;
+      })
+      .catch((err) => {
+        console.error(`리뷰 가져오기 실패: ${err}`);
+        error.value = err.message;
+        reviews.value[playlistId] = [];
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  };
+
   return {
     apiRequest,
     playlists,
+    reviews,
     currentPlaylist,
     loading,
     error,
     fetchPlaylists,
     createPlaylist,
     updatePlaylist,
-    deletePlaylist
+    deletePlaylist,
+    fetchReviews
   }
 })

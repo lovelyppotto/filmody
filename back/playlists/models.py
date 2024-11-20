@@ -6,8 +6,11 @@ from django.conf import settings
 class Playlist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='playlists')
     title = models.CharField(max_length=50)
-    cover_img = models.ImageField(upload_to='uploads/', blank=True, null=True)
+    cover_img = models.ImageField(max_length=200)
     is_public = models.BooleanField()
+    # 있으면 좋을 법한 필드
+    # description = models.TextField(blank=True)  # 플레이리스트 설명
+    # view_count = models.PositiveIntegerField(default=0)  # 조회수
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_playlists', blank=True)  
