@@ -55,7 +55,6 @@ export const useMovieStore = defineStore("movie", () => {
       params: { search: keyword }
     })
     .then((response) => {
-      console.log('API 응답 데이터:', response.data) // 데이터 구조 확인
       searchResults.value = response.data
     })
       .catch((error) => {
