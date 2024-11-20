@@ -11,24 +11,20 @@ class MovietitleSerializer(serializers.ModelSerializer):
 class DirectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Director
-        fields = ('name',)
+        fields = ('id', 'name',)
 
 class MovieListSerializer(serializers.ModelSerializer):
+    director = DirectorSerializer(many=True, read_only=True)
     # 정렬 및 필터링에 필요한 정보
     class Meta:
         model = Movie
-        fields = (
-            'id',
-            'rank',
-            'title',
-            'audience_acc',
-            'genre',
-            'open_year',
-        )
+        fields = [
+            'id', 'title', 'director', 'genre', 
+            'open_year', 'rating', 'poster_url'
+        ]
 
 class MovieDetailSerializer(serializers.ModelSerializer):
     # 세부 정보에 넘길 내역들
-    director = DirectorSerializer(read_only=True)  # 감독 이름만 표시
     
     class Meta:
         model = Movie
