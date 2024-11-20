@@ -37,10 +37,6 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <form class="d-flex me-2" role="search">
-                        <input class="form-control me-2" type="search" placeholder="제목을 입력하세요" aria-label="Search" v-model.trim="keyword" @keyup.enter="search" />
-                        <button class="btn btn-outline-success" type="submit" @click.prevent="searchReview()">Search</button>
-                    </form>
                     <form @submit.prevent="logOut" class="d-flex">
                         <button class="btn btn-outline-danger" type="submit" v-if="store.token">Logout</button>
                     </form>
@@ -51,20 +47,11 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/auth';
 import { RouterLink } from 'vue-router'
-import { useMovieStore } from "@/stores/movie";
-import { ref } from "vue";
 
-const store = useMovieStore();
-const keyword = ref(null);
+const store = useAuthStore();
 
-const searchReview = () => {
-  if (keyword.value === "") {
-    alert("검색어를 입력하세요");
-  }
-  store.searchReview(keyword.value);
-  keyword.value = "";
-};
 
 const logOut = () => {
   store.logOut();

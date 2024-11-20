@@ -73,11 +73,11 @@
 </template>
 
 <script setup>
-import { useMovieStore } from '@/stores/movie';
+import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 
-const store = useMovieStore()
+const store = useAuthStore()
 const userInfo = ref({
     username: '',
     nickname: '',

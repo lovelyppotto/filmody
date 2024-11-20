@@ -25,9 +25,9 @@
 </template>
 
 <script setup>
-    import { useMovieStore } from '@/stores/movie';
+    import { useAuthStore } from '@/stores/auth';
     import { ref } from 'vue'
-    const store = useMovieStore()
+    const store = useAuthStore()
 
     const username = ref(null)
     const password1 = ref(null)
