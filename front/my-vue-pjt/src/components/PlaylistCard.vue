@@ -1,38 +1,24 @@
-<!-- components/VideoCard.vue -->
+<!-- components/PlaylistCard.vue -->
 <template>
-    <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-      <!-- 썸네일과 제목 영역 -->
-      <div class="flex items-center gap-4">
-        <div class="w-32 h-20 overflow-hidden rounded-md">
-          <img 
-            :src="video.thumbnail_url" 
-            :alt="video.title"
-            class="w-full h-full object-cover"
-          >
-        </div>
-        <div>
-          <h3 class="font-medium text-gray-800">{{ video.title }}</h3>
-          <p class="text-sm text-gray-500">{{ formatOrderNum }}</p>
-        </div>
+    <div class="playlist-card p-4 rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow">
+      <!-- 썸네일 영역 -->
+      <div class="aspect-square bg-gray-100 rounded-md overflow-hidden mb-4">
+        <img 
+          :src="thumbnailSrc"
+          :alt="playlist.title"
+          class="w-full h-full object-cover"
+        >
       </div>
   
-      <!-- 컨트롤 버튼들 -->
-      <div class="flex items-center gap-2">
-        <button 
-          @click="$emit('play')"
-          class="p-2 text-blue-500 hover:bg-blue-50 rounded-full"
-          title="재생"
-        >
-          ▶️
-        </button>
-        <button 
-          v-if="isEditable"
-          @click="$emit('remove')"
-          class="p-2 text-red-500 hover:bg-red-50 rounded-full"
-          title="삭제"
-        >
-          🗑️
-        </button>
+      <!-- 플레이리스트 정보 -->
+      <div class="playlist-info">
+        <h3 class="font-bold text-lg mb-1 truncate">{{ playlist.title }}</h3>
+        <div class="flex items-center text-sm text-gray-500">
+          <span v-if="!playlist.is_public" class="mr-2">🔒</span>
+          <span class="text-xs">
+            {{ formatDate(playlist.created_at) }}
+          </span>
+        </div>
       </div>
     </div>
   </template>
@@ -41,19 +27,37 @@
   import { computed } from 'vue'
   
   const props = defineProps({
-    video: {
+    playlist: {
       type: Object,
       required: true
-    },
-    isEditable: {
-      type: Boolean,
-      default: false
     }
   })
   
-  const formatOrderNum = computed(() => {
-    return `#${props.video.order_num}`
+  // 썸네일 URL 계산
+  const thumbnailSrc = computed(() => {
+    if (props.playlist.cover_img) {
+      return props.playlist.cover_img
+    }
+    // 기본 이미지 반환
+    return '/default-playlist-cover.jpg'  // 기본 이미지 경로
   })
   
-  defineEmits(['play', 'remove'])
+  // 날짜 포맷팅
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return date.toLocaleDateString()
+  }
   </script>
+  
+  <style scoped>
+  .playlist-card {
+    width: 100%;
+    max-width: 320px;
+    transition: all 0.2s ease;
+  }
+  
+  .playlist-card:hover {
+    transform: translateY(-2px);
+  }
+  </style>

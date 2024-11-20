@@ -170,6 +170,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# 이미지 저장 경로
+MEDIA_URL = '/media/'  # 클라이언트가 이미지를 접근할 때 사용할 URL 경로
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 실제 파일이 저장될 디렉터리
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -185,3 +190,11 @@ REST_AUTH = {
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.ProfileUpdateSerializer',
     'PASSWORD_CHANGE_SERIALIZER': 'dj_rest_auth.serializers.PasswordChangeSerializer',
 }
+
+
+# 세션 설정
+SESSION_COOKIE_NAME = 'sessionid'  # 기본값이지만 명시적으로 설정
+SESSION_COOKIE_SAMESITE = 'Lax'    # 개발 환경에서는 Lax
+SESSION_COOKIE_SECURE = False      # 개발 환경에서는 False (HTTPS 아닐때)
+SESSION_COOKIE_HTTPONLY = True     
+SESSION_COOKIE_DOMAIN = None       # 로컬 개발 환경에서는 None

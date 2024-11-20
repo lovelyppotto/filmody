@@ -1,4 +1,3 @@
-<!-- views/PlaylistListView.vue -->
 <template>
     <div class="container mx-auto p-4">
       <!-- 헤더 영역 -->
@@ -12,18 +11,13 @@
         </button>
       </div>
   
-      <!-- 로딩 상태 -->
+      <!-- 플레이리스트 로딩 상태 -->
       <div v-if="playlistStore.loading" class="text-center py-8">
         <p>로딩중...</p>
       </div>
   
-      <!-- 에러 메시지 -->
-      <div v-if="playlistStore.error" class="bg-red-100 text-red-700 p-4 rounded-lg mb-4">
-        {{ playlistStore.error }}
-      </div>
-  
       <!-- 플레이리스트 그리드 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <PlaylistCard
           v-for="playlist in playlistStore.playlists"
           :key="playlist.id"
@@ -46,18 +40,33 @@
                 required
               >
             </div>
+  
+            <!-- 이미지 업로드 -->
             <div class="mb-4">
-              <label class="block mb-2">설명</label>
-              <textarea
-                v-model="newPlaylist.description"
+              <label class="block mb-2">커버 이미지</label>
+              <input 
+                type="file"
+                @change="handleImageUpload"
+                accept="image/*"
                 class="w-full border rounded-lg px-3 py-2"
-                rows="3"
-              ></textarea>
+              >
             </div>
+  
+            <!-- 공개 여부 -->
+            <div class="mb-4">
+              <label class="flex items-center gap-2">
+                <input 
+                  type="checkbox"
+                  v-model="newPlaylist.is_public"
+                >
+                <span>공개</span>
+              </label>
+            </div>
+  
             <div class="flex justify-end gap-2">
               <button 
                 type="button"
-                @click="showCreateModal = false"
+                @click="closeCreateModal"
                 class="px-4 py-2 border rounded-lg"
               >
                 취소
@@ -65,8 +74,9 @@
               <button 
                 type="submit"
                 class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                :disabled="playlistStore.loading"
               >
-                만들기
+                {{ playlistStore.loading ? '생성 중...' : '만들기' }}
               </button>
             </div>
           </form>
@@ -79,42 +89,61 @@
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import { usePlaylistStore } from '@/stores/playlist'
-  import PlayListCard from '@/components/PlayListCard.vue';
+  import PlaylistCard from '@/components/PlaylistCard.vue'
   
   const router = useRouter()
   const playlistStore = usePlaylistStore()
   const showCreateModal = ref(false)
+  
   const newPlaylist = ref({
     title: '',
-    description: ''
+    cover_img: null,
+    is_public: true
   })
   
-  // 컴포넌트 마운트시 플레이리스트 목록 가져오기
-  onMounted(() => {
-    playlistStore.fetchPlaylists()
-      .then(() => {
-        console.log('플레이리스트 로드 완료')
-      })
-      .catch((error) => {
-        console.error('플레이리스트 로드 실패:', error)
-      })
-  })
+  const handleImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    newPlaylist.value.cover_img = file;
+    console.log('Uploaded file:', file);
+  }
+};
   
-  // 새 플레이리스트 생성
-  const createNewPlaylist = () => {
-    playlistStore.createPlaylist(newPlaylist.value)
-      .then(() => {
-        showCreateModal.value = false
-        newPlaylist.value = { title: '', description: '' }
-      })
-      .catch((error) => {
-        console.error('플레이리스트 생성 실패:', error)
-      })
+  // 플레이리스트 생성
+  const createNewPlaylist = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('title', newPlaylist.value.title);
+    formData.append('is_public', newPlaylist.value.is_public);
+    if (newPlaylist.value.cover_img) {
+      formData.append('cover_img', newPlaylist.value.cover_img);
+      console.log('FormData:', formData.get('cover_img')); // 디버깅용
+    }
+
+    await playlistStore.createPlaylist(formData);
+    closeCreateModal();
+  } catch (error) {
+    console.error('생성 실패:', error);
+  }
+};
+  
+  // 모달 닫기
+  const closeCreateModal = () => {
+    showCreateModal.value = false
+    newPlaylist.value = {
+      title: '',
+      cover_img: null,
+      is_public: true
+    }
   }
   
   // 상세 페이지로 이동
   const navigateToDetail = (playlistId) => {
     router.push(`/playlist/${playlistId}`)
   }
-  </script>
   
+  // 컴포넌트 마운트시 플레이리스트 목록 가져오기
+  onMounted(() => {
+    playlistStore.fetchPlaylists()
+  })
+  </script>
