@@ -1,14 +1,14 @@
 <template>
     <div v-if="store.movieDetail">  <!-- v-if 추가 -->
         <img 
-            :src="`https://image.tmdb.org/t/p/w500${store.movieDetail.poster_path}`" 
+            :src="`${store.movieDetail.poster_url}`" 
             :alt="store.movieDetail.title"
         >       
         <h4>{{ store.movieDetail.title }}</h4>
-        <p>장르: {{ genreList }}</p>
-        <p>{{ store.movieDetail.tagline }}</p>
-        <p>{{ store.movieDetail.overview }}</p>
-
+        <p>장르: {{ store.movieDetail.genre }}</p>
+        <p>감독: {{ store.movieDetail.director }}</p>
+        <p>개봉년도 : {{ store.movieDetail.open_year }}</p>
+        <p>줄거리 : {{ store.movieDetail.plot }}</p>
     </div>
 </template>
 
@@ -19,11 +19,6 @@ import { useRoute } from 'vue-router';
 
 const store = useMovieStore()
 const route = useRoute()
-
-const genreList = computed(() => {
-    if (!store.movieDetail.genres) return ''
-    return store.movieDetail.genres.map(genre => genre.name).join(', ')
-})
 
 onMounted(()=>{
     const movieId = route.params.id

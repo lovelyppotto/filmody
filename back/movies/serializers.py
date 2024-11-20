@@ -36,6 +36,7 @@ class MovieDetailSerializer(serializers.ModelSerializer):
             'genre',
             'plot',
             'open_year',
+            'poster_url',
         )
 
 class BoxOfficeSerializer(serializers.ModelSerializer):

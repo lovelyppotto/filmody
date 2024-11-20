@@ -1,19 +1,18 @@
-<!-- MovieListItem.vue -->
 <template>
     <div class="col-12 col-md-6 col-lg-3 mb-4">  <!-- 그리드 시스템 수정 -->
         <div class="card h-100" @click="goToDetail(movie.id)">  <!-- 높이 일정하게 -->
             <img 
-                :src="`https://image.tmdb.org/t/p/w500${movie.poster_path}`" 
+                :src="`${movie.poster_url}`" 
                 class="card-img-top"
                 :alt="movie.title"
                 style="object-fit: cover;"  
             >
             <div class="card-body">
                 <h5 class="card-title">{{ movie.title }}</h5>
-                <p class="card-text text-truncate">{{ movie.overview }}</p>  <!-- 긴 텍스트 자르기 -->
+                <p class="card-text">장르 : {{ movie.genre }}</p>
                 <p class="card-text">
                     <small class="text-muted">
-                        평점: {{ movie.vote_average }}
+                        등급: {{ movie.rating }}
                     </small>
                 </p>
             </div>
