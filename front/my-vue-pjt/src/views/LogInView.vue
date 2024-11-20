@@ -14,13 +14,13 @@
 </template>
 
 <script setup>
-import { useMovieStore } from '@/stores/movie';
+import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue'
 
 const username = ref(null)
 const password = ref(null)
 
-const store = useMovieStore()
+const store = useAuthStore()
 
 const logIn = function () {
   const payload = {

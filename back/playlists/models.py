@@ -4,7 +4,7 @@ from movies.models import Movie
 from django.conf import settings
 
 class Playlist(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='playlists')
     title = models.CharField(max_length=50)
     cover_img = models.CharField(max_length=200)
     is_public = models.BooleanField()
