@@ -7,6 +7,7 @@ import RecommendedView from '@/views/RecommendedView.vue'  // 파일명 확인
 import SignUpView from "@/views/SignUpView.vue";
 import LogInView from "@/views/LogInView.vue";
 import ProfileView from "@/views/ProfileView.vue";
+import MovieSearchView from "@/views/MovieSearchView.vue";
 
 
 const router = createRouter({
@@ -41,6 +42,11 @@ const router = createRouter({
       path: "/:movieId",
       name: "MovieDetailView",
       component: MovieDetailView,
+    },
+    {
+      path: "/movies/search",
+      name: "MovieSearchView",
+      component: MovieSearchView,
     },
     {
       path: "/review-search",

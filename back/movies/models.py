@@ -16,7 +16,7 @@ class Movie(models.Model):
     rank = models.IntegerField()
     title = models.CharField(max_length=100)
     audience_acc = models.IntegerField()
-    director = models.ForeignKey(Director, on_delete=models.CASCADE, related_name='movies')
+    director = models.ManyToManyField(Director, related_name='movies')
     genre = models.CharField(max_length=100)
     poster_url = models.CharField(max_length=500)
     plot = models.TextField()

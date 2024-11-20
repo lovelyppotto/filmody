@@ -37,14 +37,6 @@ from django.db.models import Q
 def movie_list(request):
     movies = Movie.objects.all()
     
-    # 검색어 처리
-    search = request.query_params.get('search', '')
-    if search:
-        movies = movies.filter(
-            Q(title__icontains=search) |  # 영화 제목으로 검색
-            Q(director__name__icontains=search)  # 감독명으로 검색
-        )
-    
     # 정렬 처리
     sort_by = request.query_params.get('sort_by', 'rank')
     order = request.query_params.get('order', 'asc')
@@ -56,6 +48,21 @@ def movie_list(request):
     
     serializer = MovieListSerializer(movies, many=True)
     return Response(serializer.data)
+
+
+# 영화 검색 기능 분리
+@api_view(['GET'])
+def movie_search(request):
+    # 검색어 가져오는 변수
+    search = request.query_params.get('search', '').strip()
+    movies = Movie.objects.filter(
+            Q(title__icontains=search) |  # 영화 제목으로 검색
+            Q(director__name__icontains=search)  # 감독명으로 검색
+        ).distinct().order_by('rank')  # distinct() 추가
+    
+    serializer = MovieListSerializer(movies, many=True)
+    return Response(serializer.data)
+
 
 @extend_schema(
     summary="영화 상세 정보 조회",
