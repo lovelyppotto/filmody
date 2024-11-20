@@ -177,3 +177,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # django-allauth 설정
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # 이메일 인증 비활성화
 ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필수
+
+# 별도의 view를 작성하지 않고 dj_rest_auth의 기본 기능을 커스텀 serializer와 함께 사용
+REST_AUTH = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.SignUpSerializer',
+    'USER_DETAILS_SERIALIZER': 'accounts.serializers.ProfileUpdateSerializer',
+    'PASSWORD_CHANGE_SERIALIZER': 'dj_rest_auth.serializers.PasswordChangeSerializer',
+}

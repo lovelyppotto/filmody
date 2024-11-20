@@ -17,6 +17,7 @@ export const useMovieStore = defineStore("movie", () => {
     // 회원가입
     const signUp = function (payload) {
       const { username, password1, password2, email, nickname } = payload
+      console.log(payload)
       // 비밀번호, 비밀번호 확인이 일치하는지
       if (password1 != password2){
         alert('비밀번호가 일치하지 않습니다.')
@@ -37,13 +38,12 @@ export const useMovieStore = defineStore("movie", () => {
           logIn({ username, password })
         })
         .catch((err) => {
-          console.log(er.response.data)
+          console.log(err.response.data)
         })
     }
+
     // 로그인
     const logIn = function (payload) {
-      // const username = payload.username
-      // const password1 = payload.password
       const { username, password } = payload
       axios({
         method: 'post',
@@ -53,6 +53,7 @@ export const useMovieStore = defineStore("movie", () => {
         }
       })
         .then((res) => {
+          localStorage.setItem('token', res.data.key)
           token.value = res.data.key
           router.push({ name: 'HomeView' })
           // console.log(res.data)
@@ -70,7 +71,7 @@ export const useMovieStore = defineStore("movie", () => {
         url:`${BASE_URL}/accounts/logout/`,
       })
       .then((res) => {
-        console.log(res.data);
+        localStorage.removeItem('token')
         token.value=null
         router.push({name : 'HomeView'})
       })
