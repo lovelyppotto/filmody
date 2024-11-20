@@ -7,6 +7,12 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'cover_img', 'is_public', 'created_at', 'updated_at']
         read_only_fields = ['user']
 
+    def get_cover_img(self, obj):
+        request = self.context.get('request')
+        if obj.cover_img:
+            return request.build_absolute_uri(obj.cover_img.url)
+        return None
+
 class PlaylistReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
 
