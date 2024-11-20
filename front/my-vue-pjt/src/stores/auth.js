@@ -46,11 +46,12 @@ export const useAuthStore = defineStore("auth", () => {
         }
       })
         .then((res) => {
-          localStorage.setItem('token', res.data.key)
           token.value = res.data.key
           router.push({ name: 'HomeView' })
           // console.log(res.data)
           console.log('로그인 성공')
+          console.log(res.data);
+          
         })
         .catch((err) => {
           console.log(err)
@@ -64,7 +65,6 @@ export const useAuthStore = defineStore("auth", () => {
         url:`${BASE_URL}/accounts/logout/`,
       })
       .then((res) => {
-        localStorage.removeItem('token')
         token.value=null
         router.push({name : 'HomeView'})
       })
@@ -72,11 +72,11 @@ export const useAuthStore = defineStore("auth", () => {
         console.log(err);
       })
     }
-  return{
-    token,
-    logIn,
-    logOut,
-    BASE_URL,
-    signUp,
-  }
-}, { persist: true });
+    return {
+      token,
+      logIn,
+      logOut,
+      BASE_URL,
+      signUp,
+    };
+  }, { persist: true });

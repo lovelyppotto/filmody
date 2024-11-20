@@ -13,7 +13,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useMovieStore } from '@/stores/movie.js'
-import MovieListItem from '@/components/MovieListItem.vue'
+import MovieListItem from '@/components/RecommendMovieListItem.vue'
 
 const store = useMovieStore()
 

@@ -1,3 +1,4 @@
+from pyexpat import model
 from rest_framework import serializers
 from dataclasses import fields
 from .models import Movie, BoxOffice, Director
@@ -36,3 +37,14 @@ class MovieDetailSerializer(serializers.ModelSerializer):
             'plot',
             'open_year',
         )
+
+class BoxOfficeSerializer(serializers.ModelSerializer):
+    movie = MovieListSerializer(read_only=True)
+
+    class Meta:
+        model = BoxOffice
+        fields = [
+            'rank',
+            'rank_date',
+            'movie'
+        ]
