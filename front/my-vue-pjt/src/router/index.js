@@ -9,6 +9,7 @@ import LogInView from "@/views/LogInView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import MovieSearchView from "@/views/MovieSearchView.vue";
 import PlaylistView from "@/views/PlaylistView.vue";
+import PlaylistDetail from "@/views/PlaylistDetail.vue";
 
 
 const router = createRouter({
@@ -69,6 +70,11 @@ const router = createRouter({
       name: 'PlaylistView',
       component: PlaylistView,
     },
+    {
+      path: '/playlist/:id',
+      name: 'playlist-detail',
+      component: PlaylistDetail,
+    }
   ],
 });
 

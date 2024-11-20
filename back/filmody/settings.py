@@ -198,3 +198,13 @@ SESSION_COOKIE_SAMESITE = 'Lax'    # 개발 환경에서는 Lax
 SESSION_COOKIE_SECURE = False      # 개발 환경에서는 False (HTTPS 아닐때)
 SESSION_COOKIE_HTTPONLY = True     
 SESSION_COOKIE_DOMAIN = None       # 로컬 개발 환경에서는 None
+
+
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
+# 파일 업로드 최대 크기 설정
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB

@@ -1,63 +1,87 @@
-<!-- components/PlaylistCard.vue -->
 <template>
-    <div class="playlist-card p-4 rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow">
-      <!-- 썸네일 영역 -->
-      <div class="aspect-square bg-gray-100 rounded-md overflow-hidden mb-4">
-        <img 
-          :src="thumbnailSrc"
-          :alt="playlist.title"
-          class="w-full h-full object-cover"
-        >
-      </div>
-  
-      <!-- 플레이리스트 정보 -->
-      <div class="playlist-info">
-        <h3 class="font-bold text-lg mb-1 truncate">{{ playlist.title }}</h3>
-        <div class="flex items-center text-sm text-gray-500">
-          <span v-if="!playlist.is_public" class="mr-2">🔒</span>
-          <span class="text-xs">
-            {{ formatDate(playlist.created_at) }}
-          </span>
-        </div>
+  <div class="card h-100 hover:shadow-lg transition-all cursor-pointer">
+    <!-- 이미지 섹션 -->
+    <div class="position-relative">
+      <img 
+        v-if="playlist.cover_img"
+        :src="playlist.cover_img"
+        :alt="playlist.title"
+        class="card-img-top"
+        style="height: 200px; object-fit: cover;"
+        @error="handleImageError"
+      />
+      <div 
+        v-else 
+        class="card-img-top bg-light d-flex align-items-center justify-content-center"
+        style="height: 200px;"
+      >
+        <span class="text-muted">No Image</span>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { computed } from 'vue'
-  
-  const props = defineProps({
-    playlist: {
-      type: Object,
-      required: true
-    }
+    
+    <!-- 카드 본문 -->
+    <div class="card-body">
+      <h5 class="card-title mb-1 text-truncate">{{ playlist.title }}</h5>
+      <p class="card-text">
+        <small class="text-muted">{{ formatDate(playlist.created_at) }}</small>
+      </p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const props = defineProps({
+  playlist: {
+    type: Object,
+    required: true
+  }
+})
+
+const handleImageError = (e) => {
+  const parentDiv = e.target.parentElement
+  parentDiv.innerHTML = `
+    <div 
+      class="card-img-top bg-light d-flex align-items-center justify-content-center"
+      style="height: 200px;"
+    >
+      <span class="text-muted">Image Error</span>
+    </div>
+  `
+}
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   })
-  
-  // 썸네일 URL 계산
-  const thumbnailSrc = computed(() => {
-    if (props.playlist.cover_img) {
-      return props.playlist.cover_img
-    }
-    // 기본 이미지 반환
-    return '/default-playlist-cover.jpg'  // 기본 이미지 경로
-  })
-  
-  // 날짜 포맷팅
-  const formatDate = (dateString) => {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    return date.toLocaleDateString()
-  }
-  </script>
-  
-  <style scoped>
-  .playlist-card {
-    width: 100%;
-    max-width: 320px;
-    transition: all 0.2s ease;
-  }
-  
-  .playlist-card:hover {
-    transform: translateY(-2px);
-  }
-  </style>
+}
+</script>
+
+<style scoped>
+.card {
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 0.5rem;
+  background-color: white;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+</style>
