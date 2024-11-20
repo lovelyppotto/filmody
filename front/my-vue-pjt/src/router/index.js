@@ -3,13 +3,13 @@ import MovieDetailView from "@/views/MovieDetailView.vue";
 import MovieListView from "@/views/MovieListView.vue";
 import ReviewSearchView from "@/views/ReviewSearchView.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import RecommendedView from '@/views/RecommendView.vue'  // 파일명 확인
 import SignUpView from "@/views/SignUpView.vue";
 import LogInView from "@/views/LogInView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import MovieSearchView from "@/views/MovieSearchView.vue";
 import PlaylistView from "@/views/PlaylistView.vue";
 import PlaylistDetail from "@/views/PlaylistDetail.vue";
+import RecommendView from "@/views/RecommendView.vue";
 
 
 const router = createRouter({
@@ -57,8 +57,8 @@ const router = createRouter({
     },
     {
       path: "/recommend",
-      name: "recommend",
-      component: RecommendedView,
+      name: "Recommend",
+      component: RecommendView,
     },
     {
       path: "/movies/:id",

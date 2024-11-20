@@ -71,6 +71,35 @@ export const useMovieStore = defineStore("movie", () => {
     searchResults.value = []
   }
 
+  // 박스오피스 영화 가져오기
+  const fetchRecommendMovies = () => {
+    axios({
+      method:'get',
+      url:`${BASE_URL}/api/movies/recommend/`,
+    })
+    .then((response) => {
+      // console.log(response.data)
+      recommendMovies.value = response.data
+    })
+    .catch((error) => {
+      console.error('추천 영화 데이터 로딩 실패:', error)
+    })
+  }
+
+  // 박스오피스 영화 클릭했을 때
+  const fetchMovieDetail = (movie_id) => {
+    axios({
+      method:'get',
+      url:`${BASE_URL}/api/movies/${movie_id}`,
+    })
+    .then((response) => {
+      console.log(response.data)
+      movieDetail.value = response.data
+    })
+    .catch((error) => {
+      console.error('영화 상세 데이터 로딩 실패:', error)
+    })
+  }
 
   return{
     BASE_URL,
@@ -84,6 +113,7 @@ export const useMovieStore = defineStore("movie", () => {
     recommendMovies,
     searchMovies,
     clearSearchResults,
-
+    fetchRecommendMovies,
+    fetchMovieDetail
   }
 }, { persist: true });
