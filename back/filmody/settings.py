@@ -150,6 +150,7 @@ environ.Env.read_env(BASE_DIR / '.env')  # .env 파일 읽기
 # API Keys
 KOBIS_API_KEY = env('KOBIS_API_KEY')
 KMDB_API_KEY = env('KMDB_API_KEY')
+YOUTUBE_API_KEY = env('YOUTUBE_API_KEY')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
