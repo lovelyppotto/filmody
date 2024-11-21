@@ -186,7 +186,7 @@ ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필수
 
 # 별도의 view를 작성하지 않고 dj_rest_auth의 기본 기능을 커스텀 serializer와 함께 사용
 REST_AUTH = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.SignUpSerializer',
+  'REGISTER_SERIALIZER': 'accounts.serializers.SignUpSerializer',
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.ProfileUpdateSerializer',
     'PASSWORD_CHANGE_SERIALIZER': 'dj_rest_auth.serializers.PasswordChangeSerializer',
 }
