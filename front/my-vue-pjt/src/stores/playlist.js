@@ -130,6 +130,22 @@ export const usePlaylistStore = defineStore('playlist', () => {
       });
   };
 
+  const addVideoToPlaylist = (playlistId, videoData) => {
+    return authRequest('post', `/api/playlist/${playlistId}/videos/`, videoData)
+      .then(response => {
+        // 플레이리스트의 비디오 목록 업데이트
+        const playlist = playlists.value.find(p => p.id === playlistId);
+        if (playlist) {
+          playlist.videos = [...playlist.videos, response.data];
+        }
+        return response.data;
+      })
+      .catch(error => {
+        console.error('비디오 추가 실패:', error);
+        throw error;
+      });
+  };
+
   return {
     apiRequest,
     playlists,
@@ -141,6 +157,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
-    fetchReviews
+    fetchReviews,
+    addVideoToPlaylist,
   }
 })
