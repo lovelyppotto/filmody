@@ -1,6 +1,4 @@
 import HomeView from "@/views/HomeView.vue";
-import MovieDetailView from "@/views/MovieDetailView.vue";
-import MovieListView from "@/views/MovieListView.vue";
 import ReviewSearchView from "@/views/ReviewSearchView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import SignUpView from "@/views/SignUpView.vue";
@@ -11,7 +9,8 @@ import PlaylistView from "@/views/PlaylistView.vue";
 import PlaylistDetail from "@/views/PlaylistDetail.vue";
 import RecommendView from "@/views/RecommendView.vue";
 import CreatePlaylistModal from "@/components/Playlist/CreatePlaylistModal.vue";
-
+import LibraryView from "@/views/LibraryView.vue";
+import MovieDetailView from "@/views/MovieDetailView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,16 +34,6 @@ const router = createRouter({
       path: '/profile/:username',
       name:'ProfileView',
       component: ProfileView
-    },
-    {
-      path: "/movies",
-      name: "MovieListView",
-      component: MovieListView,
-    },
-    {
-      path: "/:movieId",
-      name: "MovieDetailView",
-      component: MovieDetailView,
     },
     {
       path: "/movies/search",
@@ -72,6 +61,11 @@ const router = createRouter({
       component: PlaylistView,
     },
     {
+      path:'/library',
+      name: 'LibraryView',
+      component: LibraryView,
+    },
+    {
       path: '/playlist/:id',
       name: 'playlist-detail',
       component: PlaylistDetail,
@@ -80,7 +74,7 @@ const router = createRouter({
           path: 'reviews',
           name: 'PlaylistReviews',
           component: () => import('@/components/PlaylistReviews/PlaylistReviewList.vue')
-        }
+      }
       ]
     },
     {
