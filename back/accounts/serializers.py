@@ -31,7 +31,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'nickname', 'email', 'show_reviews')
-        read_only_fields = ('username', 'id', )
+        read_only_fields = ('username', 'id')
 
 class PasswordChangeSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(required=True)
