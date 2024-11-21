@@ -3,18 +3,25 @@ import { debounce } from "lodash"
 import { defineStore } from "pinia";
 import axios from "axios";
 import router from "@/router";
+import { useAuthStore } from "./auth";
 
 export const useMovieStore = defineStore("movie", () => {
+  const authStore = useAuthStore()
   const BASE_URL = 'http://127.0.0.1:8000'
   const videos = ref([]);
+  
+  // 박스 오피스 영화들
+  const recommendMovies = ref([]);
+  
+  // 내가 좋아요 한 영화들
+  const likedMovies = ref([]);
 
   // 검색결과
-  const searchResults = ref([])
-  const recommendMovies = ref([])
-  const movieDetail = ref([])
+  const searchResults = ref([]);
+  const movieDetail = ref([]);
 
-  const isLoading = ref(false)
-  const searchQuery = ref('')
+  const isLoading = ref(false);
+  const searchQuery = ref('');
 
   const getVideos = computed(() => videos.value);
   const API_KEY = import.meta.env.VITE_APP_YOUTUBE_API_KEY;
@@ -87,20 +94,40 @@ export const useMovieStore = defineStore("movie", () => {
   }
 
   // 박스오피스 영화 클릭했을 때
-  const fetchMovieDetail = (movie_id) => {
-    axios({
-      method:'get',
-      url:`${BASE_URL}/api/movies/${movie_id}`,
-    })
-    .then((response) => {
-      console.log(response.data)
-      movieDetail.value = response.data
-    })
-    .catch((error) => {
+  const fetchMovieDetail = async (movie_id) => {
+    try {
+      const token = authStore.token
+      const response = await axios({
+        method:'get',
+        url:`${BASE_URL}/api/movies/${movie_id}`,
+        headers: token ? {
+          Authorization: `Token ${token}`
+      } : {}
+      })
+        movieDetail.value = response.data
+        return response.data
+    } catch (error) {
       console.error('영화 상세 데이터 로딩 실패:', error)
-    })
+    }
   }
 
+    // 내가 좋아요한 영화 목록 불러오기
+    const fetchLikedMovies = () => {
+      axios({
+        method:'get',
+        url:`${BASE_URL}/api/movies/library/`,
+        headers: {
+          Authorization: `Token ${authStore.token}`,
+        }
+      })
+      .then((response) => {
+        console.log(response.data)
+        likedMovies.value = response.data
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+    }
   return{
     BASE_URL,
     searchResults,
@@ -114,6 +141,8 @@ export const useMovieStore = defineStore("movie", () => {
     searchMovies,
     clearSearchResults,
     fetchRecommendMovies,
-    fetchMovieDetail
+    fetchMovieDetail,
+    fetchLikedMovies,
+    likedMovies
   }
 }, { persist: true });

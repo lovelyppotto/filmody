@@ -1,6 +1,4 @@
 import HomeView from "@/views/HomeView.vue";
-import MovieDetailView from "@/views/MovieDetailView.vue";
-import MovieListView from "@/views/MovieListView.vue";
 import ReviewSearchView from "@/views/ReviewSearchView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import SignUpView from "@/views/SignUpView.vue";
@@ -9,6 +7,8 @@ import ProfileView from "@/views/ProfileView.vue";
 import MovieSearchView from "@/views/MovieSearchView.vue";
 import PlaylistView from "@/views/PlaylistView.vue";
 import RecommendView from "@/views/RecommendView.vue";
+import LibraryView from "@/views/LibraryView.vue";
+import MovieDetailView from "@/views/MovieDetailView.vue";
 
 
 const router = createRouter({
@@ -35,16 +35,6 @@ const router = createRouter({
       component: ProfileView
     },
     {
-      path: "/movies",
-      name: "MovieListView",
-      component: MovieListView,
-    },
-    {
-      path: "/:movieId",
-      name: "MovieDetailView",
-      component: MovieDetailView,
-    },
-    {
       path: "/movies/search",
       name: "MovieSearchView",
       component: MovieSearchView,
@@ -69,6 +59,11 @@ const router = createRouter({
       name: 'PlaylistView',
       component: PlaylistView,
     },
+    {
+      path:'/library',
+      name: 'LibraryView',
+      component: LibraryView,
+    }
   ],
 });
 

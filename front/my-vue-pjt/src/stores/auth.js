@@ -50,7 +50,7 @@ export const useAuthStore = defineStore("auth", () => {
           router.push({ name: 'HomeView' })
           // console.log(res.data)
           console.log('로그인 성공')
-          console.log(res.data);
+          // console.log(res.data);
           
         })
         .catch((err) => {

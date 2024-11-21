@@ -26,7 +26,9 @@ class MovieListSerializer(serializers.ModelSerializer):
 
 class MovieDetailSerializer(serializers.ModelSerializer):
     # 세부 정보에 넘길 내역들
-    
+    like_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    director = DirectorSerializer(many=True, read_only=True)
     class Meta:
         model = Movie
         fields = (
@@ -37,7 +39,22 @@ class MovieDetailSerializer(serializers.ModelSerializer):
             'plot',
             'open_year',
             'poster_url',
+            'like_count',
+            'is_liked'
         )
+    
+    def get_like_count(self, obj):
+        return obj.get_like_count()
+    
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        print(request)
+        print(
+            request.user)
+        print(obj.like_users.filter(pk=request.user.pk).exists())
+        if request and request.user.is_authenticated:
+            return obj.like_users.filter(pk=request.user.pk).exists()
+        return False
 
 class BoxOfficeSerializer(serializers.ModelSerializer):
     movie = MovieListSerializer(read_only=True)

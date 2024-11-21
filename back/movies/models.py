@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from accounts.models import User
 
@@ -25,7 +26,16 @@ class Movie(models.Model):
     nation = models.CharField(max_length=50)
     rating = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
+    # 해당 영화에 좋아요 누른 유저들
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_movies', blank=True)
 
+    # 좋아요 수 카운트
+    def get_like_count(self):
+        return self.like_users.count()
+    
+    # 좋아요 눌렀는지
+    def get_is_liked(self, user):
+        return self.like_users.filter(id=user.id).exists()
 
 class BoxOffice(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
