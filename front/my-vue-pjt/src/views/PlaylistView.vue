@@ -2,7 +2,7 @@
   <div class="container py-4">
     <!-- 헤더 영역 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="h3 mb-0">내 플레이리스트</h1>
+      <h1 class="h3 mb-0">Playlist</h1>
       <button 
         @click="openModal"
         class="btn btn-primary"

@@ -16,6 +16,9 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue'
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const username = ref(null)
 const password = ref(null)
@@ -26,9 +29,17 @@ const logIn = function () {
   const payload = {
     username: username.value,
     password: password.value
-  }
-  store.logIn(payload)
-}
+  };
+  
+  // 로그인 요청
+  store.logIn(payload).then(() => {
+    // 로그인 성공 후 HomeView로 이동
+    router.push({ name: 'home' });
+  }).catch((error) => {
+    console.error('로그인 실패:', error);
+    // 실패시 처리 로직 추가 가능
+  });
+};
 
 </script>
 

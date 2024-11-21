@@ -9,4 +9,5 @@ urlpatterns = [
     path('<int:playlist_id>/like/', views.playlist_toggle_like),
     path('<int:playlist_id>/review-list/', views.playlist_reviews),
     path('<int:playlist_id>/videos/<int:video_id>', views.delete_video),
+    path('<int:playlist_id>/review/<int:review_id>/toggle-like/', views.review_toggle_like),
 ]

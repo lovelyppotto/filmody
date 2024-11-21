@@ -25,14 +25,31 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
 class PlaylistReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()  # 추가
 
     class Meta:
         model = PlaylistReview
-        fields = ['id', 'user', 'content', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner']
         read_only_fields = ['user', 'playlist']
 
     def get_user(self, obj):
-        return obj.user.nickname # 유저 nickname만 반환
+        return obj.user.nickname
+    
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False
+    
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+    
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj
     
     
 class PlaylistVideoSerializer(serializers.ModelSerializer):
