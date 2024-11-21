@@ -51,8 +51,9 @@
   <script setup>
   import { ref } from 'vue';
   import { useMovieStore } from '@/stores/movie';
-  import YoutubeCard from './YoutubeCard.vue';
-  
+  import YoutubeCard from '@/components/YoutubeAPI/YoutubeCard.vue';
+
+
   const props = defineProps({
     playlistId: {
       type: Number,

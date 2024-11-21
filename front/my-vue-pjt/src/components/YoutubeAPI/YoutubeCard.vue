@@ -15,7 +15,7 @@
         </div>
         <div class="col-md-8">
           <div class="card-body">
-            <h5 class="card-title">{{ video.snippet.title }}</h5>
+            <h5 class="card-title">{{ decodeHtml(video.snippet.title) }}</h5>
             <p class="card-text description">{{ video.snippet.description }}</p>
             <p class="card-text">
               <small class="text-body-secondary">
@@ -39,6 +39,10 @@
 <script setup>
 import { ref } from "vue";
 import YoutubeReviewModal from "@/components/YoutubeAPI/YoutubeReviewModal.vue";
+import { useDecodeHtml } from '@/composables/useDecodeHtml';
+
+// 디코딩 적용
+const { decodeHtml } = useDecodeHtml();
 
 const props = defineProps({
   video: {

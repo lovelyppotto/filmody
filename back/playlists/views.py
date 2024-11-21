@@ -79,10 +79,17 @@ def playlist_detail_view(request, playlist_id):
 
 
 @api_view(['GET', 'POST', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def playlist_video_view(request, playlist_id):
     try:
-        playlist = Playlist.objects.get(id=playlist_id, user=request.user)
+        if request.method == 'GET':
+            playlist = Playlist.objects.get(
+                Q(id=playlist_id) & 
+                (Q(is_public=True) | Q(user=request.user))
+            )
+        else:
+            # POST, DELETE는 소유자만
+            playlist = Playlist.objects.get(id=playlist_id, user=request.user)
     except Playlist.DoesNotExist:
         return Response({'error': '플레이리스트를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 

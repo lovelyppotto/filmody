@@ -36,13 +36,14 @@
                         {{ formatDate(video.published_at) }}
                       </small>
                       <button 
+                        v-if="playlist?.user === authStore.userData?.id"
                         class="btn btn-danger btn-sm"
                         @click="removeVideo(video)"
                         :disabled="isLoading"
                       >
-                        <span v-if="isLoading" class="spinner-border spinner-border-sm me-1"></span>
-                        삭제
-                      </button>
+                      <span v-if="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+                      삭제
+                    </button>
                     </div>
                   </div>
                 </div>
@@ -83,7 +84,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { usePlaylistStore } from '@/stores/playlist';
+import { useAuthStore } from '@/stores/auth';
 import { Carousel } from 'bootstrap';
+
+const authStore = useAuthStore()
 
 // 자동 재생 상태 여부 추적하는 변수
 const isAutoPlay = ref(false);
@@ -92,12 +96,13 @@ const showPlayMessage = ref(false);
 const countdown = ref(5);
 let countdownTimer = null;
 
+
 const startPlaybackDelay = (player, isAutoplay = false) => {
   if (isAutoplay) {
     return Promise.resolve();
   }
 
-  console.log("카운트다운 시작");
+  // console.log("카운트다운 시작");
   showPlayMessage.value = true;
   countdown.value = 5;
 
@@ -108,7 +113,7 @@ const startPlaybackDelay = (player, isAutoplay = false) => {
   return new Promise((resolve) => {
     countdownTimer = setInterval(() => {
       countdown.value--;
-      console.log("현재 countdown 값:", countdown.value);
+      // console.log("현재 countdown 값:", countdown.value);
 
       if (countdown.value <= 0) {
         clearInterval(countdownTimer);
@@ -121,7 +126,11 @@ const startPlaybackDelay = (player, isAutoplay = false) => {
 
 const props = defineProps({
   playlistId: {
-    type: Number,
+    type: [String, Number],
+    required: true
+  },
+  playlist: {
+    type: Object,
     required: true
   }
 });

@@ -24,7 +24,10 @@
         @videoAdded="handleVideoAdded"
       />
       
-      <PlaylistVideo :playlist-id="playlistId" />
+      <PlaylistVideo 
+        :playlist-id="playlistId" 
+        :playlist="playlist"  
+      />
       <router-view :playlist-id="playlistId"></router-view>
  
       <!-- PlaylistReviewList -->
@@ -33,7 +36,7 @@
   </div>
  </template>
 
- 
+
 <script setup>
 import { onMounted, ref } from 'vue';
 import { usePlaylistStore } from '@/stores/playlist';
