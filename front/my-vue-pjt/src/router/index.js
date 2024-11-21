@@ -10,6 +10,7 @@ import MovieSearchView from "@/views/MovieSearchView.vue";
 import PlaylistView from "@/views/PlaylistView.vue";
 import PlaylistDetail from "@/views/PlaylistDetail.vue";
 import RecommendView from "@/views/RecommendView.vue";
+import CreatePlaylistModal from "@/components/Playlist/CreatePlaylistModal.vue";
 
 
 const router = createRouter({
@@ -82,11 +83,23 @@ const router = createRouter({
         }
       ]
     },
-    // {
-    //   path: '/playlist/:id/videos',
-    //   name: 'PlaylistVideos',
-    //   component: 
-    // },
+    {
+      path: '/playlist/:id',
+      name: 'playlist-detail',
+      component: () => import('../views/PlaylistDetail.vue'),
+      children: [
+        {
+          path: 'videos',  // /playlist/:id/videos
+          name: 'playlist-videos',
+          component: () => import('@/components/Playlist/PlaylistVideo.vue')
+        }
+      ]
+    },
+    {
+      path: '/playlist/create',
+    name: 'playlist-create',
+    component: CreatePlaylistModal,  // CreatePlaylist 컴포넌트를 연결
+    }
   ],
 });
 

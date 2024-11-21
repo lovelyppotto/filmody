@@ -4,6 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="h3 mb-0">Playlist</h1>
       <button 
+        v-if="authStore.token"
         @click="openModal"
         class="btn btn-primary"
       >
@@ -45,10 +46,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlaylistStore } from '@/stores/playlist'
-import PlaylistCard from '@/components/PlaylistCard.vue'
-import CreatePlaylistModal from '@/components/CreatePlaylistModal.vue'
+import { useAuthStore } from '@/stores/auth'
+import PlaylistCard from '@/components/Playlist/PlaylistCard.vue'
+import CreatePlaylistModal from '@/components/Playlist/CreatePlaylistModal.vue'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const playlistStore = usePlaylistStore()
 const isModalOpen = ref(false)
 

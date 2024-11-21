@@ -189,6 +189,8 @@ REST_AUTH = {
     'REGISTER_SERIALIZER': 'accounts.serializers.SignUpSerializer',
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.ProfileUpdateSerializer',
     'PASSWORD_CHANGE_SERIALIZER': 'dj_rest_auth.serializers.PasswordChangeSerializer',
+    # 'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailsSerializer',
+    
 }
 
 

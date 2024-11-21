@@ -28,6 +28,7 @@ class PlaylistVideo(models.Model):
     thumbnail_url = models.CharField(max_length=200)
     order_num = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    published_at = models.DateTimeField()
 
     class Meta:
         ordering = ['order_num']

@@ -54,7 +54,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useMovieStore } from '@/stores/movie';
+// movieStore 대신 playlistStore import
+import { usePlaylistStore } from '@/stores/playlist';
 
 const props = defineProps({
   video: {
@@ -68,7 +69,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'videoSaved']);
-const movieStore = useMovieStore();
+// movieStore 대신 playlistStore 사용
+const playlistStore = usePlaylistStore();
 const isLoading = ref(false);
 const notification = ref({
   show: false,
@@ -101,13 +103,15 @@ const showNotification = (type, message) => {
 const addToPlaylist = async () => {
   isLoading.value = true;
   try {
-    await movieStore.addVideoToPlaylist(props.playlistId, props.video);
+    // movieStore 대신 playlistStore 사용
+    await playlistStore.addVideoToPlaylist(props.playlistId, props.video);
     showNotification('success', '플레이리스트에 추가되었습니다!');
     emit('videoSaved');
     setTimeout(() => {
       emit('close');
     }, 1500);
   } catch (error) {
+    console.error('에러 상세:', error); // 디버깅을 위한 로그 추가
     showNotification('danger', '추가 실패: ' + (error.response?.data?.error || '알 수 없는 오류가 발생했습니다.'));
   } finally {
     isLoading.value = false;

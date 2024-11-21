@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from dj_rest_auth.serializers import UserDetailsSerializer
 
 User = get_user_model()
 
@@ -29,10 +30,15 @@ class SignUpSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'nickname', 'email', 'show_reviews')
-        read_only_fields = ('username',)
+        fields = ('id', 'username', 'nickname', 'email', 'show_reviews')
+        read_only_fields = ('username', 'id', )
 
 class PasswordChangeSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(required=True)
     new_password1 = serializers.CharField(required=True)
     new_password2 = serializers.CharField(required=True)
+
+
+class CustomUserDetailsSerializer(UserDetailsSerializer):
+    class Meta(UserDetailsSerializer.Meta):
+        fields = ('id', 'username', 'nickname', 'email', 'show_reviews')

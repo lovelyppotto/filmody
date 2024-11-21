@@ -6,6 +6,8 @@ import router from "@/router";
 export const useAuthStore = defineStore("auth", () => {
   const BASE_URL = 'http://127.0.0.1:8000'
   const token = ref(null)
+  const currentUser = ref(null)
+  const userData = ref(null)
 
     // 회원가입
     const signUp = function (payload) {
@@ -36,23 +38,23 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     // 로그인
-    const logIn = function (payload) {
-      const { username, password } = payload;
-      axios({
-        method: 'post',
-        url: `${BASE_URL}/accounts/login/`,
-        data: { username, password }
-      })
-      .then((res) => {
-        token.value = res.data.key;
-        console.log("로그인 후 받은 토큰:", token.value); // 토큰 확인
+    const logIn = async function (payload) {
+      try {
+        const { username, password } = payload;
+        const response = await axios.post(`${BASE_URL}/accounts/login/`, { username, password });
+        token.value = response.data.key;
+        
+        // 사용자 정보 가져오기
+        const userResponse = await axios.get(`${BASE_URL}/accounts/user/`, {
+          headers: { Authorization: `Token ${token.value}` }
+        });
+        userData.value = userResponse.data;
+        
         router.push({ name: 'home' });
-      })
-      .catch((err) => {
+      } catch (err) {
         console.log(err);
-      });
+      }
     };
-
     // 로그아웃
     const logOut = function () {
       axios({
@@ -67,11 +69,29 @@ export const useAuthStore = defineStore("auth", () => {
         console.log(err);
       })
     }
+
+    // 현재 로그인한 사용자 정보
+    const fetchCurrentUser = async () => {
+      if (!token.value) return null
+      try {
+        const res = await axios.get(`${BASE_URL}/accounts/user/`, {
+          headers: { Authorization: `Token ${token.value}` }
+        })
+        currentUser.value = res.data
+        return res.data
+      } catch (err) {
+        console.error(err)
+        return null
+      }
+    }
+
     return {
       token,
+      userData,
       logIn,
       logOut,
       BASE_URL,
       signUp,
+      fetchCurrentUser,
     };
   }, { persist: true });

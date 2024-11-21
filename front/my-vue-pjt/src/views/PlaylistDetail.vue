@@ -10,7 +10,7 @@
       <h1 v-else>플레이리스트를 찾을 수 없습니다</h1>
       
       <!-- 플레이리스트 소유자일 경우에만 검색 버튼 표시 -->
-      <div v-if="isOwner" class="text-end mb-3">
+      <div v-if="playlist?.user === authStore.currentUser?.id" class="text-end mb-3">
         <button class="btn btn-primary" @click="openSearchModal">
           <i class="fas fa-plus"></i> 플레이리스트 추가
         </button>
@@ -24,6 +24,9 @@
         @videoAdded="handleVideoAdded"
       />
       
+      <PlaylistVideo :playlist-id="playlistId" />
+      <router-view :playlist-id="playlistId"></router-view>
+
       <!-- PlaylistReviewList -->
       <PlaylistReviewList :playlistId="Number(playlistId)"/>
     </div>
@@ -37,6 +40,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useRoute } from 'vue-router';
 import PlaylistReviewList from '@/components/PlaylistReviews/PlaylistReviewList.vue';
 import YoutubeSearchModal from '@/components/YoutubeAPI/YoutubeSearchModal.vue';
+import PlaylistVideo from '@/components/Playlist/PlaylistVideo.vue';
 
 const route = useRoute();
 const playlistId = route.params.id;
@@ -48,18 +52,23 @@ const showSearchModal = ref(false);
 
 // 플레이리스트 소유자 여부 확인
 const isOwner = computed(() => {
-  return playlist.value?.user === authStore.currentUser;
+  return playlist.value && authStore.userData?.username && playlist.value.user === authStore.userData.username;
 });
 
 // 컴포넌트 마운트 시 데이터 가져오기
-onMounted(() => {
-  playlistStore.fetchPlaylists().then((playlists) => {
+onMounted(async () => {
+  try {
+    const playlists = await playlistStore.fetchPlaylists();
     playlist.value = playlists.find((p) => p.id === Number(playlistId));
-    loading.value = false;
-  }).catch((error) => {
-    console.error('플레이리스트 가져오기 실패:', error);
-    loading.value = false;
-  });
+    
+    console.log('플레이리스트 전체:', playlists);
+    console.log('현재 플레이리스트:', playlist.value);
+    console.log('현재 플레이리스트 user:', playlist.value?.user);
+    console.log('현재 사용자:', authStore.currentUser);
+    console.log('현재 userData:', authStore.userData);
+  } catch (error) {
+    console.error('데이터 로딩 실패:', error);
+  }
 });
 
 const openSearchModal = () => {
