@@ -1,7 +1,5 @@
 <template>
   <div class="reviews-container">
-    <h2>리뷰</h2>
-
     <!-- 리뷰 작성 폼 -->
     <PlaylistReviewForm :playlistId="props.playlistId" />
 
@@ -34,9 +32,13 @@ const props = defineProps({
 
 const reviewStore = useReviewStore();
 
-const fetchReviews = async () => {
+// Promise 체이닝으로 변경
+const fetchReviews = () => {
   if (props.playlistId) {
-    await reviewStore.fetchReviews(props.playlistId);
+    reviewStore.fetchReviews(props.playlistId)
+      .catch(error => {
+        console.error('리뷰 불러오기 실패:', error);
+      });
   }
 };
 
@@ -44,21 +46,10 @@ onMounted(() => {
   fetchReviews();
 });
 
-// playlistId가 변경될 때마다 리뷰를 새로 불러옴
-watch(() => props.playlistId, () => {
-  fetchReviews();
+// watch 효과 수정
+watch(() => props.playlistId, (newId) => {
+  if (newId) {
+    fetchReviews();
+  }
 });
 </script>
-  
-  <style scoped>
-  .reviews-container {
-    padding: 16px;
-  }
-  .review-list {
-    margin-top: 16px;
-  }
-  .loading {
-    text-align: center;
-    margin-top: 16px;
-  }
-  </style>

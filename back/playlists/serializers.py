@@ -34,6 +34,7 @@ class PlaylistReviewSerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         return obj.user.nickname # 유저 nickname만 반환
     
+    
 class PlaylistVideoSerializer(serializers.ModelSerializer):
    class Meta:
        model = PlaylistVideo
