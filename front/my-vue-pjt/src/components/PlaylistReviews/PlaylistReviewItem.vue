@@ -7,24 +7,28 @@
     <p>{{ review.content }}</p>
 
     <div class="actions-wrapper">
-      <i 
-        :class="[
-          'fa-thumbs-up', 
-          'like-icon', 
-          review.is_liked_by_user ? 'fa-solid' : 'fa-regular'
-        ]"
-        @click="toggleLike"
-      ></i>
-      <span class="like-count">{{ review.likes_count || 0 }}</span>
-      <button class="delete-btn" @click="deleteReview">삭제</button>
-    </div>
+    <i 
+      :class="[
+        'fa-thumbs-up', 
+        'like-icon', 
+        review.is_liked ? 'fa-solid' : 'fa-regular'
+      ]"
+      @click="reviewStore.toggleLike(playlistId, review.id)"
+    ></i>
+    <span class="like-count">{{ review.likes_count || 0 }}</span>
+    <button class="delete-btn" @click="deleteReview">삭제</button>
+  </div>
   </div>
 </template>
- 
- <script setup>
- import { useReviewStore } from "@/stores/review";
- 
- const props = defineProps({
+
+
+<script setup>
+import { ref } from "vue";
+import { useReviewStore } from "@/stores/review";
+
+const showModal = ref(false);
+
+const props = defineProps({
   review: {
     type: Object,
     required: true
@@ -33,30 +37,37 @@
     type: Number,
     required: true
   }
- });
- 
- const reviewStore = useReviewStore();
- 
- const formatDate = (dateString) => {
+});
+
+const reviewStore = useReviewStore();
+
+const formatDate = (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
- 
+
   return `${year}. ${month}. ${day}  |  ${hours}:${minutes}`;
- };
- 
- const toggleLike = () => {
+};
+
+// const isAlertOpen = ref(false);
+
+const handleLikeClick = () => {
+  if (props.review.is_owner) return; // 자신의 리뷰면 여기서 끝
   reviewStore.toggleLike(props.playlistId, props.review.id);
- };
- 
- const deleteReview = () => {
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const deleteReview = () => {
   reviewStore.deleteReview(props.playlistId, props.review.id);
- };
- </script>
- 
+};
+</script>
+
  <style scoped>
  .review-item {
   margin-bottom: 16px;
@@ -113,4 +124,5 @@
   cursor: pointer;
   font-size: 0.9em;
 }
+
 </style>

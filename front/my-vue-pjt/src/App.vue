@@ -1,13 +1,6 @@
 <template>
   <AppNavbar />
   <div class="content-wrapper">
-    <RouterLink :to="{name: 'SignUpView'}">SignUpView</RouterLink> |
-    <RouterLink :to="{name: 'LogInView'}">LogInView</RouterLink> |
-    <RouterLink :to="{name: 'MovieSearchView'}">Search</RouterLink> |
-    <RouterLink :to="{name: 'PlaylistView'}">Playlist</RouterLink>
-    <div  v-if="store.token">
-      <RouterLink :to="{path: '/profile/' + username}">ProfileView</RouterLink> |
-    </div>
     <RouterView />
   </div>
 </template>
@@ -15,10 +8,12 @@
 <script setup>
 import AppNavbar from "@/components/Common/AppNavbar.vue";
 import { RouterView, RouterLink } from 'vue-router'
-import { useMovieStore } from "./stores/movie";
+import { useAuthStore } from "@/stores/auth";
 import { onMounted } from "vue";
 import axios from "axios";
-const store = useMovieStore()
+
+const store = useAuthStore()
+
 
 // 토큰이 있으면 로그인 상태 유지
 onMounted(() => {

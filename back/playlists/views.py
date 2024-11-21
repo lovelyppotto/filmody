@@ -213,28 +213,22 @@ def review_toggle_like(request, playlist_id, review_id):
             playlist_id=playlist_id
         )
     except PlaylistReview.DoesNotExist:
-        # 예외 발생 시 바로 404 응답
         return Response({"error": "리뷰를 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = PlaylistReviewSerializer(review, context={'request': request})
+    # is_owner 체크 부분 제거
 
-    # 해당 유저의 좋아요 여부
-    is_liked = review.likes.filter(id=request.user.id).exists()
-
-    if request.user in review.likes.all():
+    # 좋아요 토글
+    if review.likes.filter(id=request.user.id).exists():
         review.likes.remove(request.user)
-        liked = False
+        is_liked = False
     else:
         review.likes.add(request.user)
-        liked = True
+        is_liked = True
     
     return Response({
-        'liked': liked,
-        'likes_count': review.likes.count(),
-        'is_liked_by_user': not is_liked,
-        'review': serializer.data  # 좋아요 토글 후 직렬화 데이터 반환
+        'is_liked': is_liked,
+        'likes_count': review.likes.count()
     })
-
 
 
 # 플레이리스트 좋아요/좋아요 취소

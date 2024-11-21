@@ -71,46 +71,26 @@ export const useReviewStore = defineStore('review', () => {
   };
 
   const toggleLike = (playlistId, reviewId) => {
-    if (!authStore.token) {
-      error.value = "로그인이 필요합니다.";
-      return Promise.reject(new Error("로그인이 필요합니다."));
-    }
-  
-    // 자신의 리뷰에 좋아요를 누르려고 하는지 체크
-    const review = reviews.value.find(review => review.id === reviewId);
-    if (review && review.user.id === authStore.userId) {
-      error.value = "자신의 리뷰에는 좋아요를 누를 수 없습니다.";
-      console.log("authStore.userId:", authStore.userId); // 현재 로그인된 사용자 ID (undefined)
-      console.log("review.user.id:", review?.user?.id);  // 선택한 리뷰 작성자 ID (undefined)
-  
-      return Promise.reject(new Error("자신의 리뷰에는 좋아요를 누를 수 없습니다."));
-    }
-  
-    return authRequest('post', `/api/playlist/${playlistId}/reviews/like/`, { review_id: reviewId })
+    loading.value = true;
+    
+    // 먼저 현재 리뷰 찾기
+    const review = reviews.value.find(r => r.id === reviewId);
+    
+    return authRequest('post', `/api/playlist/${playlistId}/review/${reviewId}/toggle-like/`)
       .then(response => {
-        const index = reviews.value.findIndex(review => review.id === reviewId);
-        if (index !== -1) {
-          reviews.value[index] = {
-            ...reviews.value[index],
-            likesCount: response.data.likes_count,
-            isLikedByUser: response.data.is_liked_by_user
-          };
-        }
-        console.log(response.data);
-        return response.data;
+        // 토글 후 리뷰 목록 다시 가져오기
+        return fetchReviews(playlistId);
       })
       .catch(err => {
-        if (err.response?.data?.error) {
-          error.value = err.response.data.error;
-        } else {
-          error.value = "좋아요 토글에 실패했습니다.";
-        }
-        return Promise.reject(err);
+        console.error('좋아요 토글 실패:', err);
+      })
+      .finally(() => {
+        loading.value = false;
       });
   };
   
 
-
+  
   const deleteReview = (playlistId, reviewId) => {
     if (!authStore.token) {
       error.value = "로그인이 필요합니다.";

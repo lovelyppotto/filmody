@@ -37,26 +37,21 @@ export const useAuthStore = defineStore("auth", () => {
 
     // 로그인
     const logIn = function (payload) {
-      const { username, password } = payload
+      const { username, password } = payload;
       axios({
         method: 'post',
         url: `${BASE_URL}/accounts/login/`,
-        data: {
-          username, password
-        }
+        data: { username, password }
       })
-        .then((res) => {
-          token.value = res.data.key
-          router.push({ name: 'HomeView' })
-          // console.log(res.data)
-          console.log('로그인 성공')
-          console.log(res.data);
-          
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    }
+      .then((res) => {
+        token.value = res.data.key;
+        console.log("로그인 후 받은 토큰:", token.value); // 토큰 확인
+        router.push({ name: 'home' });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    };
 
     // 로그아웃
     const logOut = function () {
