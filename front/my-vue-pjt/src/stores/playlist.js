@@ -2,30 +2,42 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useAuthStore } from './auth'
 
 export const usePlaylistStore = defineStore('playlist', () => {
   const playlists = ref([])
+  const reviews = ref({})
   const currentPlaylist = ref(null)
   const loading = ref(false)
   const error = ref(null)
-  
-  // API Base URL
-  const BASE_URL = 'http://127.0.0.1:8000'  // Django REST API URL
+  const authStore = useAuthStore()
 
-
-  const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000',
-    withCredentials: true,  // 쿠키를 주고받기 위해 필요
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': document.cookie.match(/csrftoken=([\w-]+)/)?.[1]
+  // API 요청 함수
+  const apiRequest = (method, endpoint, data = null, isFormData = false) => {
+    const config = {
+      method: method,
+      url: `${authStore.BASE_URL}${endpoint}`,
+      headers: {
+        'Authorization': `Token ${authStore.token}`,
+      }
     }
-  })
 
-  // 모든 플레이리스트 가져오기
+    // FormData가 아닐 경우에만 Content-Type 설정
+    if (!isFormData) {
+      config.headers['Content-Type'] = 'application/json'
+    }
+
+    if (data) {
+      config.data = data
+    }
+
+    return axios(config)
+  }
+
+  // 플레이리스트 목록 가져오기
   const fetchPlaylists = () => {
     loading.value = true
-    return api.get('/api/playlist/')
+    return apiRequest('get', '/api/playlist/')
       .then((response) => {
         playlists.value = response.data
         return response.data
@@ -40,34 +52,38 @@ export const usePlaylistStore = defineStore('playlist', () => {
       })
   }
 
-  // 특정 플레이리스트 가져오기
-  const fetchPlaylistById = (id) => {
-    loading.value = true
-    return api.get(`/api/playlist/${id}/`)
-      .then((response) => {
-        currentPlaylist.value = response.data
-        return response.data
-      })
-      .catch((error) => {
-        console.error(`플레이리스트 ${id} 가져오기 실패:`, error)
-        error.value = error.message
-        currentPlaylist.value = null
-      })
-      .finally(() => {
-        loading.value = false
-      })
-    }
-
   // 새 플레이리스트 생성
-  const createPlaylist = (playlistData) => {
+  const createPlaylist = (formData) => {
     loading.value = true
-    return api.post('/api/playlist/', playlistData)
+    return apiRequest('post', '/api/playlist/', formData, true)
       .then((response) => {
         playlists.value.push(response.data)
         return response.data
       })
       .catch((error) => {
-        console.error('플레이리스트 생성 실패:', error)
+        console.error('플레이리스트 생성 실패:', error.response?.data)
+        throw error
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  }
+
+
+
+  // 플레이리스트 수정
+  const updatePlaylist = (playlistId, playlistData) => {
+    loading.value = true
+    return apiRequest('put', `/api/playlist/${playlistId}/`, playlistData)
+      .then((response) => {
+        const index = playlists.value.findIndex(p => p.id === playlistId)
+        if (index !== -1) {
+          playlists.value[index] = response.data
+        }
+        return response.data
+      })
+      .catch((error) => {
+        console.error('플레이리스트 수정 실패:', error)
         error.value = error.message
         throw error
       })
@@ -76,107 +92,72 @@ export const usePlaylistStore = defineStore('playlist', () => {
       })
   }
 
-  // 플레이리스트에 트랙 추가
-  const addTrackToPlaylist = (playlistId, trackData) => {
+  // 플레이리스트 삭제
+  const deletePlaylist = (playlistId) => {
     loading.value = true
-    return axios.post(`${BASE_URL}/api/playlist/${playlistId}/tracks/`, trackData)
-      .then((response) => {
-        const playlist = playlists.value.find(p => p.id === playlistId)
-        if (playlist && playlist.tracks) {
-          playlist.tracks.push(response.data)
-        }
-        return response.data
-      })
-      .catch((error) => {
-        console.error('트랙 추가 실패:', error)
-        error.value = error.message
-      })
-      .finally(() => {
-        loading.value = false
-      })
-  }
-
-  // 플레이리스트에서 트랙 제거
-  const removeTrackFromPlaylist = (playlistId, trackId) => {
-    loading.value = true
-    return axios.delete(`${BASE_URL}/api/playlist/${playlistId}/tracks/${trackId}/`)
+    return apiRequest('delete', `/api/playlist/${playlistId}/`)
       .then(() => {
-        const playlist = playlists.value.find(p => p.id === playlistId)
-        if (playlist && playlist.tracks) {
-          playlist.tracks = playlist.tracks.filter(track => track.id !== trackId)
-        }
+        playlists.value = playlists.value.filter(p => p.id !== playlistId)
       })
       .catch((error) => {
-        console.error('트랙 제거 실패:', error)
+        console.error('플레이리스트 삭제 실패:', error)
         error.value = error.message
+        throw error
       })
       .finally(() => {
         loading.value = false
       })
   }
 
-  // YouTube URL에서 video ID 추출
-  const extractVideoId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-    const match = url.match(regExp)
-    return (match && match[2].length === 11) ? match[2] : null
-  }
-
-  // YouTube API로 비디오 정보 가져오기
-  const fetchVideoInfo = (url) => {
-    loading.value = true
-    error.value = null
-    const videoId = extractVideoId(url)
-
-    if (!videoId) {
-      error.value = '올바른 YouTube URL이 아닙니다'
-      loading.value = false
-      return Promise.reject(error.value)
+  // 해당 플레이리스트의 리뷰 가져오기
+  const fetchReviews = (playlistId) => {
+    if (reviews.value[playlistId]) {
+      return Promise.resolve(reviews.value[playlistId]); // 이미 리뷰가 있다면 그대로 반환
     }
-
-    // YouTube Data API endpoint
-    const API_KEY = process.env.VUE_APP_YOUTUBE_API_KEY // .env 파일에서 API 키 가져오기
-    const endpoint = `https://www.googleapis.com/youtube/v3/videos`
-
-    return axios.get(endpoint, {
-      params: {
-        key: API_KEY,
-        part: 'snippet',
-        id: videoId
-      }
-    })
+    loading.value = true;
+    return apiRequest('get', `/api/playlist/${playlistId}/reviews/`)
       .then((response) => {
-        const videoData = response.data.items[0]
-        if (!videoData) {
-          throw new Error('영상을 찾을 수 없습니다')
-        }
-
-        return {
-          video_id: videoId,
-          title: videoData.snippet.title,
-          thumbnail_url: videoData.snippet.thumbnails.default.url,
-        }
+        reviews.value[playlistId] = response.data;
+        return response.data;
       })
       .catch((err) => {
-        error.value = err.message
-        throw err
+        console.error(`리뷰 가져오기 실패: ${err}`);
+        error.value = err.message;
+        reviews.value[playlistId] = [];
       })
       .finally(() => {
-        loading.value = false
+        loading.value = false;
+      });
+  };
+
+  const addVideoToPlaylist = (playlistId, videoData) => {
+    return authRequest('post', `/api/playlist/${playlistId}/videos/`, videoData)
+      .then(response => {
+        // 플레이리스트의 비디오 목록 업데이트
+        const playlist = playlists.value.find(p => p.id === playlistId);
+        if (playlist) {
+          playlist.videos = [...playlist.videos, response.data];
+        }
+        return response.data;
       })
-    }
+      .catch(error => {
+        console.error('비디오 추가 실패:', error);
+        throw error;
+      });
+  };
 
   return {
-    BASE_URL,
+    apiRequest,
     playlists,
+    reviews,
     currentPlaylist,
     loading,
     error,
     fetchPlaylists,
-    fetchPlaylistById,
     createPlaylist,
-    addTrackToPlaylist,
-    fetchVideoInfo,
-    removeTrackFromPlaylist
+    updatePlaylist,
+    deletePlaylist,
+    fetchReviews,
+    addVideoToPlaylist,
   }
 })

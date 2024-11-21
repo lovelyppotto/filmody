@@ -6,6 +6,7 @@ import LogInView from "@/views/LogInView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import MovieSearchView from "@/views/MovieSearchView.vue";
 import PlaylistView from "@/views/PlaylistView.vue";
+import PlaylistDetail from "@/views/PlaylistDetail.vue";
 import RecommendView from "@/views/RecommendView.vue";
 import LibraryView from "@/views/LibraryView.vue";
 import MovieDetailView from "@/views/MovieDetailView.vue";
@@ -16,12 +17,12 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "HomeView",
+      name: "home",
       component: HomeView,
     },
     {
       path: '/signup',
-      name: 'SignUpView',
+      name: 'signup',
       component: SignUpView
     },
     {
@@ -63,7 +64,24 @@ const router = createRouter({
       path:'/library',
       name: 'LibraryView',
       component: LibraryView,
-    }
+    },
+    {
+      path: '/playlist/:id',
+      name: 'playlist-detail',
+      component: PlaylistDetail,
+      children: [
+        {
+          path: 'reviews',
+          name: 'PlaylistReviews',
+          component: () => import('@/components/PlaylistReviews/PlaylistReviewList.vue')
+      }
+      ]
+    },
+    // {
+    //   path: '/playlist/:id/videos',
+    //   name: 'PlaylistVideos',
+    //   component: 
+    // },
   ],
 });
 

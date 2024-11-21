@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import YoutubeCard from "@/components/YoutubeCard.vue";
+import YoutubeCard from "@/components/YoutubeAPI/YoutubeCard.vue";
 import { useMovieStore } from "@/stores/movie";
 import { computed } from "vue";
 

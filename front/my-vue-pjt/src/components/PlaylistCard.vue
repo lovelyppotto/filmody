@@ -1,59 +1,87 @@
-<!-- components/VideoCard.vue -->
 <template>
-    <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-      <!-- 썸네일과 제목 영역 -->
-      <div class="flex items-center gap-4">
-        <div class="w-32 h-20 overflow-hidden rounded-md">
-          <img 
-            :src="video.thumbnail_url" 
-            :alt="video.title"
-            class="w-full h-full object-cover"
-          >
-        </div>
-        <div>
-          <h3 class="font-medium text-gray-800">{{ video.title }}</h3>
-          <p class="text-sm text-gray-500">{{ formatOrderNum }}</p>
-        </div>
-      </div>
-  
-      <!-- 컨트롤 버튼들 -->
-      <div class="flex items-center gap-2">
-        <button 
-          @click="$emit('play')"
-          class="p-2 text-blue-500 hover:bg-blue-50 rounded-full"
-          title="재생"
-        >
-          ▶️
-        </button>
-        <button 
-          v-if="isEditable"
-          @click="$emit('remove')"
-          class="p-2 text-red-500 hover:bg-red-50 rounded-full"
-          title="삭제"
-        >
-          🗑️
-        </button>
+  <div class="card h-100 hover:shadow-lg transition-all cursor-pointer">
+    <!-- 이미지 섹션 -->
+    <div class="position-relative">
+      <img 
+        v-if="playlist.cover_img"
+        :src="playlist.cover_img"
+        :alt="playlist.title"
+        class="card-img-top"
+        style="height: 200px; object-fit: cover;"
+        @error="handleImageError"
+      />
+      <div 
+        v-else 
+        class="card-img-top bg-light d-flex align-items-center justify-content-center"
+        style="height: 200px;"
+      >
+        <span class="text-muted">No Image</span>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { computed } from 'vue'
-  
-  const props = defineProps({
-    video: {
-      type: Object,
-      required: true
-    },
-    isEditable: {
-      type: Boolean,
-      default: false
-    }
+    
+    <!-- 카드 본문 -->
+    <div class="card-body">
+      <h5 class="card-title mb-1 text-truncate">{{ playlist.title }}</h5>
+      <p class="card-text">
+        <small class="text-muted">{{ formatDate(playlist.created_at) }}</small>
+      </p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const props = defineProps({
+  playlist: {
+    type: Object,
+    required: true
+  }
+})
+
+const handleImageError = (e) => {
+  const parentDiv = e.target.parentElement
+  parentDiv.innerHTML = `
+    <div 
+      class="card-img-top bg-light d-flex align-items-center justify-content-center"
+      style="height: 200px;"
+    >
+      <span class="text-muted">Image Error</span>
+    </div>
+  `
+}
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   })
-  
-  const formatOrderNum = computed(() => {
-    return `#${props.video.order_num}`
-  })
-  
-  defineEmits(['play', 'remove'])
-  </script>
+}
+</script>
+
+<style scoped>
+.card {
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 0.5rem;
+  background-color: white;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+</style>

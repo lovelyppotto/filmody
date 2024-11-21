@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from yaml import serialize
 from .models import Playlist, PlaylistReview, PlaylistVideo
 from .serializers import PlaylistSerializer, PlaylistReviewSerializer, PlaylistVideoSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -15,10 +16,18 @@ from django.db.models import Q
 @permission_classes([IsAuthenticated])
 def playlist_view(request):
     if request.method == 'POST':
-        serializer = PlaylistSerializer(data=request.data)
+        print('FILES:', request.FILES)
+        print('POST data:', request.POST)
+        print('Request data:', request.data)  # 추가
+        
+        serializer = PlaylistSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            print('Serializer valid data:', serializer.validated_data)  # 추가
+            instance = serializer.save(user=request.user)
+            print('Saved instance:', instance, instance.cover_img)  # 추가
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print('Serializer errors:', serializer.errors)  # 추가
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     elif request.method == 'GET':
@@ -26,7 +35,7 @@ def playlist_view(request):
         user_playlists = Playlist.objects.filter(user=request.user)
         playlists = public_playlists | user_playlists
         
-        serializer = PlaylistSerializer(playlists, many=True)
+        serializer = PlaylistSerializer(playlists, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -75,10 +84,12 @@ def playlist_video_view(request, playlist_id):
         last_video = PlaylistVideo.objects.filter(playlist=playlist).order_by('-order_num').first()
         next_order = (last_video.order_num + 1) if last_video else 1
         
+        # 프론트엔드에서 보내는 데이터 구조에 맞게 수정
         video_data = {
             'playlist': playlist,
             'video_id': request.data.get('video_id'),
             'title': request.data.get('title'),
+            'description': request.data.get('description', ''),  # description 필드 추가
             'thumbnail_url': request.data.get('thumbnail_url'),
             'order_num': next_order
         }
@@ -107,7 +118,7 @@ def playlist_video_view(request, playlist_id):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except PlaylistVideo.DoesNotExist:
             return Response({'error': '영상을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
-
+        
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -193,32 +204,30 @@ def playlist_reviews(request, playlist_id):
     except Playlist.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-# 리뷰 좋아요 기능
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def review_toggle_like(request, playlist_id, review_id):
     try:
         review = PlaylistReview.objects.get(
             id=review_id,
-            playlist_id = playlist_id
-            )
+            playlist_id=playlist_id
+        )
     except PlaylistReview.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "리뷰를 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
-    # 해당 유저의 좋아요 여부
-    is_liked = review.likes.filter(id=request.user.id).exists()
+    # is_owner 체크 부분 제거
 
-    if request.user in review.likes.all():
+    # 좋아요 토글
+    if review.likes.filter(id=request.user.id).exists():
         review.likes.remove(request.user)
-        liked = False
+        is_liked = False
     else:
         review.likes.add(request.user)
-        liked = True
+        is_liked = True
     
     return Response({
-        'liked': liked,
-        'likes_count': review.likes.count(),
-        'is_liked_by_user': not is_liked  # toggle 된 상태 반환
+        'is_liked': is_liked,
+        'likes_count': review.likes.count()
     })
 
 

@@ -2,21 +2,55 @@ from rest_framework import serializers
 from .models import Playlist, PlaylistReview, PlaylistVideo
 
 class PlaylistSerializer(serializers.ModelSerializer):
+    cover_img = serializers.ImageField(required=False)  # required=False 추가
+
     class Meta:
         model = Playlist
         fields = ['id', 'title', 'cover_img', 'is_public', 'created_at', 'updated_at']
         read_only_fields = ['user']
 
+    def get_cover_img(self, obj):
+        if obj.cover_img:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.cover_img.url)
+        return None
+
+    def create(self, validated_data):
+        print('Validated data:', validated_data)  # 디버깅
+        instance = super().create(validated_data)
+        print('Created instance:', instance, instance.cover_img)  # 디버깅
+        return instance
+    
+
 class PlaylistReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()  # 추가
 
     class Meta:
         model = PlaylistReview
-        fields = ['id', 'user', 'content', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner']
         read_only_fields = ['user', 'playlist']
 
     def get_user(self, obj):
-        return obj.user.nickname # 유저 nickname만 반환
+        return obj.user.nickname
+    
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False
+    
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+    
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj
+    
     
 class PlaylistVideoSerializer(serializers.ModelSerializer):
    class Meta:

@@ -21,3 +21,5 @@ film + melody
   대신 fixtures 해당 데이터를 배열 형태로 전환해줘야 한다
 - 백엔드 구현에 문제가 없을 때 vue console에 html 내역이 넘어오는 경우...
   해당 데이터 받아오는 url에 문제 있을 가능성이 높음
+- 로그인 새로고침 시 유지가 안될 때
+  npm install vuex-persistedstate를 설치해주어야 한다.
