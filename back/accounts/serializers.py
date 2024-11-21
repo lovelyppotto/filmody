@@ -30,7 +30,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'nickname', 'email', 'show_reviews')
+        fields = ('id', 'username', 'nickname', 'email', 'show_reviews', 'profile_image')
         read_only_fields = ('username', 'id')
 
 class PasswordChangeSerializer(serializers.ModelSerializer):
