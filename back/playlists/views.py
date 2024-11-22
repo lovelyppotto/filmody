@@ -18,13 +18,13 @@ def public_playlist_view(request):
         public_playlists = Playlist.objects.filter(is_public=True)
         user_playlists = Playlist.objects.filter(user=request.user)
         playlists = (public_playlists | user_playlists).distinct()
-        print('현재 사용자:', request.user)
-        print('플레이리스트:', playlists.values())  # 데이터베이스에서 실제 값 확인
+        # print('현재 사용자:', request.user)
+        # print('플레이리스트:', playlists.values())  # 데이터베이스에서 실제 값 확인
     else:
         playlists = Playlist.objects.filter(is_public=True)
     
     serializer = PlaylistSerializer(playlists, many=True, context={'request': request})
-    print('직렬화된 데이터:', serializer.data)  # 직렬화된 결과 확인
+    # print('직렬화된 데이터:', serializer.data)  # 직렬화된 결과 확인
     return Response(serializer.data)
 
 # 플레이리스트 생성

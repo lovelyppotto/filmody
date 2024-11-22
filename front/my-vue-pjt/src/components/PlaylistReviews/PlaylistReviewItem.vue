@@ -1,7 +1,14 @@
 <template>
   <div class="review-item">
     <div class="review-header">
-      <strong>{{ review.user }}</strong>
+      {{ review.user_info.profile_image }}
+      <img 
+        :src="getImageUrl(review.user_info.profile_image)" 
+        alt="프로필 사진"
+        class="profile-image"
+        @error="handleImageError"
+      >
+      <strong>{{ review.user_info.nickname }}</strong>
       <span class="timestamp">{{ formatDate(review.created_at) }}</span>
     </div>
     <p>{{ review.content }}</p>
@@ -25,7 +32,7 @@
 <script setup>
 import { ref } from "vue";
 import { useReviewStore } from "@/stores/review";
-
+import { useAuthStore } from "@/stores/auth";
 const showModal = ref(false);
 
 const props = defineProps({
@@ -40,6 +47,7 @@ const props = defineProps({
 });
 
 const reviewStore = useReviewStore();
+const authStore = useAuthStore()
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -66,6 +74,44 @@ const closeModal = () => {
 const deleteReview = () => {
   reviewStore.deleteReview(props.playlistId, props.review.id);
 };
+
+const getImageUrl = (profileImage) => {
+  console.log('Original profile image:', profileImage);
+  const baseUrl = authStore.BASE_URL
+
+  // 프로필 이미지가 없는 경우
+  if (!profileImage) {
+    return `${baseUrl}/static/images/default.png`;
+  }
+  
+  // static 폴더(기본 이미지)인 경우
+  if (profileImage.startsWith('/static/')) {
+    return profileImage;
+  }
+  
+  // media 폴더(업로드된 이미지)인 경우
+  
+  try {
+    if (profileImage.startsWith('/media/')) {
+      // URL 인코딩 처리
+      const encodedPath = profileImage.split('/').map(segment => 
+        segment.includes('.') ? 
+          segment : // 파일명은 이미 인코딩되어 있으므로 건너뛰기
+          encodeURIComponent(segment)
+      ).join('/');
+      
+      return `${baseUrl}${encodedPath}`;
+    }
+    
+    // media로 시작하지 않는 경우
+    const encodedImage = encodeURIComponent(profileImage);
+    return `${baseUrl}/media/${encodedImage}`;
+  } catch (error) {
+    console.error('Error creating image URL:', error);
+    return '/static/images/default.png';
+  }
+};
+
 </script>
 
  <style scoped>
