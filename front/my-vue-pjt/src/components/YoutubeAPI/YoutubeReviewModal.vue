@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h5 class="modal-title">{{ video.snippet.title }}</h5>
+          <h5 class="modal-title">{{ decodeHtml(video.snippet.title) }}</h5>
           <button type="button" class="btn-close" @click="$emit('close')" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -54,8 +54,12 @@
 
 <script setup>
 import { ref } from 'vue';
-// movieStore 대신 playlistStore import
 import { usePlaylistStore } from '@/stores/playlist';
+import { useDecodeHtml } from '@/composables/useDecodeHtml';
+
+// 디코딩 적용
+const { decodeHtml } = useDecodeHtml();
+
 
 const props = defineProps({
   video: {
@@ -68,8 +72,8 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['close', 'videoSaved']);
-// movieStore 대신 playlistStore 사용
+const emit = defineEmits(['close', 'videoSaved', 'videoAdded']);
+
 const playlistStore = usePlaylistStore();
 const isLoading = ref(false);
 const notification = ref({
@@ -103,20 +107,22 @@ const showNotification = (type, message) => {
 const addToPlaylist = async () => {
   isLoading.value = true;
   try {
-    // movieStore 대신 playlistStore 사용
-    await playlistStore.addVideoToPlaylist(props.playlistId, props.video);
+    const savedVideo = await playlistStore.addVideoToPlaylist(props.playlistId, props.video);
     showNotification('success', '플레이리스트에 추가되었습니다!');
-    emit('videoSaved');
+    emit('videoSaved', savedVideo);  // 저장된 비디오 데이터를 전달
+    emit('videoAdded');  // 추가
     setTimeout(() => {
       emit('close');
     }, 1500);
   } catch (error) {
-    console.error('에러 상세:', error); // 디버깅을 위한 로그 추가
+    console.error('에러 상세:', error);
     showNotification('danger', '추가 실패: ' + (error.response?.data?.error || '알 수 없는 오류가 발생했습니다.'));
   } finally {
     isLoading.value = false;
   }
 };
+
+
 </script>
 
 <style scoped>

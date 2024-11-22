@@ -5,37 +5,47 @@
             <RouterLink class="navbar-brand" :to="{ name: 'home' }">Filmody</RouterLink>
     
             <!-- 중앙 정렬할 부분 -->
-            <div class="nav-center">
-                <ul class="navbar-nav d-flex">
-                    <li class="nav-item">
-                        <RouterLink 
-                            class="nav-link" 
-                            :class="{ active: $route.path === '/library' }"
-                            to="/library"
-                        >
-                            Library
-                        </RouterLink>
-                    </li>
-                    <li class="nav-item">
-                        <RouterLink 
-                            class="nav-link" 
-                            :class="{ active: $route.path === '/playlist' }"
-                            to="/playlist"
-                        >
-                            Playlist
-                        </RouterLink>
-                    </li>
-                    <li class="nav-item">
-                        <RouterLink 
-                            class="nav-link" 
-                            :class="{ active: $route.path === '/recommend' }"
-                            to="/recommend"
-                        >
-                            Recommend
-                        </RouterLink>
-                    </li>
-                </ul>
-            </div>
+                <div class="nav-center">
+                    <ul class="navbar-nav d-flex">
+                        <li class="nav-item dropdown" @click="toggleDropdown">
+                            <a 
+                                class="nav-link dropdown-toggle" 
+                                href="#" 
+                                role="button" 
+                                :aria-expanded="isDropdownOpen.toString()"
+                            >
+                                Library
+                            </a>
+                            <ul class="dropdown-menu" :class="{ show: isDropdownOpen }">
+                                <li>
+                                    <RouterLink class="dropdown-item" to="/library/books">My Playlist</RouterLink>
+                                </li>
+                                <li>
+                                    <RouterLink class="dropdown-item" to="/library/movies">Liked Movies</RouterLink>
+                                </li>
+                            </ul>
+                            </li>
+
+                        <li class="nav-item">
+                            <RouterLink 
+                                class="nav-link" 
+                                :class="{ active: $route.path === '/playlist' }"
+                                to="/playlist"
+                            >
+                                Playlist
+                            </RouterLink>
+                        </li>
+                        <li class="nav-item">
+                            <RouterLink 
+                                class="nav-link" 
+                                :class="{ active: $route.path === '/recommend' }"
+                                to="/recommend"
+                            >
+                                Recommend
+                            </RouterLink>
+                        </li>
+                    </ul>
+                </div>
     
             <!-- 오른쪽 버튼 그룹 -->
             <div class="nav-right d-flex align-items-center">
@@ -84,14 +94,29 @@
     </template>
     
     <script setup>
+    import { ref, onMounted } from 'vue';
     import { useAuthStore } from '@/stores/auth';
-    import { RouterLink } from 'vue-router';
     
     const store = useAuthStore();
-    
+    const isDropdownOpen = ref(false);
+
+    // 로그아웃 함수
     const logOut = () => {
-      store.logOut();
+        store.logOut();
     };
+    
+    // 드롭다운 상태핸들러
+    const toggleDropdown = () => {
+    isDropdownOpen.value = !isDropdownOpen.value;
+    };
+
+    // Bootstrap 드롭다운 초기화
+    onMounted(() => {
+      const dropdownElements = document.querySelectorAll('.dropdown-toggle');
+      dropdownElements.forEach((el) => {
+        new bootstrap.Dropdown(el);
+      });
+    });
     </script>
     
     <style>
@@ -133,6 +158,33 @@
     .nav-right {
         display: flex;
         align-items: center;
+    }
+
+    /* 드롭다운 메뉴 스타일 */
+    .dropdown-menu {
+        display: none; /* Bootstrap가 JS로 토글 */
+        background-color: white;
+        top: 100%; /* 부모의 아래에 표시 */
+        border-radius: 4px;
+        border: 1px solid #e6e3e3;
+        min-width: 150px;
+        z-index: 1000;
+    }
+
+    /* 드롭다운 항목 간격 및 스타일 */
+    .dropdown-item {
+        padding: 10px 15px;
+        color: #000;
+        text-decoration: none;
+    }
+
+    .dropdown.show .dropdown-menu {
+        display: block; /* 활성화된 드롭다운 */
+        }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: #007bff;
     }
     </style>
     
