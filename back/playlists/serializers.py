@@ -40,12 +40,13 @@ class PlaylistSerializer(serializers.ModelSerializer):
 class PlaylistReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    user_profile_image = serializers.ImageField(source='user.profile_image', read_only=True)  # 추가
     likes_count = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()  # 추가
 
     class Meta:
         model = PlaylistReview
-        fields = ['id', 'user', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner']
+        fields = ['id', 'user', 'content', 'created_at', 'user_profile_image', 'updated_at', 'is_liked', 'likes_count', 'is_owner']
         read_only_fields = ['user', 'playlist']
 
     def get_user(self, obj):
