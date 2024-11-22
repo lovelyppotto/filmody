@@ -81,61 +81,65 @@ def playlist_detail_view(request, playlist_id):
 @api_view(['GET', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def playlist_video_view(request, playlist_id):
-    try:
-        if request.method == 'GET':
-            playlist = Playlist.objects.get(
-                Q(id=playlist_id) & 
-                (Q(is_public=True) | Q(user=request.user))
-            )
-        else:
-            # POST, DELETE는 소유자만
-            playlist = Playlist.objects.get(id=playlist_id, user=request.user)
-    except Playlist.DoesNotExist:
-        return Response({'error': '플레이리스트를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+   try:
+       if request.method == 'GET':
+           playlist = Playlist.objects.get(
+               Q(id=playlist_id) & 
+               (Q(is_public=True) | Q(user=request.user))
+           )
+       else:
+           # POST, DELETE는 소유자만
+           playlist = Playlist.objects.get(id=playlist_id, user=request.user)
+   except Playlist.DoesNotExist:
+       return Response({'error': '플레이리스트를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('order_num')
-        serializer = PlaylistVideoSerializer(videos, many=True)
-        return Response(serializer.data)
+   if request.method == 'GET':
+       videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('order_num')
+       serializer = PlaylistVideoSerializer(videos, many=True)
+       return Response(serializer.data)
 
-    elif request.method == 'POST':
-        # 마지막 order_num 가져오기
-        last_video = PlaylistVideo.objects.filter(playlist=playlist).order_by('-order_num').first()
-        next_order = (last_video.order_num + 1) if last_video else 1
-        
-        video_data = {
-            'playlist': playlist,
-            'video_id': request.data.get('video_id'),
-            'title': request.data.get('title'),
-            'thumbnail_url': request.data.get('thumbnail_url'),
-            'published_at': request.data.get('published_at'),
-            'order_num': next_order
-        }
-        
-        try:
-            playlist_video = PlaylistVideo.objects.create(**video_data)
-            return Response(PlaylistVideoSerializer(playlist_video).data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+   elif request.method == 'POST':
+       # 마지막 order_num 가져오기
+       last_video = PlaylistVideo.objects.filter(playlist=playlist).order_by('-order_num').first()
+       next_order = (last_video.order_num + 1) if last_video else 1
+       
+       video_data = {
+           'playlist': playlist,
+           'video_id': request.data.get('video_id'),
+           'title': request.data.get('title'),
+           'thumbnail_url': request.data.get('thumbnail_url'),
+           'published_at': request.data.get('published_at'),
+           'order_num': next_order
+       }
+       
+       try:
+           playlist_video = PlaylistVideo.objects.create(**video_data)
+           return Response(PlaylistVideoSerializer(playlist_video).data, status=status.HTTP_201_CREATED)
+       except Exception as e:
+           return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        video_id = request.query_params.get('video_id')  # URL 파라미터로 변경
-        if not video_id:
-            return Response({'error': 'video_id가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            video = PlaylistVideo.objects.get(playlist=playlist, video_id=video_id)
-            video.delete()
-            
-            # 순서 재정렬
-            remaining_videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('order_num')
-            for index, video in enumerate(remaining_videos, 1):
-                video.order_num = index
-                video.save()
-                
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except PlaylistVideo.DoesNotExist:
-            return Response({'error': '영상을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+   elif request.method == 'DELETE':
+       video_id = request.query_params.get('video_id')
+       if not video_id:
+           return Response({'error': 'video_id가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+           
+       try:
+           # first()를 사용하여 첫 번째 일치하는 비디오만 삭제
+           video = PlaylistVideo.objects.filter(playlist=playlist, video_id=video_id).first()
+           if not video:
+               return Response({'error': '영상을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+           
+           video.delete()
+           
+           # 순서 재정렬
+           remaining_videos = PlaylistVideo.objects.filter(playlist=playlist).order_by('order_num')
+           for index, video in enumerate(remaining_videos, 1):
+               video.order_num = index
+               video.save()
+               
+           return Response(status=status.HTTP_204_NO_CONTENT)
+       except Exception as e:
+           return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

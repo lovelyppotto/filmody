@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-md-12">
                   <div class="card-body">
-                    <h5 class="card-title">{{ video.title }}</h5>
+                    <h5 class="card-title">{{ decodeHtml( video.title )}}</h5>
                     <div class="d-flex justify-content-between align-items-center mt-3">
                       <small class="text-muted">
                         {{ formatDate(video.published_at) }}
@@ -86,6 +86,10 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { usePlaylistStore } from '@/stores/playlist';
 import { useAuthStore } from '@/stores/auth';
 import { Carousel } from 'bootstrap';
+import { useDecodeHtml } from '@/composables/useDecodeHtml';
+
+// 디코딩 적용
+const { decodeHtml } = useDecodeHtml();
 
 const authStore = useAuthStore()
 

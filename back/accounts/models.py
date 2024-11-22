@@ -11,3 +11,4 @@ class User(AbstractUser):
         upload_to='profile_images/',
         default='images/default.png'
     )
+
