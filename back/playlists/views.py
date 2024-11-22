@@ -25,7 +25,7 @@ def public_playlist_view(request):
         playlists = Playlist.objects.filter(is_public=True)
     
     serializer = PlaylistSerializer(playlists, many=True, context={'request': request})
-    print('직렬화된 데이터:', serializer.data)  # 직렬화된 결과 확인
+    # print('직렬화된 데이터:', serializer.data)  # 직렬화된 결과 확인
     return Response(serializer.data)
 
 # 내가 작성한 플레이리스트 조회

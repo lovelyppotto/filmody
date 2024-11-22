@@ -41,10 +41,8 @@ matplotlib==3.9.2
 matplotlib-inline==0.1.7
 mdurl==0.1.2
 networkx==3.2.1
-numpy==1.26.3
 oauthlib==3.2.2
 packaging==24.1
-pandas==2.2.0
 parso==0.8.4
 pillow==10.2.0
 prompt_toolkit==3.0.47
