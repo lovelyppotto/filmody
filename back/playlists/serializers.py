@@ -24,20 +24,28 @@ class PlaylistSerializer(serializers.ModelSerializer):
        return instance
     
     
-
 class PlaylistReviewSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
+    user_info = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()  # 추가
 
     class Meta:
         model = PlaylistReview
-        fields = ['id', 'user', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner']
-        read_only_fields = ['user', 'playlist']
+        fields = ['id', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner','user_info']
+        read_only_fields = ['user', 'playlist','user_info']
 
-    def get_user(self, obj):
-        return obj.user.nickname
+    def get_user_info(self, obj):
+    # 기본 이미지인 경우와 사용자 업로드 이미지 구분
+        if obj.user.profile_image and not str(obj.user.profile_image).endswith('default.png'):
+            profile_image = obj.user.profile_image.url  # media 경로 포함
+        else:
+            profile_image = '/static/images/default.png'  # static 경로 사용
+
+        return {
+            'nickname': obj.user.nickname,
+            'profile_image': profile_image
+        }
     
     def get_is_liked(self, obj):
         request = self.context.get('request')
