@@ -11,6 +11,9 @@ import RecommendView from "@/views/RecommendView.vue";
 import CreatePlaylistModal from "@/components/Playlist/CreatePlaylistModal.vue";
 import LibraryView from "@/views/LibraryView.vue";
 import MovieDetailView from "@/views/MovieDetailView.vue";
+import LikedPlaylistView from "@/views/LikedPlaylistView.vue";
+import MyPlaylistView from "@/views/MyPlaylistView.vue";
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -93,7 +96,19 @@ const router = createRouter({
       path: '/playlist/create',
     name: 'playlist-create',
     component: CreatePlaylistModal,  // CreatePlaylist 컴포넌트를 연결
+    }, 
+    {
+      path: '/playlist/liked-playlist',
+      name: 'liked-playlists',
+      component: LikedPlaylistView
+    },
+    {
+      path: '/playlist/my-playlist',
+      name: 'my-playlists',
+      component: MyPlaylistView
     }
+    
+    
   ],
 });
 

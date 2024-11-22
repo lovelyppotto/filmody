@@ -34,10 +34,10 @@
                 @click="closeDropdown"
               >
                 <li>
-                  <RouterLink class="dropdown-item" to="/library/books">My Playlist</RouterLink>
+                  <RouterLink class="dropdown-item" :to="{ name: 'my-playlists' }">My Playlist</RouterLink>
                 </li>
                 <li>
-                  <RouterLink class="dropdown-item" to="/library/movies">Liked Playlist</RouterLink>
+                  <RouterLink class="dropdown-item" :to="{ name: 'liked-playlists' }">Liked Playlist</RouterLink>
                 </li>
                 <li>
                   <RouterLink class="dropdown-item" to="/library/movies">Liked Movies</RouterLink>

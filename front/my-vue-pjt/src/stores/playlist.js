@@ -176,73 +176,35 @@ export const usePlaylistStore = defineStore('playlist', () => {
   }
 
   // stores/playlist.js
-const addVideoToPlaylist = async (playlistId, videoData) => {
-  loading.value = true
-  try {
-    const response = await apiRequest('post', `/api/playlist/${playlistId}/videos/`, {
+  const addVideoToPlaylist = (playlistId, videoData) => {
+    loading.value = true
+    const payload = {
       video_id: videoData.id.videoId,
       title: videoData.snippet.title,
       thumbnail_url: videoData.snippet.thumbnails.medium.url,
       published_at: videoData.snippet.publishTime
-    });
-
-    // 플레이리스트 찾기
-    const playlist = playlists.value.find(p => p.id === playlistId);
-    if (playlist) {
-      // videos 배열이 없으면 생성
-      if (!playlist.videos) {
-        playlist.videos = [];
-      }
-      // 새로운 비디오 추가
-      playlist.videos.push(response.data);
     }
-
-    return response.data;
-  } catch (error) {
-    console.error('비디오 추가 실패:', error.response?.data || error.message);
-    throw error;
-  } finally {
-    loading.value = false;
-  }
-};
-
-  // 플레이리스트에 비디오 추가
-// const addVideoToPlaylist = (playlistId, videoData) => {
-//   loading.value = true
-//   const payload = {
-//     video_id: videoData.id.videoId,
-//     title: videoData.snippet.title,
-//     description: videoData.snippet.description,
-//     thumbnail_url: videoData.snippet.thumbnails.medium.url,
-//     published_at: videoData.snippet.publishTime
-//   }
-  
-//   return axios({
-//     method: 'post',
-//     url: `${authStore.BASE_URL}/api/playlist/${playlistId}/videos/`,
-//     headers: {
-//       'Authorization': `Token ${authStore.token}`,
-//       'Content-Type': 'application/json'
-//     },
-//     data: payload
-//   })
-//     .then((response) => {
-//       const playlist = playlists.value.find(p => p.id === playlistId)
-//       if (playlist && playlist.videos) {
-//         playlist.videos.push(response.data)
-//       }
-//       return response.data
-//     })
-//     .catch((error) => {
-//       console.error('비디오 추가 실패:', error.response?.data || error.message)
-//       error.value = error.response?.data?.error || error.message
-//       throw error
-//     })
-//     .finally(() => {
-//       loading.value = false
-//     })
-// }
-
+    
+    return apiRequest('post', `/api/playlist/${playlistId}/videos/`, payload)
+      .then((response) => {
+        const playlist = playlists.value.find(p => p.id === playlistId)
+        if (playlist) {
+          if (!playlist.videos) {
+            playlist.videos = []
+          }
+          playlist.videos.push(response.data)
+        }
+        return response.data
+      })
+      .catch((error) => {
+        console.error('비디오 추가 실패:', error.response?.data || error.message)
+        error.value = error.response?.data?.error || error.message
+        throw error
+      })
+      .finally(() => {
+        loading.value = false
+      })
+}
 
 
   // 플레이리스트에서 비디오 삭제
@@ -266,33 +228,86 @@ const addVideoToPlaylist = async (playlistId, videoData) => {
   }
 
   // 좋아요 토글 함수
-  const toggleLike = async (playlistId) => {
-    try {
-      const response = await apiRequest('post', `/api/playlist/${playlistId}/like/`);
-      
-      // playlists 배열 업데이트
-      playlists.value = playlists.value.map(playlist => {
-        if (playlist.id === playlistId) {
-          return {
-            ...playlist,
-            is_liked: response.data.liked,
-            likes_count: response.data.likes_count
-          };
-        }
-        return playlist;
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('좋아요 처리 실패:', error);
-      throw error;
-    }
-  };
+  const toggleLike = (playlistId) => {
+    return apiRequest('post', `/api/playlist/${playlistId}/like/`)
+      .then((response) => {
+        playlists.value = playlists.value.map(playlist => {
+          if (playlist.id === playlistId) {
+            return {
+              ...playlist,
+              is_liked: response.data.liked,
+              likes_count: response.data.likes_count
+            }
+          }
+          return playlist
+        })
+        return response.data
+      })
+      .catch((error) => {
+        console.error('좋아요 처리 실패:', error)
+        throw error
+      })
+}
 
   const canLikePlaylist = computed(() => {
     if (!currentPlaylist.value || !authStore.userData) return false;
     return currentPlaylist.value.user !== authStore.userData.id;
   });
+
+  const likedPlaylists = ref([]) 
+  const myPlaylists = ref([]) 
+
+  const fetchLikedPlaylists = () => {
+    console.log('fetchLikedPlaylists 시작')
+    loading.value = true
+    error.value = null
+    
+    return apiRequest('get', `/api/playlist/liked-playlist/`)
+      .then(response => {
+        console.log('받아온 데이터:', response.data)
+        likedPlaylists.value = response.data
+        console.log('저장된 데이터:', likedPlaylists.value)
+      })
+      .catch(err => {
+        console.error('API 에러:', err.response?.data || err)
+        error.value = '플레이리스트를 불러오는데 실패했습니다.'
+      })
+      .finally(() => {
+        loading.value = false
+        console.log('최종 상태:', {
+          loading: loading.value,
+          error: error.value,
+          playlistsCount: likedPlaylists.value.length,
+          playlists: likedPlaylists.value
+        })
+      })
+  }
+
+  const fetchMyPlaylist = () => {
+    loading.value = true
+    error.value = null
+    
+    return apiRequest('get', `/api/playlist/my-playlist/`)
+      .then(response => {
+        console.log('받아온 데이터:', response.data)
+        myPlaylists.value = response.data
+        console.log('저장된 데이터:', myPlaylists.value)
+      })
+      .catch(err => {
+        console.error('API 에러:', err.response?.data || err)
+        error.value = '플레이리스트를 불러오는데 실패했습니다.'
+      })
+      .finally(() => {
+        loading.value = false
+        console.log('최종 상태:', {
+          loading: loading.value,
+          error: error.value,
+          playlistsCount: myPlaylists.value.length,
+          playlists: myPlaylists.value
+        })
+      })
+  }
+
 
   return {
     apiRequest,
@@ -308,10 +323,13 @@ const addVideoToPlaylist = async (playlistId, videoData) => {
     deletePlaylist,
     fetchReviews,
     addVideoToPlaylist,
-    getPlaylistVideos,
     removeVideoFromPlaylist,
     getPlaylistVideos,
     toggleLike,
     canLikePlaylist,
+    fetchLikedPlaylists,
+    likedPlaylists,
+    myPlaylists,
+    fetchMyPlaylist,
   }
 })
