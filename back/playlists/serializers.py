@@ -4,10 +4,11 @@ from .models import Playlist, PlaylistReview, PlaylistVideo
 class PlaylistSerializer(serializers.ModelSerializer):
    cover_img = serializers.ImageField(required=False)
    user = serializers.PrimaryKeyRelatedField(source='user.id', read_only=True)
+   user_nickname = serializers.CharField(source='user.nickname', read_only=True)  # 추가
 
    class Meta:
        model = Playlist 
-       fields = ['id', 'title', 'cover_img', 'is_public', 'created_at', 'updated_at', 'user']
+       fields = ['id', 'title', 'cover_img', 'is_public', 'created_at', 'updated_at', 'user', 'user_nickname']
        read_only_fields = ['user']
 
    def get_cover_img(self, obj):

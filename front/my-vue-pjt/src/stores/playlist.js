@@ -158,46 +158,36 @@ const fetchPlaylists = () => {
       })
   }
 
-  const addVideoToPlaylist = (playlistId, videoData) => {
-    loading.value = true
-    const payload = {
-      video_id: videoData.id.videoId,  // 여기는 그대로
+  // stores/playlist.js
+const addVideoToPlaylist = async (playlistId, videoData) => {
+  loading.value = true
+  try {
+    const response = await apiRequest('post', `/api/playlist/${playlistId}/videos/`, {
+      video_id: videoData.id.videoId,
       title: videoData.snippet.title,
       thumbnail_url: videoData.snippet.thumbnails.medium.url,
       published_at: videoData.snippet.publishTime
+    });
+
+    // 플레이리스트 찾기
+    const playlist = playlists.value.find(p => p.id === playlistId);
+    if (playlist) {
+      // videos 배열이 없으면 생성
+      if (!playlist.videos) {
+        playlist.videos = [];
+      }
+      // 새로운 비디오 추가
+      playlist.videos.push(response.data);
     }
-    
-    console.log('전송할 데이터:', payload)  // 데이터 확인
-    console.log('PlaylistId:', playlistId) // playlistId 확인
-    console.log('Token:', authStore.token)  // 토큰 확인
-    
-    return axios({
-      method: 'post',
-      url: `${authStore.BASE_URL}/api/playlist/${playlistId}/videos/`,
-      headers: {
-        'Authorization': `Token ${authStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      data: payload
-    })
-      .then((response) => {
-        console.log('서버 응답:', response.data)  // 성공 응답 확인
-        const playlist = playlists.value.find(p => p.id === playlistId)
-        if (playlist && playlist.videos) {
-          playlist.videos.push(response.data)
-        }
-        return response.data
-      })
-      .catch((error) => {
-        console.log('에러 상세:', error.response)  // 자세한 에러 정보 확인
-        console.error('비디오 추가 실패:', error.response?.data || error.message)
-        error.value = error.response?.data?.error || error.message
-        throw error
-      })
-      .finally(() => {
-        loading.value = false
-      })
+
+    return response.data;
+  } catch (error) {
+    console.error('비디오 추가 실패:', error.response?.data || error.message);
+    throw error;
+  } finally {
+    loading.value = false;
   }
+};
 
   // 플레이리스트에 비디오 추가
 // const addVideoToPlaylist = (playlistId, videoData) => {
