@@ -2,6 +2,28 @@
     <div>
         <h1>Profile</h1>
         <form @submit.prevent="updateProfile">
+        <div class="profile-image-container">
+            <label for="profile_image">
+                프로필 사진:
+                <img
+                :key="userInfo.profile_image" 
+                :src="previewImage || `${userInfo.profile_image}`" 
+                alt="프로필 사진" 
+                class="profile-preview"
+                >
+                <button 
+                v-if="userInfo.profile_image && !userInfo.profile_image.includes('default.png')"
+                @click.prevent="deleteProfileImage"
+                >삭제
+                </button>
+                <input 
+                type="file" 
+                id="profile_image" 
+                @change.stop="handleImageUpload" 
+                accept="image/*"
+                >
+            </label>
+        </div>
             <div>
                 <label for="username">
                     아이디 :
@@ -82,8 +104,10 @@ const userInfo = ref({
     username: '',
     nickname: '',
     email: '',
-    show_reviews: false
+    show_reviews: false,
+    profile_image: '',
 })
+const previewImage = ref('')
 const passwords = ref({
     current_password : '',
     new_password1 : '', 
@@ -119,7 +143,6 @@ const updateProfile = () => {
             alert ('새 비밀번호가 일치하지 않습니다.')
             return
         }
-    }
         axios({
             method: 'post',
             url: `${store.BASE_URL}/accounts/password/change/`,
@@ -144,7 +167,11 @@ const updateProfile = () => {
             console.error('비밀번호 변경 실패:', error)
             console.log('에러 응답 데이터:', error.response?.data)
         })
+    } else {
+        updateUserInfo()
     }
+}
+
 
 // 프로필 정보 수정
 const updateUserInfo = () => {
@@ -166,10 +193,12 @@ const updateUserInfo = () => {
         data: {
             nickname: userInfo.value.nickname,
             email: userInfo.value.email,
-            show_reviews: userInfo.value.show_reviews
+            show_reviews: userInfo.value.show_reviews,
+            // profile_image: userInfo.value.profile_image
         }
     })
     .then((response) => {
+        console.log('프로필 업데이트 성공');
         alert('프로필이 성공적으로 업데이트되었습니다.')
         userInfo.value = response.data
     })
@@ -189,8 +218,12 @@ onMounted(() => {
             Authorization: `Token ${storedToken}`
         }
     })
-    .then((res) => {
-        userInfo.value = res.data
+    .then((response) => {
+        console.log(response.data)
+        userInfo.value = response.data
+        // 초기 프로필 이미지 설정
+        previewImage.value = response.data.profile_image ? 
+        `${response.data.profile_image}` : null
     })
     .catch((error) => {
         console.log('사용자 정보 가져오기 실패 : ',error);
@@ -227,6 +260,84 @@ const deleteAccount = () => {
         showDeleteModal.value=false
         deletePassword.value = null
     })
+    }
+
+// 프로필 이미지 변경
+const handleImageUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+        // 파일 크기 체크
+        if (file.size > 5 * 1024 * 1024) { // 5MB
+            alert('파일 크기는 5MB를 초과할 수 없습니다.')
+            return
+        }
+        // 파일 타입 체크
+        if (!file.type.startsWith('image/')) { // 5MB
+            alert('이미지 파일만 업로드 가능합니다.')
+            return
+        }
+
+        const formData = new FormData()
+        formData.append('profile_image', file)
+
+        
+        // 프로필 이미지 미리보기
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.value = e.target.result
+
+        };
+        reader.readAsDataURL(file);
+
+        axios({
+            method: 'patch',
+            url: `${store.BASE_URL}/accounts/user/`,
+            headers: {
+                Authorization: `Token ${store.token}`,
+            },
+            data: formData
+        })
+        .then((response) => {
+            userInfo.value.profile_image = response.data.profile_image;
+            console.log('프로필 사진 업데이트')
+        })
+        .catch((error) => {
+            console.error('프로필 업데이트 실패 : ', error);
+            if (error.response) {
+        // 서버 응답이 있는 경우
+        console.log('에러 응답 데이터:', error.response.data);
+        // 에러 메시지 표시
+    } else {
+        // 서버 응답이 없는 경우
+        alert('프로필 업데이트에 실패했습니다. 다시 시도해주세요.');
+    }
+        // 업로드 실패시 미리보기 초기화
+        previewImage.value = null
+        })
+
+    }
+
+}
+
+// 프로필 사진 삭제
+const deleteProfileImage = () => {
+    const storedToken = store.token
+    if(confirm('프로필 사진을 삭제하시겠습니까?')) {
+        axios({
+            method:'delete',
+            url: `${store.BASE_URL}/accounts/profile-image`,
+            headers: {
+                Authorization: `Token ${storedToken}`
+            }
+        })
+        .then((response) => {
+            userInfo.value.profile_image = response.data.profile_image
+            previewImage.value = null
+        })
+        .catch((error) => {
+            console.error('프로필 사진 삭제 실패 : ', error);
+        })
+    }
 }
 </script>
 
@@ -312,5 +423,38 @@ input[type="password"] {
     margin: 0.5rem 0;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
+}
+
+.profile-image-container {
+  /* text-align: center; */
+  margin: 20px 0;
+}
+
+.profile-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 10px 0;
+  border: 2px solid #ddd;
+}
+
+input[type="file"] {
+  display: block;
+  margin-top: 10px;
+}
+
+/* 파일 입력 스타일링 */
+input[type="file"]::file-selector-button {
+  border: 2px solid #6c757d;
+  padding: 0.5em 1em;
+  border-radius: 0.3em;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #6c757d;
+  color: white;
 }
 </style>

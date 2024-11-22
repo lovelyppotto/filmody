@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.urls import path
-from .views import DeleteAccountView, SignUpView
+from . import views
 
 urlpatterns = [
-    path('delete/',DeleteAccountView.as_view(),name='delete-account'),
-    path('signup/', SignUpView.as_view(), name='signup'),
+    path('signup/', views.signup,),
+    path('delete/', views.delete_account,),
+    path('profile-image/', views.delete_profile_image)
 ]
