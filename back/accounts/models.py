@@ -9,6 +9,6 @@ class User(AbstractUser):
     show_reviews = models.BooleanField(default=True)
     profile_image = models.ImageField(
         upload_to='profile_images/',
-        default='profile_images/default.png'
+        default='images/default.png'
     )
 
