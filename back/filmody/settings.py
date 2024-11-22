@@ -168,7 +168,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 # 이미지 저장 경로
 MEDIA_URL = '/media/'  # 클라이언트가 이미지를 접근할 때 사용할 URL 경로
@@ -208,3 +212,6 @@ FILE_UPLOAD_HANDLERS = [
 # 파일 업로드 최대 크기 설정
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# 개발 환경
+BASE_URL = 'http://127.0.0.1:8000'
