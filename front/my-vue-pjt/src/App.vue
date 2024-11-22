@@ -39,11 +39,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import "@/assets/index.css";
+
 .content-wrapper {
   margin-top: 65px;
   /* 또는 */
   /* 필요한 경우 추가 스타일 */
   width: 100%;
   min-height: calc(100vh - 56px);
+  font-family: Nanum;
 }
 </style>

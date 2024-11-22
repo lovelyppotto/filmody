@@ -4,7 +4,7 @@
     <div class="position-relative">
       <img 
         v-if="playlist.cover_img"
-        :src="playlist.cover_img"
+        :src="imgSrc"
         :alt="playlist.title"
         class="card-img-top"
         style="height: 200px; object-fit: cover;"
@@ -30,13 +30,31 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'  // 조건부로 사용
 
 const props = defineProps({
   playlist: {
     type: Object,
     required: true
+  },
+  useBaseUrl: {  // BASE_URL 사용 여부를 prop으로 받음
+    type: Boolean,
+    default: false
   }
+})
+
+// 이미지 소스를 computed로 처리
+const imgSrc = computed(() => {
+  if (!props.playlist.cover_img) return ''
+  
+  // useBaseUrl이 true일 때만 BASE_URL 적용
+  if (props.useBaseUrl) {
+    const authStore = useAuthStore()
+    return `${authStore.BASE_URL}${props.playlist.cover_img}`
+  }
+  
+  return props.playlist.cover_img
 })
 
 const handleImageError = (e) => {

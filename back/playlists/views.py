@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+from yaml import serialize
 from .models import Playlist, PlaylistReview, PlaylistVideo
 from .serializers import PlaylistSerializer, PlaylistReviewSerializer, PlaylistVideoSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -27,13 +28,34 @@ def public_playlist_view(request):
     # print('직렬화된 데이터:', serializer.data)  # 직렬화된 결과 확인
     return Response(serializer.data)
 
+# 내가 작성한 플레이리스트 조회
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_playlist_view(request):
+    playlist = Playlist.objects.filter(user=request.user)
+
+    serializer = PlaylistSerializer(playlist, many=True)
+    return Response(serializer.data)
+
+
+# 좋아요한 플레이리스트 조회
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def liked_playlist_view(request):
+    # 현재 로그인한 유저가 좋아요한 플레이리스트 조회
+    playlists = Playlist.objects.filter(likes=request.user)
+    
+    # 시리얼라이저로 데이터 직렬화
+    serializer = PlaylistSerializer(playlists, many=True)
+    return Response(serializer.data)
+
 # 플레이리스트 생성
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_playlist_view(request):
-    print('FILES:', request.FILES)
-    print('POST data:', request.POST)
-    print('Request data:', request.data)
+    # print('FILES:', request.FILES)
+    # print('POST data:', request.POST)
+    # print('Request data:', request.data)
     
     serializer = PlaylistSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
@@ -252,3 +274,6 @@ def playlist_toggle_like(request, playlist_id):
     except Playlist.DoesNotExist:
         return Response({'error': '플레이리스트를 찾을 수 없습니다.'}, 
                       status=status.HTTP_404_NOT_FOUND)
+    
+
+
