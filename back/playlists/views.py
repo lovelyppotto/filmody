@@ -165,25 +165,20 @@ def playlist_video_view(request, playlist_id):
            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-# 리뷰 생성, 수정, 삭제 처리
 @api_view(['POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def review_manage(request, playlist_id):
-    """
-    POST: 새 리뷰 생성
-    PUT: 기존 리뷰 수정
-    DELETE: 리뷰 삭제
-    """
-    # 플레이리스트 존재 여부 확인
     try:
         playlist = Playlist.objects.get(id=playlist_id)
     except Playlist.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'POST':
-        # 새 리뷰 생성
-        serializer = PlaylistReviewSerializer(data=request.data)
+        # request를 context에 추가
+        serializer = PlaylistReviewSerializer(
+            data=request.data, 
+            context={'request': request}  # 여기 추가
+        )
         if serializer.is_valid():
             try:
                 serializer.save(user=request.user, playlist=playlist)
@@ -195,22 +190,24 @@ def review_manage(request, playlist_id):
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # 기존 리뷰 존재 여부 확인 (수정/삭제)
     try:
         review = PlaylistReview.objects.get(user=request.user, playlist=playlist)
     except PlaylistReview.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'PUT':
-        # 리뷰 수정
-        serializer = PlaylistReviewSerializer(review, data=request.data)
+        # PUT 요청에도 context 추가
+        serializer = PlaylistReviewSerializer(
+            review, 
+            data=request.data, 
+            context={'request': request}  # 여기 추가
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        # 리뷰 삭제
         review.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -221,7 +218,7 @@ def playlist_reviews(request, playlist_id):
     try:
         playlist = Playlist.objects.get(id=playlist_id)
         reviews = PlaylistReview.objects.filter(playlist=playlist)
-        serializer = PlaylistReviewSerializer(reviews, many=True)
+        serializer = PlaylistReviewSerializer(reviews, many=True, context={'request': request})
         return Response(serializer.data)
     except Playlist.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)

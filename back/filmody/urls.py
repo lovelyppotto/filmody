@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/movies/', include('movies.urls')),
     path('api/playlist/', include('playlists.urls')),
+    path('api/chatbot/', include('chatbot.urls')),
     path('accounts/', include('dj_rest_auth.urls')), # dj-rest-auth 기본 경로
     path('accounts/', include('accounts.urls')),  # 커스텀 경로
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

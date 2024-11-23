@@ -3,41 +3,43 @@
     <div class="review-header">
       <div class="image-nickname" @click="goToUserProfile(review.user_info.id)">
         <img 
-        :src="getImageUrl(review.user_info.profile_image)" 
-        alt="프로필 사진"
-        class="profile-image"
-        @error="handleImageError"
+          :src="getImageUrl(review.user_info.profile_image)" 
+          alt="프로필 사진"
+          class="profile-image"
+          @error="handleImageError"
         >
         <strong>{{ review.user_info.nickname }}</strong>
       </div>
-      <span class="timestamp">{{ formatDate(review.created_at) }}</span>
+      <span class="timestamp">{{ formattedDate }}</span>
     </div>
     <p>{{ review.content }}</p>
 
     <div class="actions-wrapper">
-    <i 
-      :class="[
-        'fa-thumbs-up', 
-        'like-icon', 
-        review.is_liked ? 'fa-solid' : 'fa-regular'
-      ]"
-      @click="reviewStore.toggleLike(playlistId, review.id)"
-    ></i>
-    <span class="like-count">{{ review.likes_count || 0 }}</span>
-    <button class="delete-btn" @click="deleteReview">삭제</button>
-  </div>
+      <i 
+        :class="[
+          'fa-thumbs-up', 
+          'like-icon', 
+          review.is_liked ? 'fa-solid' : 'fa-regular'
+        ]"
+        @click="handleLikeClick"
+      ></i>
+      <span class="like-count">{{ review.likes_count || 0 }}</span>
+      <button 
+        v-if="canDelete" 
+        class="delete-btn" 
+        @click="deleteReview"
+      >삭제</button>
+    </div>
   </div>
 </template>
 
-
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useReviewStore } from "@/stores/review";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
-const router = useRouter()
-const showModal = ref(false);
 
+const router = useRouter();
 const props = defineProps({
   review: {
     type: Object,
@@ -50,73 +52,78 @@ const props = defineProps({
 });
 
 const reviewStore = useReviewStore();
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
+// 삭제 버튼 표시 여부 계산
+const canDelete = computed(() => {
+  // console.log("Review data:", props.review);  // 전체 리뷰 데이터
+  // console.log("Is owner:", props.review.is_owner);  // is_owner 값
+  // console.log("User info:", props.review.user_info);  // 사용자 정보
+  return props.review.is_owner;
+});
+
+const formattedDate = computed(() => {
+  const date = new Date(props.review.created_at);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
-
   return `${year}. ${month}. ${day}  |  ${hours}:${minutes}`;
-};
+});
 
-// const isAlertOpen = ref(false);
-
-const handleLikeClick = () => {
-  if (props.review.is_owner) return; // 자신의 리뷰면 여기서 끝
-  reviewStore.toggleLike(props.playlistId, props.review.id);
-};
-
-const closeModal = () => {
-  showModal.value = false;
-};
-
-const deleteReview = () => {
-  reviewStore.deleteReview(props.playlistId, props.review.id);
+const handleLikeClick = async () => {
+  if (props.review.is_owner) return;
+  
+  try {
+    await reviewStore.toggleLike(props.playlistId, props.review.id);
+  } catch (error) {
+    console.error('Failed to toggle like:', error);
+  }
 };
 
 const getImageUrl = (profileImage) => {
-  console.log('Original profile image:', profileImage);
-  const baseUrl = authStore.BASE_URL
-
-  // 프로필 이미지가 없는 경우
+  const baseUrl = authStore.BASE_URL;
+  
   if (!profileImage) {
     return `${baseUrl}/static/images/default.png`;
   }
   
-  // static 폴더(기본 이미지)인 경우
   if (profileImage.startsWith('/static/')) {
     return `${baseUrl}${profileImage}`;
   }
   
-  // media 폴더(업로드된 이미지)인 경우
   try {
     if (profileImage.startsWith('/media/')) {
-      // URL 인코딩 처리
       const encodedPath = profileImage.split('/').map(segment => 
-        segment.includes('.') ? 
-          segment : // 파일명은 이미 인코딩되어 있으므로 건너뛰기
-          encodeURIComponent(segment)
+        segment.includes('.') ? segment : encodeURIComponent(segment)
       ).join('/');
-      
       return `${baseUrl}${encodedPath}`;
     }
     
-    // media로 시작하지 않는 경우
     const encodedImage = encodeURIComponent(profileImage);
     return `${baseUrl}/media/${encodedImage}`;
-    } catch (error) {
-      console.error('Error creating image URL:', error);
-      return '/static/images/default.png';
-    }
+  } catch (error) {
+    console.error('Error creating image URL:', error);
+    return `${baseUrl}/static/images/default.png`;
+  }
 };
 
-const goToUserProfile = (user_id) => {
-  router.push(`/users/${user_id}`)
-}
+const goToUserProfile = (userId) => {
+  router.push(`/users/${userId}`);
+};
+
+const deleteReview = async () => {
+  try {
+    await reviewStore.deleteReview(props.playlistId, props.review.id);
+  } catch (error) {
+    console.error('Failed to delete review:', error);
+  }
+};
+
+const handleImageError = (event) => {
+  event.target.src = `${authStore.BASE_URL}/static/images/default.png`;
+};
 </script>
 
  <style scoped>

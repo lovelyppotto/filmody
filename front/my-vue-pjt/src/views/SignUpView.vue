@@ -1,62 +1,245 @@
 <template>
-    <div class="signup-container font-nanum">
-      <h1 class="signup-title">Sign Up</h1>
-      <form @submit.prevent="signUp" class="signup-form">
-        <div class="form-group">
-          <label for="username">아이디</label>
-          <input type="text" id="username" v-model.trim="username" placeholder="아이디를 입력하세요">
-        </div>
+  <div class="signup-container font-nanum">
+    <h1 class="signup-title">Sign Up</h1>
+    <form @submit.prevent="signUp" class="signup-form">
+      <div class="form-group">
+        <label for="username">아이디</label>
+        <input type="text" id="username" v-model.trim="username" placeholder="아이디를 입력하세요">
+      </div>
+
+      <div class="form-group">
+        <label for="password1">비밀번호</label>
+        <input 
+          type="password" 
+          id="password1" 
+          v-model.trim="password1" 
+          @input="validatePassword"
+          placeholder="비밀번호를 입력하세요"
+        >
+        <p v-if="!isPasswordValid && password1" class="error-message">
+          비밀번호는 특수문자(@,!,^,_)/숫자/영어를 모두 포함하여 8자 이상이어야 합니다.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="password2">비밀번호 확인</label>
+        <input 
+          type="password" 
+          id="password2" 
+          v-model.trim="password2"
+          @input="validatePasswordMatch"
+          placeholder="비밀번호를 다시 입력하세요"
+        >
+        <p v-if="!isPasswordMatch && password2" class="error-message">
+          비밀번호가 일치하지 않습니다.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="nickname">닉네임</label>
+        <input 
+          type="text" 
+          id="nickname" 
+          v-model.trim="nickname" 
+          @input="validateNickname"
+          placeholder="닉네임을 입력하세요"
+        >
+        <p v-if="!isNicknameValid && nickname" class="error-message">
+          닉네임은 10글자를 초과할 수 없습니다.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="email">이메일</label>
+        <input 
+          type="text" 
+          id="email" 
+          v-model.trim="email"
+          @input="validateEmail"
+          placeholder="이메일 주소를 입력하세요"
+        >
+        <p v-if="!isEmailValid && email" class="error-message">
+          유효한 이메일 주소를 입력해주세요.
+        </p>
+      </div>
+
+      <p>프로필 이미지는 기본 이미지로 설정됩니다. 추후 프로필 페이지에서 변경해 주세요.</p>
+
+      <button 
+        type="submit" 
+        class="signup-button"
+        :class="{ 'signup-button-disabled': !isFormValid }"
+        :disabled="!isFormValid"
+      >
+        회원가입
+      </button>
+    </form>
+
+    <SignupModal 
+      :is-visible="showModal"
+      @confirm="handleModalConfirm"
+      @close="handleModalClose"
+    />
+  </div>
+</template>
+
+<script setup>
+import { useAuthStore } from '@/stores/auth';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import SignupModal from '@/components/SignupModal.vue';
+
+const store = useAuthStore();
+const router = useRouter();
+const showModal = ref(false);
+
+const username = ref(null);
+const password1 = ref(null);
+const password2 = ref(null);
+const nickname = ref(null);
+const email = ref(null);
+
+const isPasswordValid = ref(true);
+const isPasswordMatch = ref(true);
+const isNicknameValid = ref(true);
+const isEmailValid = ref(true);
+
+// 비밀번호 유효성 검사
+const validatePassword = () => {
+  if (!password1.value) {
+    isPasswordValid.value = true;
+    return;
+  }
+
+  const passwordRegex = /^(?=.*[@!^_])(?=.*[0-9])(?=.*[a-zA-Z]).{8,}$/;
+  isPasswordValid.value = passwordRegex.test(password1.value);
+  validatePasswordMatch();
+};
+
+// 비밀번호 일치 검사
+const validatePasswordMatch = () => {
+  if (!password2.value) {
+    isPasswordMatch.value = true;
+    return;
+  }
+  isPasswordMatch.value = password1.value === password2.value;
+};
+
+// 닉네임 유효성 검사
+const validateNickname = () => {
+  if (!nickname.value) {
+    isNicknameValid.value = true;
+    return;
+  }
+  isNicknameValid.value = nickname.value.length <= 10;
+};
+
+// 이메일 유효성 검사
+const validateEmail = () => {
+  if (!email.value) {
+    isEmailValid.value = true;
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  isEmailValid.value = emailRegex.test(email.value);
+};
+
+// 폼 전체 유효성 검사
+const isFormValid = computed(() => {
+  return username.value && 
+         password1.value && 
+         password2.value && 
+         nickname.value && 
+         email.value && 
+         isPasswordValid.value && 
+         isPasswordMatch.value &&
+         isNicknameValid.value &&
+         isEmailValid.value;
+});
+
+const handleModalConfirm = async () => {
+  try {
+    // 저장된 로그인 정보로 로그인 시도
+    if (loginCredentials.value) {
+      await store.logIn(loginCredentials.value);
+    }
+    showModal.value = false;
+    router.push({ name: 'home' });
+  } catch (error) {
+    console.error('로그인 중 에러 발생:', error);
+    // 에러 처리
+  }
+};
+
+const handleModalClose = () => {
+  handleModalConfirm(); // 동일한 로직 실행
+};
+
+// 로그인 정보를 저장할 ref
+const loginCredentials = ref(null);
+
+const signUp = async function () {
+  if (!isFormValid.value) return;
   
-        <div class="form-group">
-          <label for="password1">비밀번호</label>
-          <input type="password" id="password1" v-model.trim="password1" placeholder="비밀번호를 입력하세요">
-        </div>
-  
-        <div class="form-group">
-          <label for="password2">비밀번호 확인</label>
-          <input type="password" id="password2" v-model.trim="password2" placeholder="비밀번호를 다시 입력하세요">
-        </div>
-  
-        <div class="form-group">
-          <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" v-model.trim="nickname" placeholder="닉네임을 입력하세요">
-        </div>
-  
-        <div class="form-group">
-          <label for="email">이메일</label>
-          <input type="text" id="email" v-model.trim="email" placeholder="이메일 주소를 입력하세요">
-        </div>
-  
-        <button type="submit" class="signup-button">회원가입</button>
-      </form>
-    </div>
-  </template>
-  
-  <script setup>
-  import { useAuthStore } from '@/stores/auth';
-  import { ref } from 'vue';
-  
-  const store = useAuthStore();
-  
-  const username = ref(null);
-  const password1 = ref(null);
-  const password2 = ref(null);
-  const nickname = ref(null);
-  const email = ref(null);
-  
-  const signUp = function () {
-    const payload = {
-      username: username.value,
-      password1: password1.value,
-      password2: password2.value,
-      nickname: nickname.value,
-      email: email.value,
-    };
-    store.signUp(payload);
+  const payload = {
+    username: username.value,
+    password1: password1.value,
+    password2: password2.value,
+    nickname: nickname.value,
+    email: email.value,
   };
-  </script>
-  
-  <style scoped>
+
+  try {
+    // 회원가입 시도
+    const result = await store.signUp(payload);
+    
+    // 로그인을 위한 정보 저장
+    loginCredentials.value = result.credentials;
+    
+    // 모달 표시
+    showModal.value = true;
+  } catch (error) {
+    console.error('회원가입 중 에러 발생:', error);
+    // 에러 처리
+  }
+};
+</script>
+
+<style scoped>
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.signup-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #374c72;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.signup-button:hover:not(:disabled) {
+  background-color: #374c72;
+}
+
+.signup-button-disabled {
+  background-color: #e8e3e3;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+  p {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: #3e5275;
+  }
 
   /* 컨테이너 */
   .signup-container {
@@ -73,7 +256,7 @@
   .signup-title {
     font-size: 2rem;
     text-align: center;
-    margin: 40px 0 40px 0;
+    margin: 30px 0 40px 0;
     color: #374c72;
   }
   
@@ -131,6 +314,12 @@
     border: 1px solid #42464b;
     color: #ffffff;
   }
+
+  .error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
   
   /* 반응형 */
   @media (max-width: 768px) {

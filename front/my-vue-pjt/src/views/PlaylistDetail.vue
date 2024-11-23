@@ -61,7 +61,11 @@
       <router-view :playlist-id="playlistId"></router-view>
  
       <!-- PlaylistReviewList -->
-      <PlaylistReviewList :playlistId="Number(playlistId)"/>
+      <div class="review-list-wrapper">
+        <PlaylistReviewList 
+          :playlistId="Number(playlistId)"
+        />
+</div>
     </div>
 
     <!-- 삭제 확인 모달 -->
@@ -296,5 +300,9 @@ fa-heart {
 
 .disabled .fa-heart {
   cursor: not-allowed;
+}
+
+.review-list-wrapper{
+  margin-bottom: 100px;
 }
 </style>

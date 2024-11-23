@@ -28,9 +28,7 @@ export const useReviewStore = defineStore('review', () => {
   };
 
   const fetchReviews = (playlistId) => {
-    if (!playlistId) {
-      return Promise.resolve();
-    }
+    if (!playlistId) return Promise.resolve();
     
     loading.value = true;
     return authRequest('get', `/api/playlist/${playlistId}/review-list/`)
@@ -70,24 +68,25 @@ export const useReviewStore = defineStore('review', () => {
       });
   };
 
-  const toggleLike = (playlistId, reviewId) => {
-    loading.value = true;
-    
-    // 먼저 현재 리뷰 찾기
-    const review = reviews.value.find(r => r.id === reviewId);
-    
-    return authRequest('post', `/api/playlist/${playlistId}/review/${reviewId}/toggle-like/`)
-      .then(response => {
-        // 토글 후 리뷰 목록 다시 가져오기
-        return fetchReviews(playlistId);
-      })
-      .catch(err => {
-        console.error('좋아요 토글 실패:', err);
-      })
-      .finally(() => {
-        loading.value = false;
-      });
+  const toggleLike = async (playlistId, reviewId) => {
+    try {
+      const response = await authRequest('post', `/api/playlist/${playlistId}/review/${reviewId}/toggle-like/`);
+      
+      // 전체 목록을 다시 불러오는 대신 해당 리뷰만 업데이트
+      const updatedReview = response.data;
+      reviews.value = reviews.value.map(review => 
+        review.id === reviewId 
+          ? { ...review, is_liked: updatedReview.is_liked, likes_count: updatedReview.likes_count }
+          : review
+      );
+      
+      return response.data;
+    } catch (err) {
+      console.error('좋아요 토글 실패:', err);
+      throw err;
+    }
   };
+
   
 
   
