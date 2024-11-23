@@ -1,37 +1,76 @@
 <template>
-    <div class="container py-4">
-        <div class="mb-4">
-        <h2 class="text-2xl font-bold">좋아요한 영화</h2>
-        <p class="text-gray-600">마음에 드는 영화를 모아보세요 :)</p>
+    <div class="container">
+        <div class="content-container">
+            <div class="header-section">
+                <h2 class="title">좋아요한 영화</h2>
+                <p class="subtitle">마음에 드는 영화를 모아보세요 :)</p>
+            </div>
+            <div class="row">
+                <LibraryMovieListItem 
+                    v-for="movie in store.likedMovies"
+                    :key="movie.id"
+                    :movie="movie"
+                    class="col-12 col-md-6 col-lg-4"
+                />
+            </div>
         </div>
-        <LibraryMovieList/>
     </div>
 </template>
 
 <script setup>
-import LibraryMovieList from '@/components/LibraryMovieList.vue';
+import LibraryMovieListItem from '@/components/LibraryMovieListItem.vue';
+import { useMovieStore } from '@/stores/movie';
+import { onMounted } from 'vue';
 
+const store = useMovieStore()
+onMounted(() => {
+    store.fetchLikedMovies()
+})
 </script>
 
 <style scoped>
-.container .py-4 {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
 }
 
-h2 {
-    display: block;
+.content-container {
+    padding: 0 1rem;
+}
+
+.header-section {
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;  /* 제목 부분 패딩 추가 */
+}
+
+.title {
     font-size: 1.5em;
-    margin-block-start: 0.83em;
-    margin-block-end: 0.83em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
     font-weight: bold;
-    unicode-bidi: isolate;
+    margin-bottom: 0.5rem;
 }
 
-p {
-    margin-top: 0;
-    margin-bottom: 1rem;
+.subtitle {
+    font-size: 1.1em;
+    color: #4A4A4A;
+    margin: 0;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -0.75rem;  /* 네거티브 마진으로 정렬 맞추기 */
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem 0;
+    }
+
+    .content-container {
+        padding: 0 0.5rem;
+    }
 }
 </style>
