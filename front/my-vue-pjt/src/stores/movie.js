@@ -141,7 +141,7 @@ export const useMovieStore = defineStore("movie", () => {
     const fetchLikedMovies = () => {
       axios({
         method:'get',
-        url:`${BASE_URL}/api/movies/liked-movies/`,
+        url:`${BASE_URL}/api/movies/library/movies/`,
         headers: {
           Authorization: `Token ${authStore.token}`,
         }
