@@ -1,11 +1,10 @@
 <template>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">  <!-- 그리드 시스템 수정 -->
-        <div class="card h-100" @click="goToDetail(movie.id)">  <!-- 높이 일정하게 -->
+    <div class="movie-item-wrapper">
+        <div class="card h-100" @click="goToDetail(movie.id)">
             <img 
                 :src="`${movie.poster_url}`" 
                 class="card-img-top"
                 :alt="movie.title"
-                style="object-fit: cover;"  
             >
             <div class="card-body">
                 <h5 class="card-title">{{ movie.title }}</h5>
@@ -21,21 +20,19 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-
-const router = useRouter()
-
-defineProps({
-    movie:Object
-})
-
-const goToDetail = (movieId) => {
-    router.push(`/movies/${movieId}`)
-}
+// ... script 부분은 그대로 유지
 </script>
+
 <style scoped>
+.movie-item-wrapper {
+    padding: 0.75rem;  /* 각 아이템에 패딩 추가 */
+}
+
 .card {
     transition: transform 0.2s;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .card:hover {
@@ -43,15 +40,30 @@ const goToDetail = (movieId) => {
 }
 
 .card-img-top {
-    height: 400px;  /* 이미지 높이 고정 */
+    height: 400px;
     object-fit: cover;
+    width: 100%;
 }
 
-/* 긴 텍스트 처리 */
+.card-body {
+    padding: 1rem;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
 .card-text {
     display: -webkit-box;
-    -webkit-line-clamp: 3;  /* 최대 3줄 */
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.text-muted {
+    color: #6c757d;
 }
 </style>

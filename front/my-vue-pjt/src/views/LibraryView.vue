@@ -10,7 +10,7 @@
                     v-for="movie in store.likedMovies"
                     :key="movie.id"
                     :movie="movie"
-                    class="col-12 col-md-6 col-lg-4"
+                    class="col-12 col-md-6 col-lg-4"  
                 />
             </div>
         </div>
@@ -42,7 +42,7 @@ onMounted(() => {
 
 .header-section {
     margin-bottom: 2rem;
-    padding: 0 0.5rem;  /* 제목 부분 패딩 추가 */
+    padding: 0 0.5rem;
 }
 
 .title {
@@ -60,11 +60,25 @@ onMounted(() => {
 .row {
     display: flex;
     flex-wrap: wrap;
-    margin: -0.75rem;  /* 네거티브 마진으로 정렬 맞추기 */
+    margin: -0.75rem;
 }
 
 /* 반응형 조정 */
+@media (max-width: 992px) {
+    /* 태블릿: 2개씩 */
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
 @media (max-width: 768px) {
+    /* 모바일: 1개씩 */
+    .col-12 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
     .container {
         padding: 1rem 0;
     }
