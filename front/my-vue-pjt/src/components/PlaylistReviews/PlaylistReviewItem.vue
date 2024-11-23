@@ -115,6 +115,7 @@ const getImageUrl = (profileImage) => {
 };
 
 const goToUserProfile = (user_id) => {
+  authStore.fetchUserProfile(user_id)
   router.push(`/users/${user_id}`)
 }
 </script>
