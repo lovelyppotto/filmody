@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>라이브러리</h1>
+        <h1>Liked Movies</h1>
         <LibraryMovieList/>
     </div>
 </template>
