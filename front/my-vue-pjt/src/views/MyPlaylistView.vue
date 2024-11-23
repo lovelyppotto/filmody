@@ -3,7 +3,7 @@
 
     <!-- 헤더 섹션 -->
     <div class="mb-4">
-      <h2 class="text-2xl font-bold">내 플레이리스트</h2>
+      <h2 class="text-2xl font-bold"><i class="fa-solid fa-music" style="color: #5c42b3;"></i> 내 플레이리스트</h2>
       <p class="text-gray-600">등록한 플레이리스트를 확인하세요 :)</p>
     </div>
 

@@ -35,7 +35,8 @@
                 Library
               </a>
               <ul 
-                class="dropdown-menu" 
+                class="dropdown-menu"
+                style="background: none !important; background-color: transparent !important;"
                 :class="{ 'show': isDropdownOpen }"
                 @click="closeDropdown"
               >
@@ -177,8 +178,12 @@
   
   <style scoped>
   .navbar {
-  background: rgba(255, 255, 255, 0.9); /* 약간 투명한 배경 */
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 100%); /* 끝부분만 투명 */
+  background: linear-gradient(to bottom, 
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.7) 30%,
+      rgba(255, 255, 255, 0.4) 70%,
+      rgba(255, 255, 255, 0) 100%
+    );
   transition: all 0.3s ease;
   padding: 0.5rem 1rem;
   border-bottom: none; /* 경계선 제거 */
@@ -186,20 +191,7 @@
 }
 
 /* 반응형 스타일 (모바일 뷰) */
-@media (max-width: 992px) {
-  .navbar {
-    background: rgba(255, 255, 255, 1); /* 모바일에서는 조금 더 불투명한 배경 */
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 90%); /* 끝부분만 투명 효과 */
-    box-shadow: none; /* 하단 경계선 및 그림자 제거 */
-  }
 
-  .navbar-collapse {
-    background: rgba(255, 255, 255, 1); /* 메뉴 펼쳐졌을 때도 불투명한 배경 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 약간의 그림자로 분리감 */
-    padding: 1rem;
-    border-radius: 8px; /* 메뉴 모서리 둥글게 */
-  }
-}
 
   
   .navbar-brand {
@@ -230,7 +222,7 @@
   }
   
   .nav-link {
-    color: #374c72;
+    color: #1d49b7;
     font-weight: 500;
     transition: color 0.3s ease;
   }
@@ -259,6 +251,7 @@
   
   .dropdown-menu {
     border: 1px solid #e6e3e3;
+    background-color: rgba(255, 255, 255, 0.472);
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     min-width: 150px;
@@ -266,7 +259,7 @@
   
   .dropdown-item {
     padding: 0.75rem 1.5rem;
-    color: #374c72;
+    color: #2757b1;
     transition: all 0.2s ease;
   }
   
@@ -279,6 +272,31 @@
     flex-grow: 1;
     display: flex;
   }
+
+  .navbar .nav-item .dropdown-menu,
+.navbar .nav-item .dropdown-menu.show {
+  /* background: none !important; */
+  background-color: transparent !important;
+  background-image: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.95) 40%,
+    rgba(255, 255, 255, 0.90) 70%,
+    rgba(255, 255, 255, 0.85) 100%
+  ) !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(8px);
+}
+
+/* 드롭다운 아이템 스타일도 추가 */
+.navbar .nav-item .dropdown-menu .dropdown-item {
+  background: transparent !important;
+}
+
+.navbar .nav-item .dropdown-menu .dropdown-item:hover,
+.navbar .nav-item .dropdown-menu .dropdown-item:focus {
+  background: rgba(255, 255, 255, 0.314) !important;
+}
   
   /* 반응형 스타일 */
   @media (max-width: 992px) {
@@ -333,12 +351,12 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: linear-gradient(to bottom, 
+    /* background: linear-gradient(to bottom, 
       rgba(255, 255, 255, 1) 0%,
       rgba(255, 255, 255, 0.9) 30%,
       rgba(255, 255, 255, 0.7) 70%,
       rgba(255, 255, 255, 0.3) 100%
-    );
+    ); */
     padding: 1rem;
     backdrop-filter: blur(8px);  /* 배경 블러 효과 */
     box-shadow: 0 8px 12px -6px rgba(0, 0, 0, 0.1);  /* 부드러운 그림자 */
@@ -354,14 +372,7 @@
   /* 드롭다운 메뉴의 배경도 반투명하게 */
   .navbar .nav-item .dropdown-menu,
   .navbar .nav-item .dropdown-menu.show {
-    background: none !important;
-    background-color: transparent !important;
-    background-image: linear-gradient(to bottom,
-      rgba(255, 255, 255, 0.98) 0%,
-      rgba(255, 255, 255, 0.95) 40%,
-      rgba(255, 255, 255, 0.90) 70%,
-      rgba(255, 255, 255, 0.85) 100%
-    ) !important;
+    background-color: rgba(255, 255, 255, 0.859);
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: blur(8px);

@@ -73,7 +73,11 @@ class PlaylistReviewSerializer(serializers.ModelSerializer):
     def get_is_owner(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return obj
+            print("Review user ID:", obj.user.id)  # 리뷰 작성자 ID
+            print("Current user ID:", request.user.id)  # 현재 로그인한 사용자 ID
+            print("Is same user:", obj.user.id == request.user.id)  # 비교 결과
+            return obj.user.id == request.user.id
+        return False
     
     
 class PlaylistVideoSerializer(serializers.ModelSerializer):

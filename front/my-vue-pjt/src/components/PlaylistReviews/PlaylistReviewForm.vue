@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="submitReview">
-    <div class="mb-3">
-      <label for="formGroupExampleInput2" class="form-label">리뷰 작성</label>
+    <div class="review-form">
+      <label for="formGroupExampleInput2" class="form-label fs-3">Playlist Review</label>
       <textarea 
         type="text" 
         class="form-control" 
@@ -50,6 +50,10 @@
  };
  </script>
  <style>
+  .review-form{
+    margin: 30px 20px 10px 20px
+  }
+
   textarea {
     resize: none;
   }

@@ -173,4 +173,12 @@ export const useMovieStore = defineStore("movie", () => {
     fetchLikedMovies,
     likedMovies
   }
-}, { persist: true });
+}, { 
+  persist: {
+    paths: [
+      'movieDetail',
+      'likedMovies',
+      'recommendMovies'
+    ]
+  } 
+});
