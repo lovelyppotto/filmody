@@ -154,6 +154,8 @@ export const useMovieStore = defineStore("movie", () => {
         console.error(error);
       })
     }
+
+    
   return{
     BASE_URL,
     searchResults,

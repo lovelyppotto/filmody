@@ -1,20 +1,26 @@
 <template>
-    <nav class="navbar fixed-top navbar-expand-lg">
-      <div class="container-fluid px-4">
-        <!-- Logo -->
-        <RouterLink class="navbar-brand" :to="{ name: 'home' }">Filmody</RouterLink>
-  
-        <!-- Mobile Toggle Button -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          @click="toggleMobileMenu"
-          aria-controls="navbarContent"
-          :aria-expanded="isMobileMenuOpen"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-  
+  <nav class="navbar fixed-top navbar-expand-lg">
+    <div class="container-fluid px-4">
+      <!-- Logo -->
+      <RouterLink class="navbar-brand" :to="{ name: 'home' }">Filmody</RouterLink>
+
+      <!-- Mobile Toggle Button -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        @click="toggleMobileMenu"
+        aria-controls="navbarContent"
+        :aria-expanded="isMobileMenuOpen"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <!-- Collapsible Content -->
+      <div 
+        class="collapse navbar-collapse"
+        :class="{ 'show': isMobileMenuOpen }"
+        id="navbarContent"
+      >
         <!-- Center Menu -->
         <div class="nav-center">
           <ul class="navbar-nav">
@@ -93,66 +99,80 @@
           </template>
         </div>
       </div>
+    </div>
     </nav>
   </template>
   
   <script setup>
-   import { ref, onMounted, onUnmounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-
-const store = useAuthStore();
-const isDropdownOpen = ref(false);
-const isMobileMenuOpen = ref(false);
-
-const logOut = () => {
-  store.logOut();
-};
-
-const toggleDropdown = (event) => {
-  event.preventDefault();
-  event.stopPropagation(); // 이벤트 전파 방지
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
-
-const closeDropdown = () => {
-  isDropdownOpen.value = false;
-};
-
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value;
-};
-
-const handleClickOutside = (event) => {
-  const dropdownElement = document.querySelector('.dropdown-menu');
-  const dropdownToggle = document.querySelector('.dropdown-toggle');
+  import { ref, onMounted, onUnmounted } from 'vue';
+  import { useAuthStore } from '@/stores/auth';
   
-  if (
-    dropdownElement &&
-    !dropdownElement.contains(event.target) && 
-    dropdownToggle &&
-    !dropdownToggle.contains(event.target)
-  ) {
+  const store = useAuthStore();
+  const isDropdownOpen = ref(false);
+  const isMobileMenuOpen = ref(false);
+  
+  const logOut = () => {
+    store.logOut();
+  };
+  
+  const toggleDropdown = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    isDropdownOpen.value = !isDropdownOpen.value;
+  };
+  
+  const closeDropdown = () => {
     isDropdownOpen.value = false;
-  }
-};
-
-const handleResize = () => {
-  if (window.innerWidth > 992) {
-    isMobileMenuOpen.value = false;
-    isDropdownOpen.value = false;
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  document.addEventListener('click', handleClickOutside); // 외부 클릭 이벤트 리스너 추가
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-  document.removeEventListener('click', handleClickOutside); // 리스너 제거
-});
-
+  };
+  
+  const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value;
+  };
+  
+  // 외부 클릭 이벤트 핸들러 수정
+  const handleClickOutside = (event) => {
+    const dropdownElement = document.querySelector('.dropdown-menu');
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    
+    // 드롭다운 메뉴 닫기
+    if (
+      dropdownElement &&
+      !dropdownElement.contains(event.target) && 
+      dropdownToggle &&
+      !dropdownToggle.contains(event.target)
+    ) {
+      isDropdownOpen.value = false;
+    }
+  
+    // 모바일 메뉴 닫기
+    if (
+      navbarCollapse &&
+      !navbarCollapse.contains(event.target) &&
+      !navbarToggler.contains(event.target) &&
+      isMobileMenuOpen.value
+    ) {
+      isMobileMenuOpen.value = false;
+    }
+  };
+  
+  const handleResize = () => {
+    if (window.innerWidth > 992) {
+      isMobileMenuOpen.value = false;
+      isDropdownOpen.value = false;
+    }
+  };
+  
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('click', handleClickOutside);
+  });
+  
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+    document.removeEventListener('click', handleClickOutside);
+  });
   </script>
   
   <style scoped>
@@ -254,6 +274,11 @@ onUnmounted(() => {
     background-color: #f8f9fa;
     color: #374c72;
   }
+
+  .navbar-collapse {
+    flex-grow: 1;
+    display: flex;
+  }
   
   /* 반응형 스타일 */
   @media (max-width: 992px) {
@@ -280,6 +305,7 @@ onUnmounted(() => {
       width: 100%;
       margin-top: 1rem;
       order: 2;
+      margin: 2rem 0 2rem 0; /* 위 1rem, 아래 2rem으로 여백 설정 */
     }
   
     .dropdown-menu {
@@ -290,20 +316,68 @@ onUnmounted(() => {
       margin-top: 0;
     }
   
-    .navbar-collapse {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background-color: white;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
   
     .container-fluid {
       flex-wrap: wrap;
     }
+
+    .navbar-collapse {
+    display: none;
+    width: 100%;
   }
+
+  .navbar-collapse.show {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to bottom, 
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.9) 30%,
+      rgba(255, 255, 255, 0.7) 70%,
+      rgba(255, 255, 255, 0.3) 100%
+    );
+    padding: 1rem;
+    backdrop-filter: blur(8px);  /* 배경 블러 효과 */
+    box-shadow: 0 8px 12px -6px rgba(0, 0, 0, 0.1);  /* 부드러운 그림자 */
+    border-bottom-left-radius: 20px;  /* 하단 모서리 둥글게 */
+    border-bottom-right-radius: 20px;
+  }
+
+  /* 메뉴 항목들의 배경도 투명하게 처리 */
+  .nav-center, .nav-right {
+    background: transparent;
+  }
+
+  /* 드롭다운 메뉴의 배경도 반투명하게 */
+  .navbar .nav-item .dropdown-menu,
+  .navbar .nav-item .dropdown-menu.show {
+    background: none !important;
+    background-color: transparent !important;
+    background-image: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(255, 255, 255, 0.95) 40%,
+      rgba(255, 255, 255, 0.90) 70%,
+      rgba(255, 255, 255, 0.85) 100%
+    ) !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(8px);
+  }
+
+  /* dropdown 아이템들의 스타일 */
+  .navbar .nav-item .dropdown-menu .dropdown-item {
+    background: transparent !important;
+  }
+
+  .navbar .nav-item .dropdown-menu .dropdown-item:hover,
+  .navbar .nav-item .dropdown-menu .dropdown-item:focus {
+    background: rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
   
   .navbar-toggler {
     border: none;

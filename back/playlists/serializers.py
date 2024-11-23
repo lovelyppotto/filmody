@@ -45,7 +45,7 @@ class PlaylistReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PlaylistReview
-        fields = ['id', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner','user_info','user_profile_image']
+        fields = ['id', 'content', 'created_at', 'updated_at', 'is_liked', 'likes_count', 'is_owner', 'user_info', 'user_profile_image']
         read_only_fields = ['user', 'playlist','user_info']
 
     def get_user_info(self, obj):

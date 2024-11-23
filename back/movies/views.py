@@ -118,6 +118,8 @@ def movie_likes(request, movie_id):
     }
     return Response(data) # 좋아요 상태랑 수를 응답 보냄
 
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def library_movies(request):

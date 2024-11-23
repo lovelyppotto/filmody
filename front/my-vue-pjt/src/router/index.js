@@ -45,6 +45,16 @@ const router = createRouter({
       component: MovieSearchView,
     },
     {
+      path: "/movies/:id",
+      name: 'movieDetail',
+      component: MovieDetailView,
+    },
+    {
+      path: "/movies/library",
+      name: 'library-movie',
+      component: MovieDetailView,
+    },
+    {
       path: "/review-search",
       name: "ReviewSearchView",
       component: ReviewSearchView,
@@ -53,11 +63,6 @@ const router = createRouter({
       path: "/recommend",
       name: "Recommend",
       component: RecommendView,
-    },
-    {
-      path: "/movies/:id",
-      name: 'movieDetail',
-      component: MovieDetailView,
     },
     {
       path: '/playlist',
