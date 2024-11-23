@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'movies',
     'accounts',
     'playlists',
+    'chatbot',
     'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
@@ -151,6 +152,7 @@ environ.Env.read_env(BASE_DIR / '.env')  # .env 파일 읽기
 KOBIS_API_KEY = env('KOBIS_API_KEY')
 KMDB_API_KEY = env('KMDB_API_KEY')
 YOUTUBE_API_KEY = env('YOUTUBE_API_KEY')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

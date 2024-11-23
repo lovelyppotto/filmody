@@ -154,6 +154,8 @@ export const useMovieStore = defineStore("movie", () => {
         console.error(error);
       })
     }
+
+    
   return{
     BASE_URL,
     searchResults,
@@ -171,4 +173,12 @@ export const useMovieStore = defineStore("movie", () => {
     fetchLikedMovies,
     likedMovies
   }
-}, { persist: true });
+}, { 
+  persist: {
+    paths: [
+      'movieDetail',
+      'likedMovies',
+      'recommendMovies'
+    ]
+  } 
+});

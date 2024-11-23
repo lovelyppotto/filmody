@@ -303,6 +303,10 @@ onUnmounted(() => {
 
 <style scoped>
 /* 기존 스타일 유지 */
+.card {
+  z-index: 98;
+}
+
 .carousel-control-prev,
 .carousel-control-next {
   background-color: rgba(0, 0, 0, 0.5);
