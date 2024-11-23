@@ -46,7 +46,7 @@
                   <RouterLink class="dropdown-item" :to="{ name: 'liked-playlists' }">Liked Playlist</RouterLink>
                 </li>
                 <li>
-                  <RouterLink class="dropdown-item" :to="{ name: 'liked-playlists' }">Liked Movies</RouterLink>
+                  <RouterLink class="dropdown-item" :to=" {name:'LikedMovies'}">Liked Movies</RouterLink>
                 </li>
               </ul>
             </li>

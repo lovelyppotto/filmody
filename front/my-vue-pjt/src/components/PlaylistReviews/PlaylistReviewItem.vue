@@ -1,14 +1,15 @@
 <template>
   <div class="review-item">
     <div class="review-header">
-      {{ review.user_info.profile_image }}
-      <img 
+      <div class="image-nickname" @click="goToUserProfile(review.user_info.id)">
+        <img 
         :src="getImageUrl(review.user_info.profile_image)" 
         alt="프로필 사진"
         class="profile-image"
         @error="handleImageError"
-      >
-      <strong>{{ review.user_info.nickname }}</strong>
+        >
+        <strong>{{ review.user_info.nickname }}</strong>
+      </div>
       <span class="timestamp">{{ formatDate(review.created_at) }}</span>
     </div>
     <p>{{ review.content }}</p>
@@ -33,6 +34,8 @@
 import { ref } from "vue";
 import { useReviewStore } from "@/stores/review";
 import { useAuthStore } from "@/stores/auth";
+import { useRouter } from "vue-router";
+const router = useRouter()
 const showModal = ref(false);
 
 const props = defineProps({
@@ -86,11 +89,10 @@ const getImageUrl = (profileImage) => {
   
   // static 폴더(기본 이미지)인 경우
   if (profileImage.startsWith('/static/')) {
-    return profileImage;
+    return `${baseUrl}${profileImage}`;
   }
   
   // media 폴더(업로드된 이미지)인 경우
-  
   try {
     if (profileImage.startsWith('/media/')) {
       // URL 인코딩 처리
@@ -106,12 +108,15 @@ const getImageUrl = (profileImage) => {
     // media로 시작하지 않는 경우
     const encodedImage = encodeURIComponent(profileImage);
     return `${baseUrl}/media/${encodedImage}`;
-  } catch (error) {
-    console.error('Error creating image URL:', error);
-    return '/static/images/default.png';
-  }
+    } catch (error) {
+      console.error('Error creating image URL:', error);
+      return '/static/images/default.png';
+    }
 };
 
+const goToUserProfile = (user_id) => {
+  router.push(`/users/${user_id}`)
+}
 </script>
 
  <style scoped>
@@ -119,13 +124,6 @@ const getImageUrl = (profileImage) => {
   margin-bottom: 16px;
   padding: 15px;
   border-bottom: 1px solid #eee;
- }
- 
- .review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
  }
  
  .timestamp {
@@ -169,6 +167,33 @@ const getImageUrl = (profileImage) => {
   background: #f5f5f5;
   cursor: pointer;
   font-size: 0.9em;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.image-nickname {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;  /* 클릭 가능함을 표시 */
+  transition: opacity 0.2s ease;  /* 부드러운 호버 효과 */
+}
+
+.image-nickname:hover {
+  opacity: 0.8;  /* 호버 시 약간 투명해지는 효과 */
+}
+
+.profile-image {
+  width: 40px;        
+  height: 40px;
+  border-radius: 50%;  
+  object-fit: cover;   
+  flex-shrink: 0;      
 }
 
 </style>
