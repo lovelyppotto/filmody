@@ -49,6 +49,7 @@ def liked_playlist_view(request):
     serializer = PlaylistSerializer(playlists, many=True)
     return Response(serializer.data)
 
+
 # 플레이리스트 생성
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
