@@ -8,6 +8,11 @@ export const useAuthStore = defineStore("auth", () => {
   const token = ref(null)
   const currentUser = ref(null)
   const userData = ref(null)
+  const userProfile = ref(null)
+  const userPlaylists = ref([])
+  const userLikedPlaylists = ref([])
+  const userLikedMovies = ref([])
+  
 
     // 회원가입
     const signUp = async function (payload) {
@@ -82,6 +87,28 @@ export const useAuthStore = defineStore("auth", () => {
       }
     }
 
+    // 유저 프로필 상세페이지
+    const fetchUserProfile = async (userId) => {
+      try {
+        const response = await axios.get(`${BASE_URL}/accounts/users/${userId}/`,
+          {
+            headers: { Authorization: `Token ${token.value}` }
+          }
+        )
+        console.log(response.data.user_info);
+        console.log(response.data.playlists);
+        console.log(response.data.liked_playlists);
+        console.log(response.data.liked_movies);
+        
+        userProfile.value = response.data.user_info;
+        userPlaylists.value = response.data.playlists;
+        userLikedPlaylists.value = response.data.liked_playlists;
+        userLikedMovies.value = response.data.liked_movies;
+      } catch (error) {
+        console.error('프로필 로드 실패 : ', error)
+      } 
+    }
+
     return {
       token,
       userData,
@@ -90,5 +117,10 @@ export const useAuthStore = defineStore("auth", () => {
       BASE_URL,
       signUp,
       fetchCurrentUser,
+      userProfile,
+      userPlaylists,
+      userLikedPlaylists,
+      userLikedMovies,
+      fetchUserProfile
     };
-  }, { persist: true });
+  }, { persist: true});
