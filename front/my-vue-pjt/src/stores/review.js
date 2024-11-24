@@ -8,6 +8,7 @@ export const useReviewStore = defineStore('review', () => {
   const loading = ref(false);
   const error = ref(null);
   const authStore = useAuthStore();
+  
 
   // axios 요청에 인증 헤더와 baseURL을 추가하는 함수
   const authRequest = (method, url, data = null) => {
@@ -27,6 +28,7 @@ export const useReviewStore = defineStore('review', () => {
     return axios(config);
   };
 
+  // 리뷰 가져오기
   const fetchReviews = (playlistId) => {
     if (!playlistId) return Promise.resolve();
     
@@ -47,6 +49,7 @@ export const useReviewStore = defineStore('review', () => {
       });
   };
 
+  // 리뷰 등록
   const createReview = (playlistId, content) => {
     if (!authStore.token) {
       error.value = "로그인이 필요합니다.";
@@ -89,7 +92,7 @@ export const useReviewStore = defineStore('review', () => {
 
   
 
-  
+  // 리뷰 삭제
   const deleteReview = (playlistId, reviewId) => {
     if (!authStore.token) {
       error.value = "로그인이 필요합니다.";
@@ -107,6 +110,34 @@ export const useReviewStore = defineStore('review', () => {
       });
   };
 
+  // 리뷰 수정
+  const updateReview = (playlistId, reviewId, updatedData) => {
+    if (!authStore.token) {
+      error.value = "로그인이 필요합니다.";
+      return Promise.reject(new Error("로그인이 필요합니다."));
+    }
+
+    return authRequest(
+      'put',
+      `/api/playlist/${playlistId}/reviews/`,
+      {
+        review_id: reviewId,
+        ...updatedData
+      }
+    )
+      .then((res) => {
+        // 상태 업데이트
+        reviews.value = reviews.value.map(review => 
+          review.id === reviewId ? res.data : review
+        );
+        return res.data;
+      })
+      .catch(err => {
+        error.value = err.response?.data || "리뷰 수정에 실패했습니다.";
+        return Promise.reject(err);
+      });
+  };
+
   return {
     reviews,
     loading,
@@ -114,6 +145,7 @@ export const useReviewStore = defineStore('review', () => {
     fetchReviews,
     createReview,
     deleteReview,
-    toggleLike
+    toggleLike,
+    updateReview,
   };
 });
