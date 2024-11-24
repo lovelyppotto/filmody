@@ -75,6 +75,24 @@ export const useAuthStore = defineStore("auth", () => {
     })
   }
 
+
+    // 유저 프로필 상세페이지
+    const fetchUserProfile = async (userId) => {
+      try {
+        const response = await axios.get(`${BASE_URL}/accounts/users/${userId}/`,
+          {
+            headers: { Authorization: `Token ${token.value}` }
+          }
+        )
+        userProfile.value = response.data.user_info;
+        userPlaylists.value = response.data.playlists;
+        userLikedPlaylists.value = response.data.liked_playlists;
+        userLikedMovies.value = response.data.liked_movies;
+
+      } catch (error) {
+        console.error('프로필 로드 실패 : ', error)
+      } 
+
   // 현재 로그인한 사용자 정보
   const fetchCurrentUser = async () => {
     if (!token.value) return null
@@ -90,48 +108,68 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  // 유저 프로필 상세페이지
-  const fetchUserProfile = async (userId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/accounts/users/${userId}/`, {
-        headers: { Authorization: `Token ${token.value}` }
-      })
-
-      // user_info에 profile_image가 있을 경우 처리
-      if (response.data.user_info && response.data.user_info.profile_image) {
-        // 프로필 이미지를 절대경로로 처리
-        const profileImageUrl = response.data.user_info.profile_image.startsWith('http')
-          ? response.data.user_info.profile_image // 이미 절대경로라면 그대로 사용
-          : `${BASE_URL}${response.data.user_info.profile_image}`; // 상대경로라면 BASE_URL과 합침
-        response.data.user_info.profile_image = profileImageUrl;
+    // 팔로우, 언팔로우 토글
+    const toggleFollow = async (userId) => {
+      try {
+        const response = await axios({
+          method: 'post',
+          url: `${BASE_URL}/accounts/users/${userId}/follow/`,
+          headers: {
+            Authorization: `Token ${token.value}`
+          }
+        })
+        
+        await fetchUserProfile(userId);
+        return response.data;
+      } catch (error) {
+        console.error('팔로우 토글 실패:', error);
       }
+    }
 
-      console.log(response.data.user_info);
-      console.log(response.data.playlists);
-      console.log(response.data.liked_playlists);
-      console.log(response.data.liked_movies);
-      
-      userProfile.value = response.data.user_info;
-      userPlaylists.value = response.data.playlists;
-      userLikedPlaylists.value = response.data.liked_playlists;
-      userLikedMovies.value = response.data.liked_movies;
-    } catch (error) {
-      console.error('프로필 로드 실패 : ', error)
-    } 
-  }
+    const fetchFollowers = async (userId) => {
+      try {
+        const response = await axios({
+          method:'get',
+          url:`${BASE_URL}/accounts/users/${userId}/followers/`,
+          headers: {
+            Authorization: `Token ${token.value}`
+          }
+        })
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
-  return {
-    token,
-    userData,
-    logIn,
-    logOut,
-    BASE_URL,
-    signUp,
-    fetchCurrentUser,
-    userProfile,
-    userPlaylists,
-    userLikedPlaylists,
-    userLikedMovies,
-    fetchUserProfile
-  };
-}, { persist: true });
+    const fetchFollowing = async (userId) => {
+      try {
+        const response = await axios({
+          method:'get',
+          url:`${BASE_URL}/accounts/users/${userId}/following/`,
+          headers: {
+            Authorization: `Token ${token.value}`
+          }
+        })
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    return {
+      token,
+      userData,
+      logIn,
+      logOut,
+      BASE_URL,
+      signUp,
+      fetchCurrentUser,
+      userProfile,
+      userPlaylists,
+      userLikedPlaylists,
+      userLikedMovies,
+      fetchUserProfile,
+      toggleFollow,
+      fetchFollowers,
+      fetchFollowing,
+    };
+  }, { persist: true});
+

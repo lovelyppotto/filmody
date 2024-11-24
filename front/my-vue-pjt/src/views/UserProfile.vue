@@ -1,7 +1,5 @@
 <template>
     <div class="profile-page" v-if="authStore.userProfile">
-      <!-- {{ authStore.userLikedPlaylists }} | -->
-      <!-- {{ authStore.userLikedMovies }} | -->
       <!-- 상단 프로필 -->
       <div class="profile-header">
         <div class="avatar">
@@ -9,8 +7,15 @@
         </div>
         <div class="info">
           <h2>{{ authStore.userProfile.nickname }}</h2>
-          <p>팔로워 <strong>7</strong> | 팔로잉 <strong>6</strong></p>
-          <button class="follow-btn">팔로우</button>
+          <p>팔로워 <strong>{{authStore.userProfile.followers_count}}</strong> 
+            | 팔로잉 <strong>{{authStore.userProfile.following_count}}</strong></p>
+            <button
+                v-if="isNotCurrentUser"
+                @click="toggleFollow"
+                :class="['follow-btn', { 'following': authStore.userProfile.is_following }]"
+                >
+                {{ authStore.userProfile.is_following ? '팔로잉' : '팔로우' }}
+          </button>
         </div>
       </div>
   
@@ -110,13 +115,15 @@
           </div>
         </div>
     </div>
+
+
   </div>
   </template>
   
   <script setup>
   import { ref, computed, onMounted } from 'vue';
   import { useAuthStore } from '@/stores/auth';
-  import { useRoute, useRouter} from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import PlaylistCard from '@/components/Playlist/PlaylistCard.vue';
 
   const route = useRoute();
@@ -127,12 +134,17 @@
   onMounted(() => {
   const userId = route.params.id;
   authStore.fetchUserProfile(userId);
+  authStore.fetchCurrentUser();
   });
 
-  const profileImageUrl = computed(() => 
-      `${authStore.BASE_URL}${authStore.userProfile.profile_image}`
-    );
-
+  
+  const isNotCurrentUser = computed(() => {
+    return authStore.currentUser?.id !== parseInt(route.params.id);
+  });
+  
+  const profileImageUrl = computed(() =>   
+    `${authStore.userProfile.profile_image}`
+  );
   
   // 카테고리 변경 함수
   const selectCategory = (category) => {
@@ -148,6 +160,12 @@
   const navigateToMovie = (movieId) => {
     router.push(`/movies/${movieId}`);
   };
+
+  // 팔로우, 언팔로우 토글
+  const toggleFollow = () => {
+    authStore.toggleFollow(route.params.id)
+  }
+
   </script>
   
   <style scoped>
@@ -285,5 +303,30 @@
   margin-bottom: 20px;
   border-radius: 8px;
   background-color: #f0f0f0; /* 이미지 없는 경우 여백 색상 */
+}
+
+/* 팔로우 버튼 */
+.follow-btn {
+  background-color: #374c72;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.follow-btn.following {
+  background-color: #efefef;
+  color: #262626;
+}
+
+.follow-btn:hover {
+  opacity: 0.9;
+}
+
+.follow-btn.following:hover {
+  background-color: #dbdbdb;
 }
 </style>

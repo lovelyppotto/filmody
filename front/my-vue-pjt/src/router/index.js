@@ -117,7 +117,17 @@ const router = createRouter({
       path:'/users/:id',
       name: 'UserProfile',
       component:UserProfile
-    }
+    },
+    {
+      path:'/users/:id/followers',
+      name: 'UserFollowers',
+      component:UserProfile
+    },
+    {
+      path:'/users/:id/following',
+      name: 'UserFollowing',
+      component:UserProfile
+    },
     
   ],
 });
