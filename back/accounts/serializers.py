@@ -32,6 +32,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'nickname', 'email', 'show_reviews', 'profile_image')
         read_only_fields = ('username', 'id')
+        # 기본으로 넘어오는 라벨 모두 제거
         extra_kwargs = {
             'username': {'label': ''},
             'nickname': {'label': ''},

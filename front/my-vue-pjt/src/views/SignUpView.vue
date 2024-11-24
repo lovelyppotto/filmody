@@ -287,6 +287,7 @@ const signUp = async function () {
     height: 50px;
     padding: 10px;
     border-width: 0 0 1px;
+    border-color: #a8aeb5;
     font-size: 1rem;
     transition: border-color 0.3s ease;
   }

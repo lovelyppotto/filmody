@@ -13,6 +13,8 @@ from playlists.models import Playlist
 from playlists.serializers import PlaylistSerializer
 from movies.models import Movie
 from movies.serializers import MovieListSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import parser_classes
 
 # 회원가입
 @api_view(['POST'])
@@ -72,3 +74,26 @@ def user_profile_detail(request, user_id):
 
     return Response(data, status=status.HTTP_200_OK)
     
+from rest_framework.parsers import MultiPartParser, FormParser
+
+# # 프로필 이미지 업데이트
+# @api_view(['PATCH'])
+# @permission_classes([IsAuthenticated])
+# @parser_classes([MultiPartParser, FormParser])
+# def update_profile_image(request):
+#     user = request.user
+    
+#     if 'profile_image' not in request.FILES:
+#         return Response({'error': '이미지 파일이 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+#     # 기존 이미지가 있고 기본 이미지가 아니면 삭제
+#     if user.profile_image and 'default.png' not in user.profile_image.name:
+#         user.profile_image.delete(save=False)
+    
+#     # 새 이미지 저장
+#     user.profile_image = request.FILES['profile_image']
+#     user.save()
+    
+#     return Response({
+#         'profile_image': request.build_absolute_uri(user.profile_image.url)
+#     }, status=status.HTTP_200_OK)
