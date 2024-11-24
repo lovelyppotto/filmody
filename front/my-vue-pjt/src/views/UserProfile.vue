@@ -10,11 +10,18 @@
           <p>팔로워 <strong>{{authStore.userProfile.followers_count}}</strong> 
             | 팔로잉 <strong>{{authStore.userProfile.following_count}}</strong></p>
             <button
-                v-if="isNotCurrentUser"
+                v-if="!isNotCurrentUser"
                 @click="toggleFollow"
                 :class="['follow-btn', { 'following': authStore.userProfile.is_following }]"
                 >
                 {{ authStore.userProfile.is_following ? '팔로잉' : '팔로우' }}
+          </button>
+          <button
+            v-else
+            @click="editProfile"
+            class="follow-btn"
+            >
+            프로필 수정
           </button>
         </div>
       </div>
@@ -139,12 +146,17 @@
 
   
   const isNotCurrentUser = computed(() => {
-    return authStore.currentUser?.id !== parseInt(route.params.id);
+    return authStore.currentUser?.id !== parseInt(route.params.id)
   });
   
   const profileImageUrl = computed(() =>   
     `${authStore.userProfile.profile_image}`
   );
+
+  // 본인 계정일 땐 수정 버튼 -> 수정 페이지로 이동
+  const editProfile = () => {
+    router.push(`/profile/${route.params.id}`)
+  }
   
   // 카테고리 변경 함수
   const selectCategory = (category) => {
