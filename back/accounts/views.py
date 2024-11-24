@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
-from .serializers import SignUpSerializer
+from .serializers import SignUpSerializer, ProfileSerializer
 from .models import User
 from playlists.models import Playlist
 from playlists.serializers import PlaylistSerializer
@@ -53,22 +53,47 @@ def delete_profile_image(request):
 @api_view(['GET'])
 def user_profile_detail(request, user_id):
     user = get_object_or_404(User, id=user_id)
+
+    # ProfileSerializer를 사용하여 user_info 직렬화
+    profile_serializer = ProfileSerializer(user, context={'request': request})
+
     # 유저가 만든 플레이리스트
     user_playlists = Playlist.objects.filter(user=user)
     # 좋아요한 플레이리스트
     liked_playlists = Playlist.objects.filter(likes=user)
     # 좋아요한 영화 목록
     liked_movies = Movie.objects.filter(like_users=user)
+
     data = {
-        'user_info': {
-            'username': user.username,
-            'nickname': user.nickname,
-            'profile_image': user.profile_image.url if user.profile_image else None,
-        },
+        'user_info': profile_serializer.data,
         'playlists': PlaylistSerializer(user_playlists, many=True).data,
         'liked_playlists': PlaylistSerializer(liked_playlists, many=True).data,
         'liked_movies': MovieListSerializer(liked_movies, many=True).data
     }
 
     return Response(data, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def follow(request, user_id):
+    target = get_object_or_404(User, id=user_id)
+    
+    # 자신을 팔로우하는 것 방지
+    if request.user == target:
+        return Response(
+            {'error': '자신을 팔로우할 수 없습니다.'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if request.method == 'POST':
+        # 이미 팔로우한 경우
+        if request.user in target.followers.all():
+            target.followers.remove(request.user)
+            return Response({'status': 'unfollowed'})
+        else:
+            target.followers.add(request.user)
+            return Response({'status': 'followed'})
+    
+    serializer = ProfileSerializer(target, context={'request': request})
+    return Response(serializer.data)
     

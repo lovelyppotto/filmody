@@ -95,18 +95,60 @@ export const useAuthStore = defineStore("auth", () => {
             headers: { Authorization: `Token ${token.value}` }
           }
         )
-        console.log(response.data.user_info);
-        console.log(response.data.playlists);
-        console.log(response.data.liked_playlists);
-        console.log(response.data.liked_movies);
-        
         userProfile.value = response.data.user_info;
         userPlaylists.value = response.data.playlists;
         userLikedPlaylists.value = response.data.liked_playlists;
         userLikedMovies.value = response.data.liked_movies;
+
       } catch (error) {
         console.error('프로필 로드 실패 : ', error)
       } 
+    }
+
+    // 팔로우, 언팔로우 토글
+    const toggleFollow = async (userId) => {
+      try {
+        const response = await axios({
+          method: 'post',
+          url: `${BASE_URL}/accounts/users/${userId}/follow/`,
+          headers: {
+            Authorization: `Token ${token.value}`
+          }
+        })
+        
+        await fetchUserProfile(userId);
+        return response.data;
+      } catch (error) {
+        console.error('팔로우 토글 실패:', error);
+      }
+    }
+
+    const fetchFollowers = async (userId) => {
+      try {
+        const response = await axios({
+          method:'get',
+          url:`${BASE_URL}/accounts/users/${userId}/followers/`,
+          headers: {
+            Authorization: `Token ${token.value}`
+          }
+        })
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    const fetchFollowing = async (userId) => {
+      try {
+        const response = await axios({
+          method:'get',
+          url:`${BASE_URL}/accounts/users/${userId}/following/`,
+          headers: {
+            Authorization: `Token ${token.value}`
+          }
+        })
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     return {
@@ -121,6 +163,9 @@ export const useAuthStore = defineStore("auth", () => {
       userPlaylists,
       userLikedPlaylists,
       userLikedMovies,
-      fetchUserProfile
+      fetchUserProfile,
+      toggleFollow,
+      fetchFollowers,
+      fetchFollowing,
     };
   }, { persist: true});
