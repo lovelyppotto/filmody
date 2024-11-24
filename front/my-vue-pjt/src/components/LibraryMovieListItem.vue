@@ -1,6 +1,6 @@
 <template>
     <div class="movie-item-wrapper">
-        <div class="card h-100" @click="goToDetail(movie.id)">
+        <div class="card h-100" @click="goToDetail(movie.id)" v-if="movie">
             <img 
                 :src="`${movie.poster_url}`" 
                 class="card-img-top"
@@ -20,7 +20,14 @@
 </template>
 
 <script setup>
-// ... script 부분은 그대로 유지
+import { useRouter } from 'vue-router';
+const router = useRouter()
+defineProps({
+    movie:Object
+})
+const goToDetail = (movieId) => {
+    router.push(`/movies/${movieId}`)
+}
 </script>
 
 <style scoped>

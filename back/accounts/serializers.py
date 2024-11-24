@@ -27,6 +27,34 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+# 프로필 조회
+class ProfileSerializer(serializers.ModelSerializer):
+    is_following = serializers.SerializerMethodField()
+    followers_count = serializers.SerializerMethodField()
+    following_count  = serializers.SerializerMethodField()
+    followers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    following = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'nickname', 'profile_image', 
+                 'is_following', 'followers_count', 'following_count', 'followers', 'following')
+    
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return request.user in obj.followers.all()
+        return False
+    
+    def get_followers_count(self, obj):
+        return obj.followers.count()
+    
+    def get_following_count(self, obj):
+        return obj.following.count()
+    
+
+
+# 프로필 업데이트
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

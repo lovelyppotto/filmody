@@ -7,5 +7,5 @@ urlpatterns = [
     path('delete/', views.delete_account,),
     path('profile-image/', views.delete_profile_image),
     path('users/<int:user_id>/',views.user_profile_detail),
-    # path('profile/image/update/', views.update_profile_image, name='update_profile_image'),
+    path('users/<int:user_id>/follow/', views.follow),
 ]

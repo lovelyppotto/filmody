@@ -12,4 +12,6 @@ class User(AbstractUser):
         default='images/default.png',
         verbose_name=' '
     )
+    # 팔로우
+    followers = models.ManyToManyField('self', symmetrical=False, related_name='following')
 
