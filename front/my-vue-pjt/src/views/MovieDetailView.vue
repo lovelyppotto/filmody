@@ -1,18 +1,26 @@
 <template>
-    <div v-if="movieStore.movieDetail">  <!-- v-if 추가 -->
+    <div v-if="movieStore.movieDetail" class="movie-detail-container">
+        <!-- 포스터 이미지 -->
         <img 
+            class="movie-poster"
             :src="`${movieStore.movieDetail.poster_url}`" 
-            :alt="movieStore.movieDetail.title"
-        >       
-        <h4>{{ movieStore.movieDetail.title }}</h4>
-        <p>장르: {{ movieStore.movieDetail.genre }}</p>
-        <p>감독: {{ movieStore.movieDetail.director[0].name }}</p>
-        <p>개봉년도 : {{ movieStore.movieDetail.open_year }}</p>
-        <p>줄거리 : {{ movieStore.movieDetail.plot }}</p>
+            :alt="movieStore.movieDetail.title" 
+            @error="handleImageError"
+        >
+        
+        <!-- 영화 정보 -->
+        <div class="movie-info">
+            <h4 class="movie-title">{{ movieStore.movieDetail.title }}</h4>
+            <p><strong>장르:</strong> {{ movieStore.movieDetail.genre }}</p>
+            <p><strong>감독:</strong> {{ movieStore.movieDetail.director[0].name }}</p>
+            <p><strong>개봉년도:</strong> {{ movieStore.movieDetail.open_year }}</p>
+            <p class="movie-plot"><strong>줄거리:</strong> {{ movieStore.movieDetail.plot }}</p>
+        </div>
+
+        <!-- 좋아요 버튼 -->
         <button @click="handleLike" class="like-button">
-            <!-- 하트 이모지 변경 -->
             <span :class="{ 'text-red': isLiked }">
-                <i v-if="isLiked"class="fa-solid fa-heart" style="color: #e10600;"></i>
+                <i v-if="isLiked" class="fa-solid fa-heart"></i>
                 <i v-else class="fa-regular fa-heart"></i>
             </span>
             좋아요 {{ likeCount }}
@@ -82,24 +90,71 @@ const handleLike = async () => {
 </script>
 
 <style scoped>
+/* 전체 컨테이너 스타일 */
+.movie-detail-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 포스터 이미지 스타일 */
+.movie-poster {
+    display: block;
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #f0f0f0; /* 이미지 없는 경우 여백 색상 */
+}
+
+/* 영화 정보 스타일 */
+.movie-info {
+    margin-bottom: 20px;
+}
+
+.movie-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.movie-plot {
+    margin-top: 10px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* 좋아요 버튼 스타일 */
 .like-button {
-    padding: 8px 16px;
-    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    border: none;
     border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 1em;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .like-button:hover {
-    background-color: #f5f5f5;
+    background-color: #e9ecef;
+    transform: translateY(-2px);
 }
 
 .text-red {
-    color: red;
+    color: #e10600;
+    font-size: 1.2em;
 }
 
 button span {
-    margin-right: 4px;
-    font-size: 1.2em;
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
 }
 </style>

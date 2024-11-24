@@ -1,13 +1,20 @@
 from urllib import request
 from django.conf import settings
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from .serializers import SignUpSerializer
+from .models import User
+from playlists.models import Playlist
+from playlists.serializers import PlaylistSerializer
+from movies.models import Movie
+from movies.serializers import MovieListSerializer
 
+# 회원가입
 @api_view(['POST'])
 def signup(request):
     serializer = SignUpSerializer(data=request.data)
@@ -16,6 +23,7 @@ def signup(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# 회원 탈퇴
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_account(request):
@@ -30,6 +38,7 @@ def delete_account(request):
     user.delete()
     return Response({'message':'회원 탈퇴가 완료되었습니다.'}, status=status.HTTP_200_OK)
 
+# 프로필 사진 삭제
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_profile_image(request):
@@ -39,3 +48,27 @@ def delete_profile_image(request):
     user.profile_image = 'images/default.png'
     user.save()
     return Response({'profile_image':  f'{settings.BASE_URL}/static/images/default.png'}, status=status.HTTP_200_OK)
+
+# 프로필 상세 페이지 구현
+@api_view(['GET'])
+def user_profile_detail(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    # 유저가 만든 플레이리스트
+    user_playlists = Playlist.objects.filter(user=user)
+    # 좋아요한 플레이리스트
+    liked_playlists = Playlist.objects.filter(likes=user)
+    # 좋아요한 영화 목록
+    liked_movies = Movie.objects.filter(like_users=user)
+    data = {
+        'user_info': {
+            'username': user.username,
+            'nickname': user.nickname,
+            'profile_image': user.profile_image.url if user.profile_image else None,
+        },
+        'playlists': PlaylistSerializer(user_playlists, many=True).data,
+        'liked_playlists': PlaylistSerializer(liked_playlists, many=True).data,
+        'liked_movies': MovieListSerializer(liked_movies, many=True).data
+    }
+
+    return Response(data, status=status.HTTP_200_OK)
+    

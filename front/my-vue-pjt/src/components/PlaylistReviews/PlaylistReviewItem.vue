@@ -124,6 +124,7 @@ const deleteReview = async () => {
 const handleImageError = (event) => {
   event.target.src = `${authStore.BASE_URL}/static/images/default.png`;
 };
+
 </script>
 
  <style scoped>

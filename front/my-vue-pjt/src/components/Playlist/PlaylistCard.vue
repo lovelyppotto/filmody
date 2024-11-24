@@ -83,6 +83,8 @@ const formatDate = (dateString) => {
   border: 1px solid rgba(0,0,0,.125);
   border-radius: 0.5rem;
   background-color: white;
+  transition: transform 0.2s ease;
+  overflow: hidden;
 }
 
 .card:hover {
@@ -101,5 +103,17 @@ const formatDate = (dateString) => {
 
 .text-muted {
   color: #6c757d;
+}
+
+.category.active {
+  background-color: #000;
+  color: white;
+}
+
+.playlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 </style>

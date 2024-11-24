@@ -1,9 +1,10 @@
 <template>
-    <div>
+    <div class="row g-4 mx-3">
         <LibraryMovieListItem 
             v-for="movie in store.likedMovies"
             :key="movie.id"
             :movie="movie"
+            class="col-12 col-md-6 col-lg-4"
         />
     </div>
 </template>
@@ -20,5 +21,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
+/* 카드 간격 */
+.row.g-4 {
+  gap: 1.5rem; /* 카드 간격 */
+}
 </style>

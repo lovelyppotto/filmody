@@ -3,7 +3,7 @@
 
     <!-- 헤더 섹션 -->
     <div class="mb-4">
-      <h2 class="text-2xl font-bold"><i class="fa-solid fa-heart" style="color: #ed1d1d;"></i> 좋아요한 플레이리스트</h2>
+      <h2 class="text-2xl"><i class="fa-solid fa-heart" style="color: #ed1d1d; font-weight: 900;"></i> 좋아요한 플레이리스트</h2>
       <p class="text-gray-600">마음에 드는 플레이리스트를 모아보세요 :)</p>
     </div>
 
