@@ -415,7 +415,7 @@ const deleteProfileImage = () => {
     position: relative;
     width: auto;
     margin: 1.75rem auto;
-    max-width: 500px;
+    max-width: 550px;
 }
 
 .modal-content {

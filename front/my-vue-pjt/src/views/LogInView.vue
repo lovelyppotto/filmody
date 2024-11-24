@@ -12,6 +12,10 @@
         <input type="password" id="password" v-model.trim="password" placeholder="비밀번호를 입력하세요">
       </div>
 
+      <div v-if="loginError" class="error-message">
+        아이디 또는 비밀번호가 올바르지 않습니다.
+      </div>
+
       <button type="submit" class="login-button">로그인</button>
     </form>
   </div>
@@ -23,29 +27,40 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const store = useAuthStore();
 
 const username = ref(null);
 const password = ref(null);
+const loginError = ref(false);
 
-const store = useAuthStore();
+const logIn = async function () {
+  if (!username.value || !password.value) {
+    loginError.value = true;
+    return;
+  }
 
-const logIn = function () {
   const payload = {
     username: username.value,
     password: password.value,
   };
 
-  // 로그인 요청
-  store
-    .logIn(payload)
-    .then(() => {
-      // 로그인 성공 후 HomeView로 이동
+  try {
+    // 로그인 요청
+    const result = await store.logIn(payload);
+    
+    // store의 token이나 isAuthenticated 상태를 확인
+    if (store.token) {  // 또는 store.isAuthenticated 등 인증 상태 확인
+      loginError.value = false;
       router.push({ name: 'home' });
-    })
-    .catch((error) => {
-      console.error('로그인 실패:', error);
-      // 실패시 처리 로직 추가 가능
-    });
+    } else {
+      loginError.value = true;
+    }
+  } catch (error) {
+    console.error('로그인 실패:', error);
+    loginError.value = true;
+    // 입력 필드 초기화 (선택사항)
+    password.value = null;
+  }
 };
 </script>
 
@@ -122,6 +137,12 @@ const logIn = function () {
   background-color:#42464b;
     border: 1px solid #42464b;
     color: #ffffff;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 /* 반응형 */
