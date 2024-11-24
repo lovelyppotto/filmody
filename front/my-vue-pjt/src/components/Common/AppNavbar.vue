@@ -2,7 +2,7 @@
   <nav class="navbar fixed-top navbar-expand-lg">
     <div class="container-fluid px-4">
       <!-- Logo -->
-      <RouterLink class="navbar-brand" :to="{ name: 'home' }">Filmody</RouterLink>
+      <RouterLink class="navbar-brand" :to="{ name: 'home' }" @click="handleMenuClick">Filmody</RouterLink>
 
       <!-- Mobile Toggle Button -->
       <button
@@ -41,13 +41,12 @@
                 @click="closeDropdown"
               >
                 <li>
-                  <RouterLink class="dropdown-item" :to="{ name: 'my-playlists' }">My Playlist</RouterLink>
+                  <RouterLink class="dropdown-item" :to="{ name: 'my-playlists' }" @click="handleMenuClick">My Playlist</RouterLink>                </li>
+                <li>
+                  <RouterLink class="dropdown-item" :to="{ name: 'liked-playlists' }" @click="handleMenuClick">Liked Playlist</RouterLink>
                 </li>
                 <li>
-                  <RouterLink class="dropdown-item" :to="{ name: 'liked-playlists' }">Liked Playlist</RouterLink>
-                </li>
-                <li>
-                  <RouterLink class="dropdown-item" :to=" {name:'LikedMovies'}">Liked Movies</RouterLink>
+                  <RouterLink class="dropdown-item" :to=" {name:'LikedMovies'}" @click="handleMenuClick">Liked Movies</RouterLink>
                 </li>
               </ul>
             </li>
@@ -55,6 +54,7 @@
               <RouterLink
                 class="nav-link"
                 :class="{ active: $route.path === '/playlist' }"
+                @click="handleMenuClick"
                 to="/playlist"
               >
                 Playlist
@@ -65,6 +65,7 @@
                 class="nav-link"
                 :class="{ active: $route.path === '/recommend' }"
                 to="/recommend"
+                @click="handleMenuClick"
               >
                 Recommend
               </RouterLink>
@@ -78,23 +79,24 @@
             class="search-btn mx-3"
             :class="{ active: $route.path === '/MovieSearchView' }"
             to="/movies/search"
+            @click="handleMenuClick"
           >
             <i class="fa-solid fa-magnifying-glass" style="color: #374c72;"></i>
           </RouterLink>
           
           <template v-if="!store.token">
-            <RouterLink :to="{ name: 'signup' }" class="router-link mx-3">
+            <RouterLink :to="{ name: 'signup' }" class="router-link mx-3" @click="handleMenuClick">
               SignUp
             </RouterLink>
-            <RouterLink to="/login" class="router-link mx-3">
+            <RouterLink to="/login" class="router-link mx-3" @click="handleMenuClick">
               Login
             </RouterLink>
           </template>
           <template v-else>
-            <RouterLink :to="{ path: '/profile/' + username }" class="router-link mx-3">
+            <RouterLink :to="{ path: '/profile/' + username }" class="router-link mx-3" @click="handleMenuClick">
               Profile
             </RouterLink>
-            <RouterLink @click="logOut" to="/" class="router-link mx-3">
+            <RouterLink to="/" class="router-link mx-3" @click="logOut">
               Logout
             </RouterLink>
           </template>
@@ -112,20 +114,32 @@
   const isDropdownOpen = ref(false);
   const isMobileMenuOpen = ref(false);
   
+  // 모바일 메뉴와 드롭다운을 모두 닫는 함수
+  const closeMobileMenu = () => {
+    isMobileMenuOpen.value = false;
+    isDropdownOpen.value = false;
+  };
+
   const logOut = () => {
     store.logOut();
+    closeMobileMenu(); // 로그아웃 시 메뉴 닫기
   };
-  
+    
   const toggleDropdown = (event) => {
     event.preventDefault();
     event.stopPropagation();
     isDropdownOpen.value = !isDropdownOpen.value;
   };
-  
+
+  const handleMenuClick = () => {
+    isDropdownOpen.value = false;
+    isMobileMenuOpen.value = false;
+  };
+
   const closeDropdown = () => {
     isDropdownOpen.value = false;
   };
-  
+
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
   };
@@ -259,7 +273,7 @@
   
   .dropdown-item {
     padding: 0.75rem 1.5rem;
-    color: #2757b1;
+    color: #578df0;
     transition: all 0.2s ease;
   }
   
@@ -372,7 +386,7 @@
   /* 드롭다운 메뉴의 배경도 반투명하게 */
   .navbar .nav-item .dropdown-menu,
   .navbar .nav-item .dropdown-menu.show {
-    background-color: rgba(255, 255, 255, 0.859);
+    background-color: rgba(255, 255, 255, 0.934);
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: blur(8px);

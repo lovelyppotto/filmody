@@ -1,6 +1,6 @@
 <template>
   <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)" @click.self="$emit('close')">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog" style="max-width: 70%; width: 60%;">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h5 class="modal-title">{{ decodeHtml(video.snippet.title) }}</h5>
@@ -149,4 +149,5 @@ const addToPlaylist = async () => {
 .alert {
   z-index: 1060;
 }
+
 </style>

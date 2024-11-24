@@ -60,6 +60,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'nickname', 'email', 'show_reviews', 'profile_image')
         read_only_fields = ('username', 'id')
+        extra_kwargs = {
+            'username': {'label': ''},
+            'nickname': {'label': ''},
+            'email': {'label': ''},
+            'profile_image': {'label': ''},
+        }
+
 
 class PasswordChangeSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(required=True)
