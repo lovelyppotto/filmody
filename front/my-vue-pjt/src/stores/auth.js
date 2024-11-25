@@ -49,6 +49,7 @@ export const useAuthStore = defineStore("auth", () => {
         headers: { Authorization: `Token ${token.value}` }
       });
       userData.value = userResponse.data;
+      currentUser.value = userResponse.data;
 
       router.push({ name: 'home' });
     } catch (err) {
@@ -64,7 +65,13 @@ export const useAuthStore = defineStore("auth", () => {
     })
       .then(() => {
         token.value = null;
-        router.push({ name: 'HomeView' });
+        currentUser.value = null;  
+        userData.value = null;     
+        userProfile.value = null;  
+        userPlaylists.value = [];  
+        userLikedPlaylists.value = [];
+        userLikedMovies.value = [];
+        router.push({ name: 'home' });
       })
       .catch((err) => {
         console.log(err);

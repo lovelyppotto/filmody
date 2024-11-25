@@ -128,7 +128,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { useAuthStore } from '@/stores/auth';
   import { useRoute, useRouter } from 'vue-router';
   import PlaylistCard from '@/components/Playlist/PlaylistCard.vue';
@@ -138,16 +138,37 @@
   const authStore = useAuthStore();
   const selectedCategory = ref('playlist');
 
-  onMounted(() => {
-  const userId = route.params.id;
-  authStore.fetchUserProfile(userId);
-  authStore.fetchCurrentUser();
-  });
+// currentUser가 변경될 때마다 프로필 정보 업데이트
+watch(
+  () => authStore.currentUser,
+  async (newUser) => {
+    if (newUser) {
+      await authStore.fetchUserProfile(newUser.id);
+    }
+  },
+  { immediate: true }
+);
 
-  
-  const isNotCurrentUser = computed(() => {
-    return authStore.currentUser?.id !== parseInt(route.params.id)
-  });
+// route.params.id가 변경될 때도 프로필 정보 업데이트
+watch(
+  () => route.params.id,
+  async (newId) => {
+    if (newId && authStore.token) {
+      await authStore.fetchUserProfile(newId);
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(async () => {
+  if (authStore.token && !authStore.currentUser) {
+    await authStore.fetchCurrentUser();
+  }
+});
+
+const isNotCurrentUser = computed(() => {
+  return authStore.currentUser?.id !== parseInt(route.params.id)
+});
   
   const profileImageUrl = computed(() => {
   const imageUrl = authStore.userProfile.profile_image;
