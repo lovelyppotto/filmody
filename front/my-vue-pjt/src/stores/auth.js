@@ -118,7 +118,6 @@ const fetchCurrentUser = async () => {
     return null;
   }
 };
-  
 
   // 팔로우, 언팔로우 토글
   const toggleFollow = async (userId) => {
