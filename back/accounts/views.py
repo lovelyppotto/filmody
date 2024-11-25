@@ -13,6 +13,8 @@ from playlists.models import Playlist
 from playlists.serializers import PlaylistSerializer
 from movies.models import Movie
 from movies.serializers import MovieListSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import parser_classes
 
 # 회원가입
 @api_view(['POST'])
@@ -96,4 +98,3 @@ def follow(request, user_id):
     
     serializer = ProfileSerializer(target, context={'request': request})
     return Response(serializer.data)
-    

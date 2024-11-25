@@ -254,8 +254,10 @@ onMounted(() => {
       console.log(response.data)
       userInfo.value = response.data
       // 초기 프로필 이미지 설정
+
       previewImage.value = response.data.profile_image.includes('default.png') ? 
           `${store.BASE_URL}/static/images/default.png` : response.data.profile_image
+
   })
   .catch((error) => {
       console.log('사용자 정보 가져오기 실패 : ',error);
