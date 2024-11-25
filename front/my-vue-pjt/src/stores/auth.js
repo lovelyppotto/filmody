@@ -161,5 +161,6 @@ export const useAuthStore = defineStore("auth", () => {
     toggleFollow,
     fetchFollowers,
     fetchFollowing,
+    currentUser
   };
 }, { persist: true });
