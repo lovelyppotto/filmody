@@ -1,6 +1,7 @@
 <template>
     <div class="col-12 col-md-6 col-lg-3 mb-4">  <!-- 그리드 시스템 수정 -->
         <div class="card h-100" @click="goToDetail(movie.id)">  <!-- 높이 일정하게 -->
+            {{ movie.pk }}
             <img 
                 :src="`${movie.poster_url}`" 
                 class="card-img-top"
