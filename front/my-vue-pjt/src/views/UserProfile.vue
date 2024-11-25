@@ -10,7 +10,7 @@
           <p>팔로워 <strong>{{authStore.userProfile.followers_count}}</strong> 
             | 팔로잉 <strong>{{authStore.userProfile.following_count}}</strong></p>
             <button
-                v-if="!isNotCurrentUser"
+                v-if="isNotCurrentUser"
                 @click="toggleFollow"
                 :class="['follow-btn', { 'following': authStore.userProfile.is_following }]"
                 >
@@ -149,10 +149,14 @@
     return authStore.currentUser?.id !== parseInt(route.params.id)
   });
   
-  const profileImageUrl = computed(() =>   
-    `${authStore.userProfile.profile_image}`
-  );
-
+  const profileImageUrl = computed(() => {
+  const imageUrl = authStore.userProfile.profile_image;
+  if (imageUrl && imageUrl.includes('default.png')) {
+    // default.png인 경우 static 경로로 변경
+    return `${authStore.BASE_URL}/static/images/default.png`;
+  }
+  return imageUrl; // 일반 업로드된 이미지의 경우 그대로 반환
+});
   // 본인 계정일 땐 수정 버튼 -> 수정 페이지로 이동
   const editProfile = () => {
     router.push(`/profile/${route.params.id}`)

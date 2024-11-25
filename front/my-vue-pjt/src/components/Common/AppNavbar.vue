@@ -93,7 +93,7 @@
             </RouterLink>
           </template>
           <template v-else>
-            <RouterLink :to="'/users/' + id" class="router-link mx-3" @click="handleMenuClick">
+            <RouterLink :to="{ path: '/users/' + store.currentUser.id }" class="router-link mx-3" @click="handleMenuClick">
               Profile
             </RouterLink>
             <RouterLink to="/" class="router-link mx-3" @click="logOut">
