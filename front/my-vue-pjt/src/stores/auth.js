@@ -39,25 +39,25 @@ export const useAuthStore = defineStore("auth", () => {
       });
   };
 
-  // 로그인
-  const logIn = async function (payload) {
-    try {
-      const { username, password } = payload;
-      const response = await axios.post(`${BASE_URL}/accounts/login/`, { username, password });
-      token.value = response.data.key;
-  
-      // 사용자 정보 가져오기
-      const userResponse = await axios.get(`${BASE_URL}/accounts/user/`, {
-        headers: { Authorization: `Token ${token.value}` }
-      });
-      currentUser.value = userResponse.data;
-      userData.value = userResponse.data;
-      router.push({ name: 'home' });
-    } catch (err) {
-      console.log(err);
-    }
-  };
+// 로그인
+const logIn = async function (payload) {
+  try {
+    const { username, password } = payload;
+    const response = await axios.post(`${BASE_URL}/accounts/login/`, { username, password });
+    token.value = response.data.key;
 
+    // 사용자 정보 가져오기
+    const userResponse = await axios.get(`${BASE_URL}/accounts/user/`, {
+      headers: { Authorization: `Token ${token.value}` }
+    });
+    currentUser.value = userResponse.data;
+    userData.value = userResponse.data;  // show_reviews를 포함한 전체 사용자 데이터 저장
+    console.log('User data loaded:', userData.value); // 데이터 확인용
+    router.push({ name: 'home' });
+  } catch (err) {
+    console.log(err);
+  }
+};
   // 로그아웃
   const logOut = function () {
     axios({
@@ -99,24 +99,25 @@ export const useAuthStore = defineStore("auth", () => {
   };
   
   // 현재 로그인한 사용자 정보
-  const fetchCurrentUser = async () => {
-    if (!token.value) {
-      console.log('No token available');
-      return null;
-    }
-    try {
-      console.log('Fetching current user with token:', token.value);
-      const res = await axios.get(`${BASE_URL}/accounts/user/`, {
-        headers: { Authorization: `Token ${token.value}` }
-      });
-      console.log('Current user data:', res.data);
-      currentUser.value = res.data;
-      return res.data;
-    } catch (err) {
-      console.error('Error fetching current user:', err);
-      return null;
-    }
-  };
+const fetchCurrentUser = async () => {
+  if (!token.value) {
+    console.log('No token available');
+    return null;
+  }
+  try {
+    console.log('Fetching current user with token:', token.value);
+    const res = await axios.get(`${BASE_URL}/accounts/user/`, {
+      headers: { Authorization: `Token ${token.value}` }
+    });
+    console.log('Current user data:', res.data);
+    currentUser.value = res.data;
+    userData.value = res.data;  // show_reviews를 포함한 전체 사용자 데이터 저장
+    return res.data;
+  } catch (err) {
+    console.error('Error fetching current user:', err);
+    return null;
+  }
+};
   
 
   // 팔로우, 언팔로우 토글

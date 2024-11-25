@@ -63,7 +63,8 @@
         </p>
       </div>
 
-      <p>프로필 이미지는 기본 이미지로 설정됩니다. 추후 프로필 페이지에서 변경해 주세요.</p>
+      <p class="info-message">프로필 이미지는 기본 이미지로 설정됩니다.</p>
+      <p class="info-message">추후 프로필 페이지에서 변경해 주세요.</p>
 
       <button 
         type="submit" 
@@ -218,6 +219,7 @@ const signUp = async function () {
 .signup-button {
   width: 100%;
   padding: 0.75rem;
+  margin-top: 20px;
   background-color: #374c72;
   color: white;
   border: none;
@@ -237,11 +239,13 @@ const signUp = async function () {
   opacity: 0.7;
 }
 
+
   p {
     display: flex;
     flex-direction: column;
     text-align: center;
     color: #3e5275;
+    margin: 0
   }
 
   /* 컨테이너 */
