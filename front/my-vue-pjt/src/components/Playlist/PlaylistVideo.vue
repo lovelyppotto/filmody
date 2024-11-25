@@ -52,6 +52,7 @@
           </div>
         </div>
 
+        <!-- 캐러셀 버튼  -->
         <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Previous</span>
@@ -318,6 +319,7 @@ onUnmounted(() => {
 }
 
 .video-thumbnails {
+  margin: 0 20px 0 20px;
   scrollbar-width: thin;
   scrollbar-color: #888 #f1f1f1;
 }

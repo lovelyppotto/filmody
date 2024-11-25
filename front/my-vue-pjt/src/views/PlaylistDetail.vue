@@ -1,43 +1,52 @@
 <template>
-  <div>
-    <!-- 로딩 상태 표시 -->
-    <div v-if="loading">로딩 중...</div>
-    
-    <!-- 플레이리스트와 리뷰 표시 -->
-    <div v-else>
-      <!-- 플레이리스트 제목 -->
-      <h1 v-if="playlist">{{ playlist.title }}</h1>
-      <p v-if="playlist">{{ playlist.user_nickname }}</p>
-      <h1 v-else>플레이리스트를 찾을 수 없습니다</h1>
-
-      <!-- 플레이리스트 소유자가 아닐 경우 좋아요 버튼 표시(로그인한 유저만) -->
-      <div class="text-end mb-3">
-    <button 
-      @click="handleLike" 
-      class="like-button"
-      :class="{ 
-        'disabled': !canLike,
-        'owner': playlist?.user === authStore.userData?.id || 
-                playlist?.user === authStore.userData?.pk 
-      }"
-    >
-      <div class="like-container">
-        <i 
-          class="fa-heart fa-2x like-icon"
-          :class="{
-            'fa-solid': playlist?.is_liked,
-            'fa-regular': !playlist?.is_liked,
-            'text-danger': playlist?.is_liked,
-            'hoverable': canLike
-          }"
-        ></i>
-        <span class="like-count">{{ playlist?.likes_count || 0 }}</span>
+<div class="container">
+    <div class="content-container">
+      <!-- 로딩 상태 -->
+      <div v-if="loading" class="header-section">
+        <h2 class="title">로딩 중...</h2>
       </div>
-    </button>
-  </div>
 
-      <!-- 플레이리스트 소유자일 경우에만 검색 버튼 표시 -->
-      <div v-if="playlist?.user === authStore.userData?.id" class="text-end mb-3">
+      <!-- 플레이리스트가 있는 경우 -->
+      <div v-else-if="playlist" class="header-section">
+        <h2 class="title"><i class="fa-solid fa-hashtag" style="color: #2a3079;"></i> {{ playlist.title }}</h2>
+        <p class="subtitle">upload by {{ playlist.user_nickname }}</p>
+      </div>
+
+      <!-- 플레이리스트가 없는 경우 -->
+      <div v-else class="header-section">
+        <h2 class="title">플레이리스트를 찾을 수 없습니다</h2>
+        <p class="subtitle">다른 플레이리스트를 찾아보세요 :)</p>
+      </div>
+
+      <div class="text-end mb-3">
+        <button 
+          @click="handleLike" 
+          class="like-button"
+          :class="{ 
+            'disabled': !canLike,
+            'owner': playlist?.user === authStore.userData?.id || 
+                    playlist?.user === authStore.userData?.pk 
+          }"
+        >
+          <div class="like-container">
+            <i 
+              class="fa-heart fa-2x like-icon"
+              :class="{
+                'fa-solid': playlist?.is_liked,
+                'fa-regular': !playlist?.is_liked,
+                'text-danger': playlist?.is_liked,
+                'hoverable': canLike
+              }"
+            ></i>
+            <span class="like-count">{{ playlist?.likes_count || 0 }}</span>
+          </div>
+        </button>
+      </div>
+
+      <div 
+        v-if="isOwner" 
+        class="text-end mb-3"
+      >
         <button class="btn btn-danger me-2" @click="openDeleteModal">
           <i class="fas fa-minus"></i> 플레이리스트 삭제
         </button>
@@ -45,8 +54,7 @@
           <i class="fas fa-plus"></i> 플레이리스트 추가
         </button>
       </div>
- 
-      <!-- YouTube 검색 모달 -->
+
       <YoutubeSearchModal
         v-if="showSearchModal"
         :playlistId="Number(playlistId)"
@@ -59,16 +67,27 @@
         :playlist="playlist"  
       />
       <router-view :playlist-id="playlistId"></router-view>
- 
-      <!-- PlaylistReviewList -->
-      <div class="review-list-wrapper">
-        <PlaylistReviewList 
-          :playlistId="Number(playlistId)"
-        />
-</div>
-    </div>
 
-    <!-- 삭제 확인 모달 -->
+      <!-- 리뷰 작성 폼 -->
+      <PlaylistReviewForm :playlistId="props.playlistId" />
+      <div class="review-list-wrapper">
+    <PlaylistReviewList 
+      v-if="isReviewVisible"
+      :playlistId="Number(playlistId)"
+    />
+    <div v-else-if="hasReviews" class="text-end mb-3">
+      <a 
+        href="#" 
+        @click.prevent="showHiddenReviews = true"
+        class="review-toggle-link"
+      >
+        리뷰 보기
+      </a>
+    </div>
+    </div>
+  </div>
+  </div>
+
     <div v-if="showDeleteModal" class="modal-backdrop">
       <div class="modal-content">
         <p>해당 플레이리스트를 완전히 삭제하시겠습니까?</p>
@@ -77,149 +96,195 @@
           <button class="btn btn-danger" @click="confirmDeletePlaylist">삭제</button>
         </div>
       </div>
-    </div>
   </div>
- </template>
-
+</template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
-import { usePlaylistStore } from '@/stores/playlist';
-import { useAuthStore } from '@/stores/auth';
-import { useRoute, useRouter } from 'vue-router';
-import PlaylistReviewList from '@/components/PlaylistReviews/PlaylistReviewList.vue';
-import YoutubeSearchModal from '@/components/YoutubeAPI/YoutubeSearchModal.vue';
-import PlaylistVideo from '@/components/Playlist/PlaylistVideo.vue';
+import { onMounted, ref, computed } from 'vue'
+import { usePlaylistStore } from '@/stores/playlist'
+import { useAuthStore } from '@/stores/auth'
+import { useRoute, useRouter } from 'vue-router'
+import PlaylistReviewList from '@/components/PlaylistReviews/PlaylistReviewList.vue'
+import YoutubeSearchModal from '@/components/YoutubeAPI/YoutubeSearchModal.vue'
+import PlaylistVideo from '@/components/Playlist/PlaylistVideo.vue'
 
-// 스토어 및 라우트 설정
-const route = useRoute();
+const route = useRoute()
 const router = useRouter()
-const playlistId = route.params.id;
-const playlistStore = usePlaylistStore();
-const authStore = useAuthStore();
+const playlistId = route.params.id
+const playlistStore = usePlaylistStore()
+const authStore = useAuthStore()
 
-// 상태 관리
-const playlist = ref(null);
-const loading = ref(true);
-const showSearchModal = ref(false);
-const showDeleteModal = ref(false); // 삭제 모달 상태
-
-// 플레이리스트 상태
-const currentPlaylist = computed(() => playlistStore.currentPlaylist)
-
-onMounted(async () => {
-  try {
-    console.log('Route params:', route.params);
-    const playlistId = route.params.playlistId; // URL 파라미터 이름 확인 필요
-    if (playlistId) {
-      console.log('플레이리스트 ID:', playlistId);
-      const data = await playlistStore.fetchPlaylist(playlistId);
-      playlist.value = data;
-      console.log('로드된 플레이리스트:', playlist.value);
-    }
-  } catch (error) {
-    console.error('플레이리스트 로딩 실패:', error);
-  }
-});
+const playlist = ref(null)
+const loading = ref(true)
+const showSearchModal = ref(false)
+const showDeleteModal = ref(false)
+const showHiddenReviews = ref(false)
 
 const props = defineProps({
-  playlist: {
-    type: Object,
+  playlistId: {
+    type: Number,
     required: true
   }
 })
 
-// 컴포넌트 마운트 시 데이터 가져오기
-onMounted(async () => {
- try {
-   loading.value = true;
-   const playlists = await playlistStore.fetchPlaylists();
-   playlist.value = playlists.find((p) => p.id === Number(playlistId));
- } catch (error) {
-   console.error('플레이리스트 가져오기 실패:', error);
- } finally {
-   loading.value = false;
- }
-});
+// 1. 플레이리스트 작성자인지 확인
+const isPlaylistOwner = computed(() => {
+  if (!authStore.userData || !playlist.value) return false
+  return playlist.value.user === authStore.userData.id || 
+         playlist.value.user === authStore.userData.pk
+})
 
-// 모달 관련 함수
-const openSearchModal = () => {
- showSearchModal.value = true;
-};
-const closeSearchModal = () => {
- showSearchModal.value = false;
-};
+// 2. 리뷰 존재 여부 확인
+const hasReviews = computed(() => {
+  // 리뷰 배열이 있고 길이가 0보다 크면 true
+  return (playlist.value?.reviews?.length || 0) > 0
+})
 
-// 삭제 관련 함수
-const openDeleteModal = () => {
-  showDeleteModal.value = true;
-};
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-};
-
-const confirmDeletePlaylist = async () => {
-  try {
-    await playlistStore.deletePlaylist(Number(playlistId)); // 삭제 요청
-    alert('플레이리스트가 삭제되었습니다.');
-    closeDeleteModal();
-    // 이후 페이지 이동 처리
-    router.push({ name: 'PlaylistView' })
-  } catch (error) {
-    console.error('플레이리스트 삭제 실패:', error);
-    alert('삭제 실패: 다시 시도해주세요.');
+// 3. 리뷰 표시 여부를 결정하는 최종 computed
+const isReviewVisible = computed(() => {
+  // 리뷰가 없거나 플레이리스트 소유자면 무조건 표시
+  if (!hasReviews.value || isPlaylistOwner.value) {
+    return true
   }
-};
+  
+  // 로그인한 사용자는 설정값이나 showHiddenReviews에 따라 표시
+  if (authStore.token) {
+    return authStore.userData?.show_reviews || showHiddenReviews.value
+  }
+  
+  // 비로그인 사용자는 showHiddenReviews가 true일 때만 표시
+  return showHiddenReviews.value
+})
+
+
+// 3. 사용자의 리뷰 표시 설정
+const userShowReviews = computed(() => {
+  // 로그인하지 않은 경우 false 반환
+  if (!authStore.token) return false
+  
+  // 플레이리스트 작성자인 경우 항상 true 반환
+  if (isPlaylistOwner.value) return true
+  
+  // 그 외의 경우 사용자 설정값 사용
+  return authStore.userData?.show_reviews ?? false
+})
+
 
 const canLike = computed(() => {
-  console.log('현재 유저:', authStore.userData);
-  console.log('플레이리스트:', playlist.value);
+  if (!authStore.userData || !playlist.value) return false
+  return !isPlaylistOwner.value
+})
+
+const isOwner = computed(() => {
+  return isPlaylistOwner.value && authStore.token
+})
+
+onMounted(() => {
+  loading.value = true
   
-  if (!authStore.userData || !playlist.value) return false;
-  
-  // 현재 유저가 플레이리스트 작성자인 경우 false 반환
-  const isOwner = playlist.value.user === authStore.userData.id || 
-                  playlist.value.user === authStore.userData.pk;
-                  
-  console.log('Is owner:', isOwner);
-  return !isOwner; // 작성자가 아닌 경우에만 true 반환
-});
+  playlistStore.fetchPlaylists()
+    .then(playlists => {
+      playlist.value = playlists.find(p => p.id === Number(playlistId))
+      // console.log('playlist data:', playlist.value) // 데이터 확인용
+    })
+    .catch(error => {
+      console.error('플레이리스트 가져오기 실패:', error)
+    })
+    .finally(() => {
+      loading.value = false
+    })
+})
 
-const handleLike = async () => {
-  try {
-    if (!authStore.token) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
-    
-    if (!playlist.value?.id) {
-      console.error('플레이리스트 ID가 없습니다.');
-      return;
-    }
 
-    // 작성자 체크 한번 더
-    if (playlist.value.user === authStore.userData.id || 
-        playlist.value.user === authStore.userData.pk) {
-      console.log('자신의 플레이리스트는 좋아요할 수 없습니다.');
-      return;
-    }
+const openSearchModal = () => {
+  showSearchModal.value = true
+}
 
-    const response = await playlistStore.toggleLike(playlist.value.id);
-    playlist.value = {
-      ...playlist.value,
-      is_liked: response.liked,
-      likes_count: response.likes_count
-    };
-  } catch (error) {
-    console.error('좋아요 처리 중 오류 발생:', error);
+const closeSearchModal = () => {
+  showSearchModal.value = false
+}
+
+const openDeleteModal = () => {
+  showDeleteModal.value = true
+}
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+}
+
+const confirmDeletePlaylist = () => {
+  playlistStore.deletePlaylist(Number(playlistId))
+    .then(() => {
+      alert('플레이리스트가 삭제되었습니다.')
+      closeDeleteModal()
+      router.push({ name: 'PlaylistView' })
+    })
+    .catch(error => {
+      console.error('플레이리스트 삭제 실패:', error)
+      alert('삭제 실패: 다시 시도해주세요.')
+    })
+}
+
+const handleLike = () => {
+  if (!authStore.token) {
+    alert('로그인이 필요합니다.')
+    return
   }
-};
+  
+  if (!playlist.value?.id) {
+    console.error('플레이리스트 ID가 없습니다.')
+    return
+  }
 
+  if (playlist.value.user === authStore.userData.id || 
+      playlist.value.user === authStore.userData.pk) {
+    console.log('자신의 플레이리스트는 좋아요할 수 없습니다.')
+    return
+  }
 
+  playlistStore.toggleLike(playlist.value.id)
+    .then(response => {
+      playlist.value = {
+        ...playlist.value,
+        is_liked: response.liked,
+        likes_count: response.likes_count
+      }
+    })
+    .catch(error => {
+      console.error('좋아요 처리 중 오류 발생:', error)
+    })
+}
 </script>
 
-
 <style scoped>
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.content-container {
+    padding: 0 1rem;
+}
+
+.header-section {
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+}
+
+.title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -245,10 +310,6 @@ const handleLike = async () => {
   margin-top: 15px;
 }
 
-fa-heart {
-  cursor: pointer;
-}
-
 .like-button {
   background: none;
   border: none;
@@ -269,29 +330,28 @@ fa-heart {
 
 .like-container {
   display: flex;
-  align-items: baseline; /* baseline으로 변경 */
-  gap: 0.5rem; /* 간격 조정 */
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .like-icon {
-  font-size: 1.8rem; /* 아이콘 크기 조정 */
-  line-height: 1; /* 라인 높이 조정 */
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
 .like-count {
   margin: 0px 20px 0px 10px;
   min-width: 2rem;
-  font-size: 1.5rem; /* 숫자 크기 조정 */
-  line-height: 1; /* 라인 높이 조정 */
+  font-size: 1.5rem;
+  line-height: 1;
 }
-
 
 .fa-heart {
   transition: all 0.2s ease;
 }
 
 .hoverable:hover {
-  color: #dc3545;  /* Bootstrap의 danger 색상 */
+  color: #dc3545;
 }
 
 .text-danger {
@@ -302,7 +362,18 @@ fa-heart {
   cursor: not-allowed;
 }
 
-.review-list-wrapper{
+.review-list-wrapper {
   margin-bottom: 100px;
+}
+
+.review-toggle-link {
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.review-toggle-link:hover {
+  text-decoration: underline;
+  color: #2a3079;
 }
 </style>
