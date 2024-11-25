@@ -61,6 +61,7 @@ const openChat = () => {
 const closeChat = () => {
   showChat.value = false
 }
+
 </script>
 
 <style scoped>
