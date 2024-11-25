@@ -52,7 +52,6 @@ export const useAuthStore = defineStore("auth", () => {
       });
       currentUser.value = userResponse.data;
       userData.value = userResponse.data;
-  
       router.push({ name: 'home' });
     } catch (err) {
       console.log(err);
@@ -67,9 +66,17 @@ export const useAuthStore = defineStore("auth", () => {
     })
       .then(() => {
         token.value = null;
-        currentUser.value = null;
-        userData.value = null;
-        router.push('/');
+
+        // router.push('/');
+
+        currentUser.value = null;  
+        userData.value = null;     
+        userProfile.value = null;  
+        userPlaylists.value = [];  
+        userLikedPlaylists.value = [];
+        userLikedMovies.value = [];
+        router.push({ name: 'home' });
+      
       })
       .catch((err) => {
         console.log(err);
