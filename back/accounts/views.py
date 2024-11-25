@@ -45,7 +45,7 @@ def delete_profile_image(request):
     user = request.user
     if user.profile_image and 'default.png' not in user.profile_image.name:
         user.profile_image.delete(save=False)
-    user.profile_image = 'images/default.png'
+    user.profile_image = 'static/images/default.png'
     user.save()
     return Response({'profile_image':  f'{settings.BASE_URL}/static/images/default.png'}, status=status.HTTP_200_OK)
 
