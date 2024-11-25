@@ -295,7 +295,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
       })
       .catch(err => {
         console.error('API 에러:', err.response?.data || err)
-        error.value = '플레이리스트를 불러오는데 실패했습니다.'
+        error.value = '회원에게 제공되는 기능입니다.'
       })
       .finally(() => {
         loading.value = false
