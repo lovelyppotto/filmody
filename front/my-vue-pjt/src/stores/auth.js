@@ -47,7 +47,11 @@ export const useAuthStore = defineStore("auth", () => {
       token.value = response.data.key;
   
       // 사용자 정보 가져오기
-      await fetchCurrentUser(); // 로그인 후 바로 현재 사용자 정보 가져오기
+      const userResponse = await axios.get(`${BASE_URL}/accounts/user/`, {
+        headers: { Authorization: `Token ${token.value}` }
+      });
+      currentUser.value = userResponse.data;
+      userData.value = userResponse.data;
   
       router.push({ name: 'home' });
     } catch (err) {
@@ -63,8 +67,9 @@ export const useAuthStore = defineStore("auth", () => {
     })
       .then(() => {
         token.value = null;
-        currentUser.value = null; // currentUser도 초기화
-        router.push({ name: 'home' }); // 'HomeView'가 아닌 'home'으로 수정
+        currentUser.value = null;
+        userData.value = null;
+        router.push('/');
       })
       .catch((err) => {
         console.log(err);

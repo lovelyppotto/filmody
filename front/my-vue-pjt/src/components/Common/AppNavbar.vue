@@ -94,8 +94,8 @@
           </template>
           <template v-else>
             <RouterLink 
-              v-if="store.token"
-              :to="{ name: 'UserProfile', params: { id: store.currentUser?.id || '' }}" 
+              v-if="store.currentUser?.id"
+              :to="{ path: `/users/${store.currentUser.id}` }" 
               class="router-link mx-3" 
               @click="handleMenuClick"
             >

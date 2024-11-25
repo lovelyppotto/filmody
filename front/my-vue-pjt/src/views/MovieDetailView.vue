@@ -12,7 +12,7 @@
         <div class="movie-info">
             <h4 class="movie-title">{{ movieStore.movieDetail.title }}</h4>
             <p><strong>장르:</strong> {{ movieStore.movieDetail.genre }}</p>
-            <p><strong>감독:</strong> {{ movieStore.movieDetail.director[0].name }}</p>
+            <p><strong>감독:</strong> {{ getDirectorName }}</p>
             <p><strong>개봉년도:</strong> {{ movieStore.movieDetail.open_year }}</p>
             <p class="movie-plot"><strong>줄거리:</strong> {{ movieStore.movieDetail.plot }}</p>
         </div>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useMovieStore } from '@/stores/movie'
 import { useAuthStore } from '@/stores/auth'
 import { useRoute, useRouter } from 'vue-router';
@@ -42,6 +42,15 @@ const router = useRouter()
 
 const isLiked = ref(false)
 const likeCount = ref(0)
+
+// 감독 이름을 안전하게 가져오는 computed 속성
+const getDirectorName = computed(() => {
+    const directors = movieStore.movieDetail?.director;
+    if (directors && directors.length > 0 && directors[0].name) {
+        return directors[0].name;
+    }
+    return '정보 없음';
+});
 
 onMounted(async ()=>{
     const movieId = route.params.id
