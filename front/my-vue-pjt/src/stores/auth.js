@@ -12,6 +12,8 @@ export const useAuthStore = defineStore("auth", () => {
   const userPlaylists = ref([]);
   const userLikedPlaylists = ref([]);
   const userLikedMovies = ref([]);
+  const isAuthenticated = computed(() => !!token.value);
+  const userId = computed(() => currentUser.value?.id);
 
   // 회원가입
   const signUp = function (payload) {
@@ -43,14 +45,13 @@ export const useAuthStore = defineStore("auth", () => {
       const { username, password } = payload;
       const response = await axios.post(`${BASE_URL}/accounts/login/`, { username, password });
       token.value = response.data.key;
-
+  
       // 사용자 정보 가져오기
       const userResponse = await axios.get(`${BASE_URL}/accounts/user/`, {
         headers: { Authorization: `Token ${token.value}` }
       });
-      userData.value = userResponse.data;
       currentUser.value = userResponse.data;
-
+      userData.value = userResponse.data;
       router.push({ name: 'home' });
     } catch (err) {
       console.log(err);
@@ -65,6 +66,9 @@ export const useAuthStore = defineStore("auth", () => {
     })
       .then(() => {
         token.value = null;
+
+        // router.push('/');
+
         currentUser.value = null;  
         userData.value = null;     
         userProfile.value = null;  
@@ -72,6 +76,7 @@ export const useAuthStore = defineStore("auth", () => {
         userLikedPlaylists.value = [];
         userLikedMovies.value = [];
         router.push({ name: 'home' });
+      
       })
       .catch((err) => {
         console.log(err);
@@ -95,18 +100,24 @@ export const useAuthStore = defineStore("auth", () => {
   
   // 현재 로그인한 사용자 정보
   const fetchCurrentUser = async () => {
-    if (!token.value) return null;
+    if (!token.value) {
+      console.log('No token available');
+      return null;
+    }
     try {
+      console.log('Fetching current user with token:', token.value);
       const res = await axios.get(`${BASE_URL}/accounts/user/`, {
         headers: { Authorization: `Token ${token.value}` }
       });
+      console.log('Current user data:', res.data);
       currentUser.value = res.data;
       return res.data;
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching current user:', err);
       return null;
     }
   };
+  
 
   // 팔로우, 언팔로우 토글
   const toggleFollow = async (userId) => {
@@ -168,6 +179,8 @@ export const useAuthStore = defineStore("auth", () => {
     toggleFollow,
     fetchFollowers,
     fetchFollowing,
-    currentUser
+    currentUser, 
+    isAuthenticated, 
+    userId
   };
 }, { persist: true });

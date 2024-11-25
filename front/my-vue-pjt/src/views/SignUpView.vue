@@ -191,10 +191,13 @@ const signUp = async function () {
 
   try {
     // 회원가입 시도
-    const result = await store.signUp(payload);
+    await store.signUp(payload);
     
     // 로그인을 위한 정보 저장
-    loginCredentials.value = result.credentials;
+    loginCredentials.value = {
+      username: username.value,
+      password: password1.value
+    };
     
     // 모달 표시
     showModal.value = true;

@@ -93,10 +93,19 @@
             </RouterLink>
           </template>
           <template v-else>
-            <RouterLink :to="{ path: '/users/' + store.currentUser.id }" class="router-link mx-3" @click="handleMenuClick">
+            <RouterLink 
+              v-if="store.currentUser?.id"
+              :to="{ path: `/users/${store.currentUser.id}` }" 
+              class="router-link mx-3" 
+              @click="handleMenuClick"
+            >
               Profile
             </RouterLink>
-            <RouterLink to="/" class="router-link mx-3" @click="logOut">
+            <RouterLink 
+              to="/" 
+              class="router-link mx-3" 
+              @click="logOut"
+            >
               Logout
             </RouterLink>
           </template>
@@ -178,11 +187,15 @@
       isDropdownOpen.value = false;
     }
   };
+
+  onMounted(async () => {
+  if (store.token) {
+    await store.fetchCurrentUser(); // 현재 사용자 정보 불러오기
+  }
+  window.addEventListener('resize', handleResize);
+  document.addEventListener('click', handleClickOutside);
+});
   
-  onMounted(() => {
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('click', handleClickOutside);
-  });
   
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);

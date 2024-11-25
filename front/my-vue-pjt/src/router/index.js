@@ -75,16 +75,17 @@ const router = createRouter({
       component: LibraryView,
     },
     {
-      path: '/playlist/:id',
-      name: 'playlist-detail',
-      component: PlaylistDetail,
-      children: [
-        {
-          path: 'reviews',
-          name: 'PlaylistReviews',
-          component: () => import('@/components/PlaylistReviews/PlaylistReviewList.vue')
+      path: '/users/:id',
+      name: 'UserProfile',
+      component: UserProfile,
+      props: true,  // URL 파라미터를 props로 전달
+      beforeEnter: (to, from, next) => {
+        if (to.params.id) {
+          next();
+        } else {
+          next('/'); // id가 없으면 홈으로 리다이렉트
+        }
       }
-      ]
     },
     {
       path: '/playlist/:id',
