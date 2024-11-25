@@ -1,11 +1,22 @@
 <template>
-  <div>
-    <div v-if="loading">로딩 중...</div>
-    
-    <div v-else>
-      <h1 v-if="playlist">{{ playlist.title }}</h1>
-      <p v-if="playlist">{{ playlist.user_nickname }}</p>
-      <h1 v-else>플레이리스트를 찾을 수 없습니다</h1>
+<div class="container">
+    <div class="content-container">
+      <!-- 로딩 상태 -->
+      <div v-if="loading" class="header-section">
+        <h2 class="title">로딩 중...</h2>
+      </div>
+
+      <!-- 플레이리스트가 있는 경우 -->
+      <div v-else-if="playlist" class="header-section">
+        <h2 class="title"><i class="fa-solid fa-hashtag" style="color: #2a3079;"></i> {{ playlist.title }}</h2>
+        <p class="subtitle">upload by {{ playlist.user_nickname }}</p>
+      </div>
+
+      <!-- 플레이리스트가 없는 경우 -->
+      <div v-else class="header-section">
+        <h2 class="title">플레이리스트를 찾을 수 없습니다</h2>
+        <p class="subtitle">다른 플레이리스트를 찾아보세요 :)</p>
+      </div>
 
       <div class="text-end mb-3">
         <button 
@@ -32,7 +43,10 @@
         </button>
       </div>
 
-      <div v-if="playlist?.user === authStore.userData?.id" class="text-end mb-3">
+      <div 
+        v-if="isOwner" 
+        class="text-end mb-3"
+      >
         <button class="btn btn-danger me-2" @click="openDeleteModal">
           <i class="fas fa-minus"></i> 플레이리스트 삭제
         </button>
@@ -57,11 +71,22 @@
       <!-- 리뷰 작성 폼 -->
       <PlaylistReviewForm :playlistId="props.playlistId" />
       <div class="review-list-wrapper">
-        <PlaylistReviewList 
-          :playlistId="Number(playlistId)"
-        />
-      </div>
+    <PlaylistReviewList 
+      v-if="isReviewVisible"
+      :playlistId="Number(playlistId)"
+    />
+    <div v-else-if="hasReviews" class="text-end mb-3">
+      <a 
+        href="#" 
+        @click.prevent="showHiddenReviews = true"
+        class="review-toggle-link"
+      >
+        리뷰 보기
+      </a>
     </div>
+    </div>
+  </div>
+  </div>
 
     <div v-if="showDeleteModal" class="modal-backdrop">
       <div class="modal-content">
@@ -71,7 +96,6 @@
           <button class="btn btn-danger" @click="confirmDeletePlaylist">삭제</button>
         </div>
       </div>
-    </div>
   </div>
 </template>
 
@@ -96,39 +120,63 @@ const showSearchModal = ref(false)
 const showDeleteModal = ref(false)
 const showHiddenReviews = ref(false)
 
-
 const props = defineProps({
   playlistId: {
     type: Number,
     required: true
   }
-});
+})
 
-const userShowReviews = computed(() => {
-  // 현재 로그인한 유저가 플레이리스트 작성자인지 확인
-  const isPlaylistOwner = playlist.value?.user === authStore.userData?.id
+// 1. 플레이리스트 작성자인지 확인
+const isPlaylistOwner = computed(() => {
+  if (!authStore.userData || !playlist.value) return false
+  return playlist.value.user === authStore.userData.id || 
+         playlist.value.user === authStore.userData.pk
+})
 
-  if (isPlaylistOwner) {
-    // 작성자라면 항상 리뷰 표시
+// 2. 리뷰 존재 여부 확인
+const hasReviews = computed(() => {
+  // 리뷰 배열이 있고 길이가 0보다 크면 true
+  return (playlist.value?.reviews?.length || 0) > 0
+})
+
+// 3. 리뷰 표시 여부를 결정하는 최종 computed
+const isReviewVisible = computed(() => {
+  // 리뷰가 없거나 플레이리스트 소유자면 무조건 표시
+  if (!hasReviews.value || isPlaylistOwner.value) {
     return true
   }
-
-  // 작성자가 아니라면 show_reviews 설정값 사용
-  return authStore.userData?.show_reviews ?? true
+  
+  // 로그인한 사용자는 설정값이나 showHiddenReviews에 따라 표시
+  if (authStore.token) {
+    return authStore.userData?.show_reviews || showHiddenReviews.value
+  }
+  
+  // 비로그인 사용자는 showHiddenReviews가 true일 때만 표시
+  return showHiddenReviews.value
 })
 
-// 리뷰 표시 여부를 결정하는 새로운 computed 속성
-const isReviewVisible = computed(() => {
-  return !userShowReviews.value || showHiddenReviews.value
+
+// 3. 사용자의 리뷰 표시 설정
+const userShowReviews = computed(() => {
+  // 로그인하지 않은 경우 false 반환
+  if (!authStore.token) return false
+  
+  // 플레이리스트 작성자인 경우 항상 true 반환
+  if (isPlaylistOwner.value) return true
+  
+  // 그 외의 경우 사용자 설정값 사용
+  return authStore.userData?.show_reviews ?? false
 })
+
 
 const canLike = computed(() => {
   if (!authStore.userData || !playlist.value) return false
-  
-  const isOwner = playlist.value.user === authStore.userData.id || 
-                  playlist.value.user === authStore.userData.pk
-                  
-  return !isOwner
+  return !isPlaylistOwner.value
+})
+
+const isOwner = computed(() => {
+  return isPlaylistOwner.value && authStore.token
 })
 
 onMounted(() => {
@@ -137,6 +185,7 @@ onMounted(() => {
   playlistStore.fetchPlaylists()
     .then(playlists => {
       playlist.value = playlists.find(p => p.id === Number(playlistId))
+      // console.log('playlist data:', playlist.value) // 데이터 확인용
     })
     .catch(error => {
       console.error('플레이리스트 가져오기 실패:', error)
@@ -145,6 +194,7 @@ onMounted(() => {
       loading.value = false
     })
 })
+
 
 const openSearchModal = () => {
   showSearchModal.value = true
@@ -207,6 +257,34 @@ const handleLike = () => {
 </script>
 
 <style scoped>
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.content-container {
+    padding: 0 1rem;
+}
+
+.header-section {
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+}
+
+.title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -286,5 +364,16 @@ const handleLike = () => {
 
 .review-list-wrapper {
   margin-bottom: 100px;
+}
+
+.review-toggle-link {
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.review-toggle-link:hover {
+  text-decoration: underline;
+  color: #2a3079;
 }
 </style>
