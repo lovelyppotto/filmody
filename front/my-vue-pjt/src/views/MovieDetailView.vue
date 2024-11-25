@@ -1,15 +1,23 @@
 <template>
-    <div v-if="movieStore.movieDetail" class="movie-detail-container">
-        <!-- 포스터 이미지 -->
-        <img 
-            class="movie-poster"
-            :src="`${movieStore.movieDetail.poster_url}`" 
-            :alt="movieStore.movieDetail.title" 
-            @error="handleImageError"
-        >
+    <div class="page-wrapper">
+        <div v-if="movieStore.movieDetail" class="movie-detail-container">
+            <!-- 포스터 이미지 섹션을 div로 감싸기 -->
+            <div 
+                class="poster-container"
+                :style="{
+                    backgroundImage: `url(${movieStore.movieDetail.poster_url})`
+                }"
+            >
+                <img 
+                    class="movie-poster"
+                    :src="`${movieStore.movieDetail.poster_url}`" 
+                    :alt="movieStore.movieDetail.title" 
+                    @error="handleImageError"
+                >
+            </div>
         
         <!-- 영화 정보 -->
-        <div class="movie-info">
+        <div class="movie-info mt-4">
             <h4 class="movie-title">{{ movieStore.movieDetail.title }}</h4>
             <p><strong>장르:</strong> {{ movieStore.movieDetail.genre }}</p>
             <p><strong>감독:</strong> {{ getDirectorName }}</p>
@@ -26,6 +34,7 @@
             좋아요 {{ likeCount }}
         </button>
     </div>
+</div>
 </template>
 
 <script setup>
@@ -99,6 +108,14 @@ const handleLike = async () => {
 </script>
 
 <style scoped>
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
 /* 전체 컨테이너 스타일 */
 .movie-detail-container {
     max-width: 800px;
@@ -165,5 +182,39 @@ button span {
     margin-right: 8px;
     display: inline-flex;
     align-items: center;
+}
+
+.poster-container {
+    position: relative;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* 배경 블러 효과를 위한 가상 요소 */
+.poster-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    filter: blur(10px) brightness(0.8); /* 블러 효과와 어둡게 */
+    transform: scale(1.1); /* 블러 경계가 보이지 않도록 약간 확대 */
+}
+
+.movie-poster {
+    position: relative; /* before 가상요소 위에 보이도록 */
+    display: block;
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    margin-bottom: 0; /* 컨테이너에 패딩이 있으므로 마진 제거 */
+    z-index: 1; /* 배경보다 위에 표시되도록 */
 }
 </style>

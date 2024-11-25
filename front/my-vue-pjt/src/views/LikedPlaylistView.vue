@@ -16,10 +16,10 @@
     <div v-else-if="playlistStore.error" class="text-center py-8">
       <p class="text-red-500">{{ playlistStore.error }}</p>
       <button 
-        @click="playlistStore.fetchLikedPlaylists" 
-        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        @click="redirectToLogin" 
+        class="mt-4 px-4 py-2 !bg-indigo-500 text-black rounded hover:!bg-indigo-600"
       >
-        다시 시도
+        로그인
       </button>
     </div>
 
@@ -56,6 +56,10 @@ const router = useRouter()
 
 const navigateToPlaylist = (playlistId) => {
   router.push(`/playlist/${playlistId}`)
+}
+
+const redirectToLogin = () => {
+  router.push({ name: 'LogInView' })  // 로그인 라우트 이름을 사용
 }
 
 onMounted(() => {

@@ -55,6 +55,8 @@ const showHiddenReviews = ref(false)
 
 // show_reviews 상태 확인
 const userShowReviews = computed(() => {
+  console.log('userData:', authStore.userData)  // userData 전체 출력
+  console.log('show_reviews value:', authStore.userData?.show_reviews)  // show_reviews 값 확인
   return authStore.userData?.show_reviews ?? true
 })
 
