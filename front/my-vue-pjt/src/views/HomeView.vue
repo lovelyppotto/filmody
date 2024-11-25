@@ -1,7 +1,7 @@
 <template>
     <div class="container py-4">
       <!-- 헤더 영역 -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 ps-4 mt-1">
         <h1 class="h3 mb-0 fw-bold text-center align-items-center"><i class="fa-solid fa-fire" style="color: #f70000;"></i> Hot Playlist <i class="fa-solid fa-fire" style="color: #f70000;"></i></h1>
       </div>
   
@@ -11,7 +11,7 @@
       </div>
   
       <!-- 플레이리스트 그리드 -->
-      <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-5 py-5">
         <div 
           v-for="playlist in sortedPlaylists" 
           :key="playlist.id"
@@ -73,12 +73,15 @@ const resetCard = (event) => {
   border: solid #fff;
   border-width: 6px 6px 80px 6px;
   box-shadow: 2px 2px 8px #333;
-  height: 350px;
-  width: 100%;
+  height: 450px;
+  width: 90%;
+  max-width: 600px;
+  margin: 0 auto;
   cursor: pointer;
   transition: transform 0.3s;
   transform-origin: center center;
 }
+
 
 .polaroid:hover {
   box-shadow: 4px 4px 12px #333;
@@ -87,9 +90,10 @@ const resetCard = (event) => {
 .polaroid img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: 100%; /* 하단 여백 고려한 높이 계산 */
   object-fit: cover;
   border-bottom: solid 6px #fff;
+  padding: 15px;
 }
 
 .polaroid-info {
@@ -112,7 +116,7 @@ const resetCard = (event) => {
   text-overflow: ellipsis;
   padding-bottom: 5px;
   margin-bottom: 5px;
-  margin-left: 10px;
+  margin-left: 15px;
 }
 
 .polaroid-user {
@@ -124,13 +128,13 @@ const resetCard = (event) => {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 5px;
-  margin-left: 10px;
+  margin-left: 15px;
 }
 
 .polaroid-likes {
   font-size: 14px;
   color: #000;
-  margin-left: 10px;
+  margin-left: 15px;
 }
 
 .polaroid-likes i {
