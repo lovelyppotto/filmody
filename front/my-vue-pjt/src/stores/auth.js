@@ -109,7 +109,7 @@ export const useAuthStore = defineStore("auth", () => {
       const res = await axios.get(`${BASE_URL}/accounts/user/`, {
         headers: { Authorization: `Token ${token.value}` }
       });
-      console.log('Current user data:', res.data);
+      // console.log('Current user data:', res.data);
       currentUser.value = res.data;
       return res.data;
     } catch (err) {
