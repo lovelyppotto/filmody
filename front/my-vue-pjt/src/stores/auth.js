@@ -85,7 +85,7 @@ export const useAuthStore = defineStore("auth", () => {
       console.error('프로필 로드 실패 : ', error);
     }
   };
-
+  
   // 현재 로그인한 사용자 정보
   const fetchCurrentUser = async () => {
     if (!token.value) return null;
