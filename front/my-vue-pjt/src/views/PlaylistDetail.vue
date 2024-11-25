@@ -18,7 +18,7 @@
         <p class="subtitle">다른 플레이리스트를 찾아보세요 :)</p>
       </div>
 
-      <div class="text-end mb-3">
+      <div class="text-end mt-1 mb-2">
         <button 
           @click="handleLike" 
           class="like-button"
@@ -269,8 +269,8 @@ const handleLike = () => {
 }
 
 .header-section {
-    margin-bottom: 2rem;
-    padding: 0 0.5rem;
+  margin: 30px 0px 0px 20px;
+  padding: 0 0.5rem;
 }
 
 .title {
@@ -283,6 +283,7 @@ const handleLike = () => {
     color: #666;
     font-size: 1rem;
     margin-right: 10px;
+    margin-bottom: 5px;
 }
 
 .modal-backdrop {
