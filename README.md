@@ -2,6 +2,40 @@
 
 film + melody
 
+<hr />
+
+# 1. 프로젝트 소개
+
+### 1) 개발 기간
+
+   : 2024. 11. 15 ~ 2024 . 11. 26 (12일)
+
+### 2) 개발 인원
+  - 정주은
+  - 윤지원
+
+### 3) 프로젝트 내용
+
+  - 영화 추천 및 관련 플레이리스트 생성 & 공유 웹 사이트
+
+### 4) 기술 스택
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=Python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=Django&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=SQLite&logoColor=white)
+![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=Vue.js&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=Bootstrap&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=black)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=Git&logoColor=white)
+
+
+# 2. 주요 기능
+### 1) 회원가입
+
+
+
 # 11/19
 
 - fixtures 데이터 만드는 데에 있어서 자꾸 environ 이 설치되어 있지 않다는 문구가 떴었습니다.
