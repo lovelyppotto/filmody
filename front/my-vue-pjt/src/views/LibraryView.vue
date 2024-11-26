@@ -6,26 +6,21 @@
             <p class="text-gray-600">마음에 드는 영화를 모아보세요 :)</p>
         </div>
  
-        <!-- 로딩 상태 표시 -->
-        <div v-if="store.loading" class="text-center py-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-        </div>
- 
         <!-- 에러 메시지 -->
-        <div v-else-if="store.error" class="text-center py-8">
-            <p class="text-red-500">{{ store.error }}</p>
+        <div v-if="!authStore.token" class="text-center py-8">
+            <p class="text-red-500">{{ movieStore.error }}</p>
             <button 
-                @click="store.fetchLikedMovies" 
-                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                @click="redirectToLogin" 
+                class="mt-4 px-4 py-2 !bg-indigo-500 text-black rounded hover:!bg-indigo-600"
             >
-                다시 시도
+                로그인
             </button>
         </div>
  
         <!-- 영화 목록 -->
         <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div 
-                v-for="movie in store.likedMovies" 
+                v-for="movie in movieStore.likedMovies" 
                 :key="movie.id"
                 class="col"
             >
@@ -51,7 +46,7 @@
         </div>
  
         <!-- 데이터가 없을 때 -->
-        <div v-if="!store.loading && !store.error && store.likedMovies.length === 0" class="text-center py-8">
+        <div v-if="!movieStore.loading && !movieStore.error && movieStore.likedMovies.length === 0" class="text-center py-8">
             <p class="text-gray-500">아직 좋아요한 영화가 없습니다.</p>
         </div>
     </div>
@@ -61,8 +56,10 @@
  import { useMovieStore } from '@/stores/movie';
  import { useRouter } from 'vue-router';
  import { onMounted } from 'vue';
+ import { useAuthStore } from '@/stores/auth';
  
- const store = useMovieStore();
+ const movieStore = useMovieStore();
+ const authStore = useAuthStore();
  const router = useRouter();
  
  const goToDetail = (movieId) => {
@@ -70,8 +67,12 @@
  };
  
  onMounted(() => {
-    store.fetchLikedMovies();
+    movieStore.fetchLikedMovies();
  });
+
+ const redirectToLogin = () => {
+  router.push({ name: 'LogInView' })  
+}
  </script>
  
  <style scoped>
