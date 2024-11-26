@@ -211,18 +211,10 @@ const isNotCurrentUser = computed(() => {
   background-color: #f8f8f8;
   padding: 30px;
   max-width: 800px;
-  max-height: 500px;
-  margin: 0 auto;
+  margin: 30px auto; /* 상단 여백 조정 */
   border-radius: 10px;
-  margin-top: 80px;
-  
-  /* 중앙 정렬을 위한 추가 스타일 */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%; /* 최대 너비 제한을 위해 width 추가 */
-  min-height: fit-content; /* 내용물에 맞게 높이 조정 */
+  width: 100%;
+  min-height: fit-content;
 }
 
   /* 스크롤이 필요한 경우를 위한 컨테이너 설정 */
