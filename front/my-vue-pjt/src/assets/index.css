@@ -7,3 +7,74 @@ body {
     font-family: "Nunito", sans-serif;
 
   }
+
+/* assets/styles/global.css 또는 assets/index.css */
+
+/* 폰트 import */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@100;300;400;500&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* CSS 변수 정의 */
+:root {
+  --font-nunito: 'Nunito', sans-serif;
+  --font-ibm: 'IBM Plex Sans KR', sans-serif;
+}
+
+/* 기본 폰트 설정 */
+body {
+  font-family: var(--font-ibm);
+}
+
+/* 공통 폰트 클래스 */
+.text-nunito {
+  font-family: var(--font-nunito);
+}
+
+.text-ibm {
+  font-family: var(--font-ibm);
+}
+
+/* 폰트 굵기 유틸리티 */
+.font-thin {
+  font-weight: 100;
+}
+
+.font-light {
+  font-weight: 300;
+}
+
+.font-regular {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* 폰트 크기 유틸리티 */
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-base {
+  font-size: 1rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
