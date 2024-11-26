@@ -64,8 +64,12 @@ const closeChat = () => {
 
 </script>
 
-<style scoped>
+<style>
 @import "@/assets/index.css";
+
+/* 컴포넌트별 추가 전역 스타일 */
+</style>
+<style scoped>
 
 .content-wrapper {
   margin-top: 65px;
