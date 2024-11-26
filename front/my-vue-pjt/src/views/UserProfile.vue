@@ -29,7 +29,7 @@
 
     <!-- 보관함 -->
     <div class="collection-section">
-      <h3>보관함</h3>
+      <h3><i class="fa-solid fa-folder-open me-1" style="color: #1c4182;"></i> 보관함</h3>
       <div class="categories">
         <div
           class="category"
@@ -61,7 +61,7 @@
         <!-- 내 플레이리스트 -->
         <div v-if="selectedCategory === 'playlist'" class="playlist-grid">
           <div v-if="authStore.userPlaylists.length === 0" class="no-content">
-            <p>아직 생성한 플레이리스트가 없습니다.</p>
+            <p class="text-center">아직 생성한 플레이리스트가 없습니다.</p>
           </div>
           <PlaylistCard 
             v-else
@@ -76,7 +76,7 @@
         <!-- 좋아요한 플레이리스트 -->
         <div v-if="selectedCategory === 'likedPlaylist'" class="playlist-grid">
           <div v-if="authStore.userLikedPlaylists.length === 0" class="no-content">
-            <p>아직 좋아요한 플레이리스트가 없습니다.</p>
+            <p class="text-center">아직 좋아요한 플레이리스트가 없습니다.</p>
           </div>
           <PlaylistCard 
             v-else
@@ -91,7 +91,7 @@
         <!-- 좋아요한 영화 -->
         <div v-if="selectedCategory === 'likedMovies'" class="playlist-grid">
           <div v-if="authStore.userLikedMovies.length === 0" class="no-content">
-            <p>아직 좋아요한 영화가 없습니다.</p>
+            <p class="text-center">아직 좋아요한 영화가 없습니다.</p>
           </div>
           <div 
             v-else
@@ -122,7 +122,6 @@
           </div>
         </div>
     </div>
-
 
   </div>
   </template>
@@ -208,12 +207,31 @@ const isNotCurrentUser = computed(() => {
   <style scoped>
   /* 전체 페이지 스타일 */
   .profile-page {
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f8f8;
-    padding: 30px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f8f8;
+  padding: 30px;
+  max-width: 800px;
+  max-height: 500px;
+  margin: 0 auto;
+  border-radius: 10px;
+  margin-top: 80px;
+  
+  /* 중앙 정렬을 위한 추가 스타일 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%; /* 최대 너비 제한을 위해 width 추가 */
+  min-height: fit-content; /* 내용물에 맞게 높이 조정 */
+}
+
+  /* 스크롤이 필요한 경우를 위한 컨테이너 설정 */
+.content-section {
+  max-height: calc(100vh - 400px); /* 적절한 높이 설정 */
+  overflow-y: auto;
+  padding-right: 10px; /* 스크롤바 여백 */
+}
+
   
   /* 프로필 헤더 스타일 */
   .profile-header {
@@ -270,6 +288,8 @@ const isNotCurrentUser = computed(() => {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
   }
+
+  
   
   .collection-section h3 {
     margin: 0 0 20px;
@@ -365,5 +385,22 @@ const isNotCurrentUser = computed(() => {
 
 .follow-btn.following:hover {
   background-color: #dbdbdb;
+}
+
+@media (max-height: 800px) {
+  .profile-page {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    margin: 30px auto;
+  }
+}
+
+@media (max-width: 850px) {
+  .profile-page {
+    margin: 0;
+    padding: 15px;
+  }
 }
 </style>

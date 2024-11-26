@@ -4,7 +4,10 @@
     <PlaylistReviewForm :playlistId="playlistId" />
 
     <!-- 리뷰 목록 컨테이너 -->
-    <div class="reviews-section" :class="{ 'is-hidden': userShowReviews && !showHiddenReviews }">
+    <div 
+      class="reviews-section" 
+      :class="{ 'is-hidden': userShowReviews && !showHiddenReviews && hasReviews }"
+    >
       <div v-if="reviewStore.loading" class="loading">로딩 중...</div>
       <div v-else-if="reviewStore.reviews && reviewStore.reviews.length > 0" class="review-list">
         <PlaylistReviewItem
@@ -14,10 +17,18 @@
           :playlistId="playlistId"
         />
       </div>
-      <p v-else>등록된 리뷰가 없습니다.</p>
+      <p 
+        v-else
+        class="text-center mt-4"
+      >
+        등록된 리뷰가 없습니다.
+      </p>
 
-      <!-- 가림 오버레이 -->
-      <div v-if="userShowReviews && !showHiddenReviews" class="reviews-overlay">
+      <!-- 가림 오버레이 - 리뷰가 있을 때만 표시 -->
+      <div 
+        v-if="userShowReviews && !showHiddenReviews && hasReviews" 
+        class="reviews-overlay"
+      >
         <div class="hidden-reviews-notice">
           <p class="text-center mt-4 py-1">리뷰를 가렸습니다!</p>
           <div class="text-center mt-2">
@@ -60,6 +71,10 @@ const userShowReviews = computed(() => {
   return authStore.userData?.show_reviews ?? true
 })
 
+const hasReviews = computed(() => {
+  return reviewStore.reviews && reviewStore.reviews.length > 0
+})
+
 const fetchReviews = () => {
   if (props.playlistId) {
     reviewStore.fetchReviews(props.playlistId)
@@ -68,6 +83,18 @@ const fetchReviews = () => {
       })
   }
 }
+
+watch(
+  () => authStore.userData,
+  (newUserData) => {
+    console.log('userData changed:', newUserData)
+    // 상태 초기화 (필요한 경우)
+    if (!newUserData?.show_reviews) {
+      showHiddenReviews.value = false
+    }
+  },
+  { deep: true } // 객체의 깊은 변경 감지를 위해 deep: true 옵션 추가
+)
 
 onMounted(() => {
   fetchReviews()

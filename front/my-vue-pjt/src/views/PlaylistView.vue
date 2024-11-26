@@ -1,8 +1,11 @@
 <template>
-  <div class="container py-4">
-    <!-- 헤더 영역 -->
+  <div class="container py-4 relative min-h-screen">
+    <!-- 헤더 섹션 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="h3 mb-0">Playlist</h1>
+      <div>
+        <h2 class="text-2xl"><i class="fa-solid fa-music" style="color: #253c65; font-weight: 900;"></i> Playlist</h2>
+        <p class="text-gray-600 font-subtitle">{{ playlistCount }} Playlists, Find your favorite music!</p>
+      </div>
       <button 
         v-if="authStore.token"
         @click="openModal"
@@ -11,6 +14,7 @@
         새 플레이리스트
       </button>
     </div>
+
 
     <!-- 로딩 상태 -->
     <div v-if="playlistStore.loading" class="text-center py-4">
@@ -43,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlaylistStore } from '@/stores/playlist'
 import { useAuthStore } from '@/stores/auth'
@@ -82,8 +86,20 @@ const navigateToDetail = (playlistId) => {
   router.push(`/playlist/${playlistId}`)
 }
 
+// 플레이리스트 수를 계산하는 computed 속성
+const playlistCount = computed(() => {
+  return playlistStore.playlists?.length || 0
+})
+
 // 초기 데이터 로드
 onMounted(() => {
   playlistStore.fetchPlaylists()
 })
 </script>
+
+<style scoped>
+.font-subtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+}
+</style>
