@@ -1,6 +1,12 @@
 <template>
-    <div class="movie-container">
-        <h1 class="title">🎬 추천 영화</h1>
+    <div class="container py-4 relative min-h-screen">
+        <!-- 헤더 섹션 -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-2xl"><i class="fa-solid fa-film" style="color: #253c65; font-weight: 900;"></i> 추천 영화</h2>
+                <p class="text-gray-600 font-subtitle">박스오피스 기준 영화를 추천해드립니다 :)</p>
+            </div>
+        </div>
         <div class="recommend-list-wrapper">
             <RecommendMovieList />
         </div>

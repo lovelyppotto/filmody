@@ -107,14 +107,43 @@
     </div>
 
     <div class="form-group">
-      <label class="checkbox-label">
-        리뷰 가리기
-        <input
-          type="checkbox"
-          v-model="userInfo.show_reviews"
-          class="checkbox-input"
-        />
-      </label>
+      <div class="checkbox-container">
+        <label class="checkbox-label">
+          리뷰 가리기
+          <input
+            type="checkbox"
+            v-model="userInfo.show_reviews"
+            class="checkbox-input"
+          />
+        </label>
+        <div class="help-button-container">
+          <button 
+            class="help-button"
+            @click.prevent="toggleHelpPopover"
+            aria-label="리뷰 가리기 설명"
+            ref="helpButton"
+          >
+            ?
+          </button>
+          <!-- 팝오버 -->
+          <div 
+            v-if="showHelpPopover" 
+            class="help-popover"
+            ref="helpPopover"
+          >
+            <div class="help-popover-content">
+              <h4>리뷰 가리기 기능이란 <i class="fa-solid fa-question fa-xs"></i></h4>
+              <p>활성화시 작성된 리뷰를 자동으로 가리게 됩니다. 언제든 '리뷰 확인하기' 버튼을 눌러 내용을 확인할 수 있습니다!</p>
+              <button 
+                class="help-popover-close"
+                @click="showHelpPopover = false"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <button 
       type="submit" 
@@ -149,12 +178,14 @@
       </div>
     </div>
   </div>
+
+  
 </template>
 
 <script setup>
 import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -174,6 +205,11 @@ const passwords = ref({
 })
 const deletePassword = ref(null)
 const showDeleteModal = ref(false)
+
+// 도움말 모달 상태
+const showHelpPopover = ref(false)
+const helpButton = ref(null)
+const helpPopover = ref(null)
 
 // 유효성 검사 상태
 const isPasswordValid = ref(true)
@@ -470,6 +506,31 @@ const deleteProfileImage = () => {
       })
   }
 }
+
+// 팝오버 토글
+const toggleHelpPopover = () => {
+  showHelpPopover.value = !showHelpPopover.value
+}
+
+// 외부 클릭 감지
+const handleClickOutside = (event) => {
+  if (showHelpPopover.value && 
+      helpPopover.value && 
+      helpButton.value && 
+      !helpPopover.value.contains(event.target) &&
+      !helpButton.value.contains(event.target)) {
+    showHelpPopover.value = false
+  }
+}
+
+// 이벤트 리스너 등록 및 해제
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
@@ -869,6 +930,124 @@ button:hover {
 .btn-secondary:hover {
   background-color: #5a6268;
   border-color: #545b62;
+}
+
+/* 체크박스 컨테이너 */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 도움말 버튼 */
+.help-button {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #666;
+  background: white;
+  color: #666;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.help-button:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+/* 도움말 버튼 컨테이너 */
+.help-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* 도움말 버튼 */
+.help-button {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #666;
+  background: white;
+  color: #666;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.help-button:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+/* 팝오버 스타일 */
+.help-popover {
+  position: absolute;
+  left: calc(100% + 10px); /* 버튼 오른쪽에 10px 간격 */
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  z-index: 1000;
+}
+
+.help-popover::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid white;
+}
+
+.help-popover-content {
+  text-align: left;
+}
+
+.help-popover-content h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 14px;
+}
+
+.help-popover-content p {
+  margin: 0 0 12px 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.help-popover-close {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #666;
+  cursor: pointer;
+  font-size: 12px;
+  display: block;
+  margin-left: auto;
+}
+
+.help-popover-close:hover {
+  background: #f0f0f0;
+  color: #333;
 }
 
 @media (max-width: 768px) {

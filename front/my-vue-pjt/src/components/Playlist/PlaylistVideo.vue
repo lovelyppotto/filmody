@@ -10,7 +10,11 @@
     <!-- 플레이리스트가 비어있을 때 -->
     <div v-else-if="!videos.length" class="text-center p-5">
       <h3 class="mb-3">플레이리스트가 비어있습니다</h3>
-      <p class="text-muted">재생할 영상을 추가해주세요</p>
+      <p 
+        v-if="playlist?.user === authStore.userData?.id"
+        class="text-muted"
+        >
+        재생할 영상을 추가해주세요</p>
     </div>
 
     <!-- 플레이리스트에 영상이 있을 때 -->
