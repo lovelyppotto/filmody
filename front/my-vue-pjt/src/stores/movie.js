@@ -9,6 +9,7 @@ export const useMovieStore = defineStore("movie", () => {
   const authStore = useAuthStore(); 
   const BASE_URL = 'http://127.0.0.1:8000'
   const videos = ref([]);
+  const error = ref('회원에게 제공되는 기능입니다.')
   
   // 박스 오피스 영화들
   const recommendMovies = ref([]);
@@ -171,7 +172,8 @@ export const useMovieStore = defineStore("movie", () => {
     fetchRecommendMovies,
     fetchMovieDetail,
     fetchLikedMovies,
-    likedMovies
+    likedMovies,
+    error
   }
 }, { 
   persist: {
