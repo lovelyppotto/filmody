@@ -10,7 +10,7 @@
           <button @click="redirectToPlaylist" 
                   class="filmody-btn hover-effect"
                   :class="{ 'button-pulse': showPulse }">
-            Start to filmody
+            Start to Filmody
           </button>
         </div>
       </header>
@@ -93,7 +93,7 @@
   </section>
   
       <footer class="footer">
-        <p class="mb-0">© 2024 Filmoly</p>
+        <p class="mb-0">© 2024 Filmody</p>
       </footer>
     </div>
 </template>
