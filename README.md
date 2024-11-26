@@ -68,11 +68,13 @@ film + melody
 
 ### 6) 플레이리스트(커뮤니티)
 ![전체 플레이리스트 조회](./images/playlist.png)
+![플레이리스트 생성](./images/makeplaylist.png)
 ![플레이리스트 소유자](./images/playlistowner.png)
 ![플레이리스트 이용자](./images/playlistdetail.png)
 ![플레이리스트 추가1](./images/youtubesearch.png)
 ![플레이리스트 추가2](./images/youtubesearchdetail.png)
   - 전체 목록 조회 가능 + 새 플레이리스트 생성 버튼 위치(비로그인 사용자에겐 보이지 않도록 설정)
+  - 플레이리스트 생성시 공개 / 비공개 여부 선택 가능
   - 좋아요는 타인의 플레이리스트에 대해서만 가능
   - 플레이리스트 게시자(소유자)만 삭제 및 추가 가능하도록 권한 설정(타 이용자에게는 버튼 노출 X)
   - Youtube API 활용하여 플레이리스트 추가하도록 구현
@@ -104,6 +106,7 @@ film + melody
   - 감독명 또는 영화 제목으로 데이터 검색 가능
 
 ### 11) 라이브러리
+![라이브러리](./images/myplaylist.png)
   - 주요 섹션(내 플레이리스트, 좋아요한 플레이리스트, 좋아요한 영화 목록)
   - 로그인 사용자 전용
   - YouTube API 연동
